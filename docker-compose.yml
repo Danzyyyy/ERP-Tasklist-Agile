@@ -1,0 +1,78 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: erp-e4-backend
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      APP_NAME: "ERP-E4-AgileTasklist"
+      APP_ENV: local
+      APP_KEY: base64:eZ9eE7WkQoE6wRsm2jL7b9H8LzOqI+mZ4kF9xV3yA0Q=
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: erp_tasklist
+      DB_USERNAME: erp_user
+      DB_PASSWORD: erp_password
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - erp-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: erp-e4-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: erp_tasklist
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: erp_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_user -d erp_tasklist"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - erp-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: erp-e4-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend
+    networks:
+      - erp-network
+
+networks:
+  erp-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
