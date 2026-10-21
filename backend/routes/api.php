@@ -48,6 +48,7 @@ Route::prefix('v1')->group(function () {
         // FTR-K04-06: Verification & Completion Sign-off
         Route::patch('/tasks/{taskId}/pm-verify', [ReviewController::class, 'pmVerify']);
         Route::patch('/tasks/{taskId}/tl-signoff', [ReviewController::class, 'tlSignoff']);
+        Route::patch('/tasks/{taskId}/sign-off-done', [ReviewController::class, 'tlSignoff']);
 
         // FTR-K04-07 & API-K04-01: Deliverable Progress Calculation Engine
         Route::get('/projects/{projectId}/deliverable-progress', [ProgressController::class, 'getDeliverableProgress']);

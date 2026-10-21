@@ -14,6 +14,13 @@ class ReviewLogRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('review_type') && strtoupper((string) $this->input('review_type')) === 'QA_TESTING') {
+            $this->merge(['review_type' => 'TESTING']);
+        }
+    }
+
     public function rules(): array
     {
         return [

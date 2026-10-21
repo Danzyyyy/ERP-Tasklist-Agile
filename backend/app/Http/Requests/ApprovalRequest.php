@@ -13,6 +13,13 @@ class ApprovalRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (!$this->has('status') && $this->has('decision')) {
+            $this->merge(['status' => $this->input('decision')]);
+        }
+    }
+
     public function rules(): array
     {
         return [

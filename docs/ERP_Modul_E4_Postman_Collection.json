@@ -1,0 +1,434 @@
+{
+  "info": {
+    "name": "ERP Modul E-4 (Tasklist & Eksekusi Agile)",
+    "description": "Postman Collection untuk pengujian REST API Modul E-4: Tasklist dan Eksekusi Agile (Kelompok 4 / Kelas E)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8001/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token_tl",
+      "value": "mock_tl",
+      "type": "string"
+    },
+    {
+      "key": "token_pm",
+      "value": "mock_pm",
+      "type": "string"
+    },
+    {
+      "key": "token_dev",
+      "value": "mock_dev",
+      "type": "string"
+    },
+    {
+      "key": "token_tester",
+      "value": "mock_tester",
+      "type": "string"
+    },
+    {
+      "key": "sample_task_id",
+      "value": "01a15be6-5639-70d7-8876-0c31ecae84da",
+      "type": "string"
+    },
+    {
+      "key": "sample_module_id",
+      "value": "01a15be6-5631-718d-a765-08ec530e5cb6",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Get Demo Tokens (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/demo-tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "demo-tokens"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Modules & Features (FTR-K04-01)",
+      "item": [
+        {
+          "name": "List Modules",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/modules?project_id=PROJ-ERP-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["modules"],
+              "query": [
+                { "key": "project_id", "value": "PROJ-ERP-01" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Module",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_pm}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": \"PROJ-ERP-01\",\n  \"code\": \"MOD-HR-02\",\n  \"name\": \"Payroll & Compensation\",\n  \"description\": \"Penggajian dan tunjangan karyawan\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/modules",
+              "host": ["{{baseUrl}}"],
+              "path": ["modules"]
+            }
+          }
+        },
+        {
+          "name": "Create Feature under Module",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_pm}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"FTR-HR-01\",\n  \"name\": \"Slip Gaji Otomatis\",\n  \"description\": \"Generate slip gaji digital\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/modules/{{sample_module_id}}/features",
+              "host": ["{{baseUrl}}"],
+              "path": ["modules", "{{sample_module_id}}", "features"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Tasks Management (FTR-K04-01 & FTR-K04-02)",
+      "item": [
+        {
+          "name": "List Tasks (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_dev}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?status=RELEASED",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [
+                { "key": "status", "value": "RELEASED" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Task Hierarchy Tree",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_dev}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/hierarchy?project_id=PROJ-ERP-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "hierarchy"],
+              "query": [
+                { "key": "project_id", "value": "PROJ-ERP-01" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Task (Status DRAFT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"module_id\": \"{{sample_module_id}}\",\n  \"task_code\": \"TSK-DEMO-01\",\n  \"title\": \"Implementasi validasi kalkulasi PPh 21\",\n  \"description\": \"Perhitungan tarif progresif pajak karyawan\",\n  \"complexity_weight\": \"HIGH\",\n  \"estimated_man_hours\": 12.0,\n  \"target_deadline\": \"2026-11-20T17:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"]
+            }
+          }
+        },
+        {
+          "name": "Get Task Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_dev}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Assign PIC Developer",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_dev}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignee_id\": \"01926df4-0003-7000-8000-000000000003\",\n  \"assignee_name\": \"Ariel (Frontend Dev)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "assign"]
+            }
+          }
+        },
+        {
+          "name": "Update Kanban Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_dev}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DEVELOPMENT\",\n  \"assignee_id\": \"01926df4-0003-7000-8000-000000000003\",\n  \"assignee_name\": \"Ariel (Frontend Dev)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Dual-Approval Task Release (FTR-K04-03)",
+      "item": [
+        {
+          "name": "Get Task Approvals Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/approvals",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "approvals"]
+            }
+          }
+        },
+        {
+          "name": "Submit Approval by Technical Lead (TL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"notes\": \"Arsitektur teknis dan estimasi man-hour telah disetujui TL.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/approvals",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "approvals"]
+            }
+          }
+        },
+        {
+          "name": "Submit Approval by Project Manager (PM)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_pm}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"notes\": \"Alokasi anggaran dan jadwal sprint telah disetujui PM.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/approvals",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "approvals"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Code Review & QA Testing (FTR-K04-05)",
+      "item": [
+        {
+          "name": "Submit Passed Code Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review_type\": \"CODE_REVIEW\",\n  \"result\": \"PASSED\",\n  \"notes\": \"Unit tests pass, clean code architecture verified.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "reviews"]
+            }
+          }
+        },
+        {
+          "name": "Submit QA Rejection (Auto Rework Loop)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tester}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review_type\": \"TESTING\",\n  \"result\": \"REJECTED\",\n  \"notes\": \"Ditemukan bug pada penghitungan desimal persentase. Mohon revisi.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "reviews"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Two-Gate Definition of Done Sign-off (FTR-K04-06)",
+      "item": [
+        {
+          "name": "Gate 1: PM Checklist Verification",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_pm}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/pm-verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "pm-verify"]
+            }
+          }
+        },
+        {
+          "name": "Gate 2: TL Final Sign-off (Done)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{sample_task_id}}/sign-off-done",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{sample_task_id}}", "sign-off-done"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Deliverable Progress Engine (FTR-K04-07)",
+      "item": [
+        {
+          "name": "Get Project Deliverable Progress (API-K04-01)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/PROJ-ERP-01/deliverable-progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "PROJ-ERP-01", "deliverable-progress"]
+            }
+          }
+        },
+        {
+          "name": "Get Module Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token_tl}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/modules/{{sample_module_id}}/progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["modules", "{{sample_module_id}}", "progress"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
