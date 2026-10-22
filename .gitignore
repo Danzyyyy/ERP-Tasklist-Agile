@@ -42,3 +42,9 @@ Thumbs.db
 *.ntvs*
 *.njsproj
 *.sln
+
+# frontend
+
+frontend/ARCHITECTURE.md
+frontend/api_documentation.md
+frontend/spesifikasi_fitur_minimum_4_e.md
