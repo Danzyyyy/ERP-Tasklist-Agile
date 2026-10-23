@@ -24,7 +24,9 @@ interface UseCreateModuleReturn {
   loading: boolean;
 }
 
-export const useCreateModule = ({ onSuccess }: UseCreateModuleOptions = {}): UseCreateModuleReturn => {
+export const useCreateModule = ({
+  onSuccess,
+}: UseCreateModuleOptions = {}): UseCreateModuleReturn => {
   const queryClient = useQueryClient();
 
   const form = useForm<CreateModuleInput>({

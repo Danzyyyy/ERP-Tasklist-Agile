@@ -25,7 +25,10 @@ interface UseCreateFeatureReturn {
   loading: boolean;
 }
 
-export const useCreateFeature = ({ moduleId, onSuccess }: UseCreateFeatureOptions = {}): UseCreateFeatureReturn => {
+export const useCreateFeature = ({
+  moduleId,
+  onSuccess,
+}: UseCreateFeatureOptions = {}): UseCreateFeatureReturn => {
   const queryClient = useQueryClient();
 
   const form = useForm<CreateFeatureInput>({

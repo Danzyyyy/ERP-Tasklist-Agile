@@ -5,4 +5,12 @@ export interface SelectOption<T = string> {
   label: string;
 }
 
-export type StatusTone = 'slate' | 'blue' | 'indigo' | 'amber' | 'emerald' | 'rose' | 'purple' | 'cyan';
+export type StatusTone =
+  | "slate"
+  | "blue"
+  | "indigo"
+  | "amber"
+  | "emerald"
+  | "rose"
+  | "purple"
+  | "cyan";

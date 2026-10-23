@@ -8,15 +8,7 @@ import { Badge } from "@/Components/Elements/Badge";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { formatDateTime } from "@/Utils/formatters";
 import type { Task } from "@/Types/task";
-import {
-  ShieldCheck,
-  ShieldAlert,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  UserCheck,
-  Info,
-} from "lucide-react";
+import { ShieldCheck, CheckCircle2, XCircle, AlertTriangle, UserCheck, Info } from "lucide-react";
 
 export interface ApprovalModalProps {
   task: Task | null;
@@ -68,8 +60,9 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
         </div>
       }
       description={
-        <div className="break-words leading-relaxed">
-          Evaluasi rilis untuk tugas <strong className="font-mono text-slate-800">{task.task_code}</strong>: "{task.title}".
+        <div className="wrap-break-word leading-relaxed">
+          Evaluasi rilis untuk tugas{" "}
+          <strong className="font-mono text-slate-800">{task.task_code}</strong>: "{task.title}".
         </div>
       }
       footer={
@@ -92,8 +85,8 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
               tlApproval?.status === "APPROVED"
                 ? "border-emerald-200 bg-emerald-50/50"
                 : tlApproval?.status === "REJECTED"
-                ? "border-red-200 bg-red-50/50"
-                : "border-slate-200 bg-slate-50/60"
+                  ? "border-red-200 bg-red-50/50"
+                  : "border-slate-200 bg-slate-50/60"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -101,7 +94,7 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
                 <UserCheck className="size-3.5 text-amber-600" />
                 Technical Lead (TL)
               </span>
-              <Badge variant={tlApproval?.status as any || "PENDING"} dot>
+              <Badge variant={(tlApproval?.status as any) || "PENDING"} dot>
                 {tlApproval?.status || "PENDING"}
               </Badge>
             </div>
@@ -121,8 +114,8 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
               pmApproval?.status === "APPROVED"
                 ? "border-emerald-200 bg-emerald-50/50"
                 : pmApproval?.status === "REJECTED"
-                ? "border-red-200 bg-red-50/50"
-                : "border-slate-200 bg-slate-50/60"
+                  ? "border-red-200 bg-red-50/50"
+                  : "border-slate-200 bg-slate-50/60"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -130,7 +123,7 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
                 <UserCheck className="size-3.5 text-indigo-600" />
                 Project Manager (PM)
               </span>
-              <Badge variant={pmApproval?.status as any || "PENDING"} dot>
+              <Badge variant={(pmApproval?.status as any) || "PENDING"} dot>
                 {pmApproval?.status || "PENDING"}
               </Badge>
             </div>
@@ -149,9 +142,9 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
         <div className="p-3 rounded-lg bg-blue-50/50 border border-blue-100 flex items-start gap-2 text-[11px] text-blue-900 leading-relaxed">
           <Info className="size-4 text-blue-600 shrink-0 mt-0.5" />
           <div>
-            <b>Aturan Rilis SOP-07:</b> Tugas baru resmi berstatus <b>RELEASED</b> dan masuk ke papan
-            Agile Kanban hanya bila <b>kedua belah pihak (TL & PM)</b> telah memberikan persetujuan (APPROVED).
-            Bila baru satu pihak, status tugas tetap <b>DRAFT</b>.
+            <b>Aturan Rilis SOP-07:</b> Tugas baru resmi berstatus <b>RELEASED</b> dan masuk ke
+            papan Agile Kanban hanya bila <b>kedua belah pihak (TL & PM)</b> telah memberikan
+            persetujuan (APPROVED). Bila baru satu pihak, status tugas tetap <b>DRAFT</b>.
           </div>
         </div>
 
@@ -208,12 +201,13 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
               <span>Akses Approval Dibatasi untuk Peran Anda</span>
             </div>
             <p className="text-[11px] leading-relaxed">
-              Anda saat ini aktif sebagai <b>{role}</b>. Berdasarkan kontrak bisnis SOP-07 dan penolakan
-              HTTP 403 backend, hanya <b>Technical Lead</b> dan <b>Project Manager</b> yang berwenang
-              menyetujui rilis tugas.
+              Anda saat ini aktif sebagai <b>{role}</b>. Berdasarkan kontrak bisnis SOP-07 dan
+              penolakan HTTP 403 backend, hanya <b>Technical Lead</b> dan <b>Project Manager</b>{" "}
+              yang berwenang menyetujui rilis tugas.
             </p>
             <p className="text-[10px] text-amber-700 italic">
-              Tip: Silakan Keluar (Logout) melalui menu profil di kanan atas, lalu masuk sebagai Technical Lead atau Project Manager di Login Page.
+              Tip: Silakan Keluar (Logout) melalui menu profil di kanan atas, lalu masuk sebagai
+              Technical Lead atau Project Manager di Login Page.
             </p>
           </div>
         )}

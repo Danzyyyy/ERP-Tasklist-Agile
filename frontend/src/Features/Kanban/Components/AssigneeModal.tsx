@@ -15,16 +15,9 @@ export interface AssigneeModalProps {
   onConfirm: (assigneeId: string, assigneeName: string) => void;
 }
 
-export const AssigneeModal = memo<AssigneeModalProps>(({
-  task,
-  isOpen,
-  onClose,
-  onConfirm,
-}) => {
+export const AssigneeModal = memo<AssigneeModalProps>(({ task, isOpen, onClose, onConfirm }) => {
   const { user } = useAuth();
-  const [selectedId, setSelectedId] = useState<string>(
-    user?.id || DEMO_DEVELOPERS[0].id,
-  );
+  const [selectedId, setSelectedId] = useState<string>(user?.id || DEMO_DEVELOPERS[0].id);
 
   if (!task) return null;
 
@@ -50,7 +43,8 @@ export const AssigneeModal = memo<AssigneeModalProps>(({
       }
       description={
         <span>
-          Tugas <strong className="font-mono text-slate-800">{task.task_code}</strong> memerlukan pelaksana sebelum masuk ke tahap Development (FTR-K04-04).
+          Tugas <strong className="font-mono text-slate-800">{task.task_code}</strong> memerlukan
+          pelaksana sebelum masuk ke tahap Development (FTR-K04-04).
         </span>
       }
       footer={
@@ -77,10 +71,7 @@ export const AssigneeModal = memo<AssigneeModalProps>(({
           <label className="block text-xs font-semibold text-slate-800 mb-1">
             Pilih Pengembang Pelaksana (PIC) <span className="text-red-500">*</span>
           </label>
-          <Select
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-          >
+          <Select value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
             {DEMO_DEVELOPERS.map((dev) => (
               <option key={dev.id} value={dev.id}>
                 {dev.name} ({dev.role})

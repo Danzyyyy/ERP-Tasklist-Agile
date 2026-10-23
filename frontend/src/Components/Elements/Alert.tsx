@@ -9,9 +9,12 @@ export const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-card text-foreground border-border",
-        destructive: "border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground [&>svg]:text-destructive",
-        warning: "border-warning-subtle-border bg-warning-subtle text-warning-subtle-foreground [&>svg]:text-warning",
-        success: "border-success-subtle-border bg-success-subtle text-success-subtle-foreground [&>svg]:text-success",
+        destructive:
+          "border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground [&>svg]:text-destructive",
+        warning:
+          "border-warning-subtle-border bg-warning-subtle text-warning-subtle-foreground [&>svg]:text-warning",
+        success:
+          "border-success-subtle-border bg-success-subtle text-success-subtle-foreground [&>svg]:text-success",
         info: "border-primary-subtle-border bg-primary-subtle text-primary-subtle-foreground [&>svg]:text-primary",
       },
     },
@@ -22,17 +25,11 @@ export const alertVariants = cva(
 );
 
 export interface AlertProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof alertVariants> {}
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof alertVariants> {}
 
 export const Alert = forwardRef<HTMLDivElement, AlertProps>(
   ({ className, variant, children, ...props }, ref) => (
-    <div
-      ref={ref}
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    >
+    <div ref={ref} role="alert" className={cn(alertVariants({ variant }), className)} {...props}>
       {children}
     </div>
   ),
@@ -41,10 +38,7 @@ Alert.displayName = "Alert";
 
 export const AlertTitle = memo<React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, children, ...props }) => (
-    <h5
-      className={cn("mb-1 font-bold leading-none tracking-tight text-xs", className)}
-      {...props}
-    >
+    <h5 className={cn("mb-1 font-bold leading-none tracking-tight text-xs", className)} {...props}>
       {children}
     </h5>
   ),

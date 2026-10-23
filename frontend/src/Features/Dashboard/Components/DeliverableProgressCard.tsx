@@ -28,9 +28,8 @@ export const DeliverableProgressCard = memo<DeliverableProgressCardProps>(({ met
               </span>
             </div>
             <p className="text-[11px] text-muted-foreground font-mono mt-0.5 truncate">
-              Rasio jam kerja riil:{" "}
-              <b>{formatManHours(metrics.completedManHours)}</b> selesai dari total{" "}
-              <b>{formatManHours(metrics.totalEstimatedManHours)}</b> deliverable
+              Rasio jam kerja riil: <b>{formatManHours(metrics.completedManHours)}</b> selesai dari
+              total <b>{formatManHours(metrics.totalEstimatedManHours)}</b> deliverable
             </p>
           </div>
         </div>
@@ -39,7 +38,9 @@ export const DeliverableProgressCard = memo<DeliverableProgressCardProps>(({ met
           <span className="text-2xl font-black text-primary font-mono tracking-tight">
             {formatPercent(metrics.progressPercentage)}
           </span>
-          <span className="block text-[9px] text-muted-foreground font-medium">Deliverable Selesai</span>
+          <span className="block text-[9px] text-muted-foreground font-medium">
+            Deliverable Selesai
+          </span>
         </div>
       </div>
 

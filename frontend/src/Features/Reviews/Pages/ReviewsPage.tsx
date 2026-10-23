@@ -10,17 +10,7 @@ import { Card } from "@/Components/Elements/Card";
 import { formatDate, formatManHours } from "@/Utils/formatters";
 import type { Task } from "@/Types/task";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import {
-  FileCode2,
-  CheckCircle2,
-  RotateCcw,
-  ShieldCheck,
-  FileCheck2,
-  Clock,
-  User,
-  AlertCircle,
-  Eye,
-} from "lucide-react";
+import { FileCode2, CheckCircle2, ShieldCheck, FileCheck2, Clock, User, Eye } from "lucide-react";
 
 export const ReviewsPage: React.FC = () => {
   useDocumentTitle(
@@ -47,20 +37,14 @@ export const ReviewsPage: React.FC = () => {
         ((t as any).review_logs && (t as any).review_logs.length > 0),
       );
       // Tasks in DoD Sign-Off stage: PM verified, TL signed, or marked DONE
-      const isSignOff = Boolean(
-        t.status === "DONE" ||
-        t.is_pm_verified ||
-        t.is_tl_signed,
-      );
+      const isSignOff = Boolean(t.status === "DONE" || t.is_pm_verified || t.is_tl_signed);
 
       // Tasks in Code Review stage
       const isCr = t.status === "CODE_REVIEW";
 
       // Tasks in QA Testing stage (in testing and not yet sign-off verified, or active rework)
       const isTest =
-        !isSignOff &&
-        !isCr &&
-        (t.status === "TESTING" || Boolean(t.rework) || hasReviewLogs);
+        !isSignOff && !isCr && (t.status === "TESTING" || Boolean(t.rework) || hasReviewLogs);
 
       if (isCr) codeReview++;
       if (isTest) testing++;
@@ -81,16 +65,10 @@ export const ReviewsPage: React.FC = () => {
         (t.reviewLogs && t.reviewLogs.length > 0) ||
         ((t as any).review_logs && (t as any).review_logs.length > 0),
       );
-      const isSignOff = Boolean(
-        t.status === "DONE" ||
-        t.is_pm_verified ||
-        t.is_tl_signed,
-      );
+      const isSignOff = Boolean(t.status === "DONE" || t.is_pm_verified || t.is_tl_signed);
       const isCr = t.status === "CODE_REVIEW";
       const isTest =
-        !isSignOff &&
-        !isCr &&
-        (t.status === "TESTING" || Boolean(t.rework) || hasReviewLogs);
+        !isSignOff && !isCr && (t.status === "TESTING" || Boolean(t.rework) || hasReviewLogs);
 
       if (tab === "CODE_REVIEW") return isCr;
       if (tab === "TESTING") return isTest;
@@ -126,11 +104,16 @@ export const ReviewsPage: React.FC = () => {
             <span>Pemeriksaan Kode, QA & Otorisasi DoD</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Pencatatan manual review kode, otomasi alur rework bug, dan gerbang Definition of Done (PM & TL).
+            Pencatatan manual review kode, otomasi alur rework bug, dan gerbang Definition of Done
+            (PM & TL).
           </p>
         </div>
 
-        <Button variant="outline" onClick={() => refetch()} className="text-muted-foreground text-xs self-start sm:self-auto">
+        <Button
+          variant="outline"
+          onClick={() => refetch()}
+          className="text-muted-foreground text-xs self-start sm:self-auto"
+        >
           Segarkan Antrean
         </Button>
       </div>
@@ -147,9 +130,11 @@ export const ReviewsPage: React.FC = () => {
           }`}
         >
           <span>Semua Pemeriksaan</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
-            tab === "ALL" ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
-          }`}>
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+              tab === "ALL" ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
+            }`}
+          >
             {tabCounts.all}
           </span>
         </button>
@@ -164,9 +149,13 @@ export const ReviewsPage: React.FC = () => {
           }`}
         >
           <span>Code Review</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
-            tab === "CODE_REVIEW" ? "bg-purple-700 text-white" : "bg-purple-subtle text-purple-subtle-foreground"
-          }`}>
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+              tab === "CODE_REVIEW"
+                ? "bg-purple-700 text-white"
+                : "bg-purple-subtle text-purple-subtle-foreground"
+            }`}
+          >
             {tabCounts.codeReview}
           </span>
         </button>
@@ -181,9 +170,13 @@ export const ReviewsPage: React.FC = () => {
           }`}
         >
           <span>QA Testing (Alur Rework)</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
-            tab === "TESTING" ? "bg-cyan-700 text-white" : "bg-cyan-subtle text-cyan-subtle-foreground"
-          }`}>
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+              tab === "TESTING"
+                ? "bg-cyan-700 text-white"
+                : "bg-cyan-subtle text-cyan-subtle-foreground"
+            }`}
+          >
             {tabCounts.testing}
           </span>
         </button>
@@ -198,9 +191,13 @@ export const ReviewsPage: React.FC = () => {
           }`}
         >
           <span>Gerbang Sign-Off (DoD)</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
-            tab === "SIGNOFF" ? "bg-emerald-700 text-white" : "bg-success-subtle text-success-subtle-foreground"
-          }`}>
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+              tab === "SIGNOFF"
+                ? "bg-emerald-700 text-white"
+                : "bg-success-subtle text-success-subtle-foreground"
+            }`}
+          >
             {tabCounts.signoff}
           </span>
         </button>
@@ -217,9 +214,7 @@ export const ReviewsPage: React.FC = () => {
             <div className="w-12 h-12 rounded-full bg-muted text-muted-foreground grid place-items-center mx-auto mb-3">
               <FileCheck2 className="size-6" />
             </div>
-            <h3 className="text-sm font-bold text-foreground">
-              Tidak Ada Tugas Dalam Antrean Ini
-            </h3>
+            <h3 className="text-sm font-bold text-foreground">Tidak Ada Tugas Dalam Antrean Ini</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1">
               {getEmptyMessage()}
             </p>
@@ -229,9 +224,7 @@ export const ReviewsPage: React.FC = () => {
             <Card
               key={task.id}
               className={`p-4 transition-all hover:shadow-xs border-border bg-card ${
-                task.rework
-                  ? "border-destructive-subtle-border bg-destructive-subtle/10"
-                  : ""
+                task.rework ? "border-destructive-subtle-border bg-destructive-subtle/10" : ""
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -249,9 +242,7 @@ export const ReviewsPage: React.FC = () => {
                     {task.rework && <Badge variant="REWORK">REWORK / BUG</Badge>}
                   </div>
 
-                  <h3 className="text-sm font-bold text-foreground leading-snug">
-                    {task.title}
-                  </h3>
+                  <h3 className="text-sm font-bold text-foreground leading-snug">{task.title}</h3>
 
                   <div className="flex items-center gap-4 text-[11px] text-slate-500">
                     <span className="flex items-center gap-1">
@@ -292,21 +283,13 @@ export const ReviewsPage: React.FC = () => {
 
                 {/* Actions */}
                 <div className="flex flex-col gap-1.5 shrink-0">
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => setActiveReviewTask(task)}
-                  >
+                  <Button size="sm" variant="primary" onClick={() => setActiveReviewTask(task)}>
                     <FileCode2 className="size-3.5 mr-1" />
                     Review / Testing
                   </Button>
 
                   {task.status === "TESTING" && (
-                    <Button
-                      size="sm"
-                      variant="success"
-                      onClick={() => setActiveSignOffTask(task)}
-                    >
+                    <Button size="sm" variant="success" onClick={() => setActiveSignOffTask(task)}>
                       <FileCheck2 className="size-3.5 mr-1" />
                       Sign-Off (DoD)
                     </Button>

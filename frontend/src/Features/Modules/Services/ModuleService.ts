@@ -6,7 +6,9 @@ import type { CreateModuleOutput, CreateFeatureOutput } from "../Schema/ModuleSc
 import type { ModuleQueryParams } from "../Types/ModuleType";
 
 const ModuleService = {
-  getAll: async (params: ModuleQueryParams = { project_id: "PROJ-ERP-01" }): Promise<ApiResponse<Module[]>> => {
+  getAll: async (
+    params: ModuleQueryParams = { project_id: "PROJ-ERP-01" },
+  ): Promise<ApiResponse<Module[]>> => {
     const response = await apiUtils.get<ApiResponse<Module[]>>("/modules", { params });
     return response.data;
   },
@@ -16,13 +18,21 @@ const ModuleService = {
     return response.data;
   },
 
-  createFeature: async (moduleId: string, payload: Omit<CreateFeatureOutput, "module_id">): Promise<ApiResponse<Feature>> => {
-    const response = await apiUtils.post<ApiResponse<Feature>>(`/modules/${moduleId}/features`, payload);
+  createFeature: async (
+    moduleId: string,
+    payload: Omit<CreateFeatureOutput, "module_id">,
+  ): Promise<ApiResponse<Feature>> => {
+    const response = await apiUtils.post<ApiResponse<Feature>>(
+      `/modules/${moduleId}/features`,
+      payload,
+    );
     return response.data;
   },
 
   getProgress: async (moduleId: string): Promise<ApiResponse<DeliverableProgress>> => {
-    const response = await apiUtils.get<ApiResponse<DeliverableProgress>>(`/modules/${moduleId}/progress`);
+    const response = await apiUtils.get<ApiResponse<DeliverableProgress>>(
+      `/modules/${moduleId}/progress`,
+    );
     return response.data;
   },
 };

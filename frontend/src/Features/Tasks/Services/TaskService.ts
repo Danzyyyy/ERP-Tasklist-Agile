@@ -42,7 +42,11 @@ const TaskService = {
     return response.data;
   },
 
-  assign: async (id: string, assignee_id: string, assignee_name: string): Promise<ApiResponse<Task>> => {
+  assign: async (
+    id: string,
+    assignee_id: string,
+    assignee_name: string,
+  ): Promise<ApiResponse<Task>> => {
     const response = await apiUtils.patch<ApiResponse<Task>>(`/tasks/${id}/assign`, {
       assignee_id,
       assignee_name,

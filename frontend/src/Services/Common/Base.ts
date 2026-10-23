@@ -70,13 +70,15 @@ apiClient.interceptors.response.use(
 
     // Handle 401 Unauthorized
     if (status === 401) {
-      const message = data?.message || "Sesi autentikasi telah berakhir. Silakan pilih kembali peran demo.";
+      const message =
+        data?.message || "Sesi autentikasi telah berakhir. Silakan pilih kembali peran demo.";
       return Promise.reject(new Error(message));
     }
 
     // Handle 403 Forbidden
     if (status === 403) {
-      const message = data?.message || "Akses ditolak: Anda tidak memiliki wewenang untuk tindakan ini.";
+      const message =
+        data?.message || "Akses ditolak: Anda tidak memiliki wewenang untuk tindakan ini.";
       return Promise.reject(new Error(message));
     }
 
@@ -85,23 +87,41 @@ apiClient.interceptors.response.use(
 );
 
 export const apiUtils = {
-  get: <T = ApiResponse<unknown>>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+  get: <T = ApiResponse<unknown>>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<T>> => {
     return apiClient.get<T>(url, config);
   },
 
-  post: <T = ApiResponse<unknown>>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+  post: <T = ApiResponse<unknown>>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<T>> => {
     return apiClient.post<T>(url, data, config);
   },
 
-  put: <T = ApiResponse<unknown>>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+  put: <T = ApiResponse<unknown>>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<T>> => {
     return apiClient.put<T>(url, data, config);
   },
 
-  patch: <T = ApiResponse<unknown>>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+  patch: <T = ApiResponse<unknown>>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<T>> => {
     return apiClient.patch<T>(url, data, config);
   },
 
-  delete: <T = ApiResponse<unknown>>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+  delete: <T = ApiResponse<unknown>>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<T>> => {
     return apiClient.delete<T>(url, config);
   },
 };

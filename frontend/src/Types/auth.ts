@@ -1,6 +1,6 @@
 // src/Types/auth.ts
 
-export type UserRole = 'TECHNICAL_LEAD' | 'PROJECT_MANAGER' | 'DEVELOPER' | 'TESTER';
+export type UserRole = "TECHNICAL_LEAD" | "PROJECT_MANAGER" | "DEVELOPER" | "TESTER";
 
 export interface User {
   id: string;

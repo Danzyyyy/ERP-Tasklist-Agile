@@ -6,7 +6,9 @@ import type { Task } from "@/Types/task";
 
 const ApprovalService = {
   getByTaskId: async (taskId: string): Promise<ApiResponse<TaskApprovalResponse>> => {
-    const response = await apiUtils.get<ApiResponse<TaskApprovalResponse>>(`/tasks/${taskId}/approvals`);
+    const response = await apiUtils.get<ApiResponse<TaskApprovalResponse>>(
+      `/tasks/${taskId}/approvals`,
+    );
     return response.data;
   },
 

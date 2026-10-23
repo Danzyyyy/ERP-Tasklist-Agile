@@ -17,41 +17,47 @@ const toneGradients = {
   indigo: "from-indigo-600 via-blue-500 to-emerald-500",
 };
 
-export const Progress = memo<ProgressProps>(({
-  value = 0,
-  showLabel = false,
-  animatedShine = true,
-  height = "h-5",
-  tone = "indigo",
-  className,
-  ...props
-}) => {
-  const clampedValue = Math.min(100, Math.max(0, value));
+export const Progress = memo<ProgressProps>(
+  ({
+    value = 0,
+    showLabel = false,
+    animatedShine = true,
+    height = "h-5",
+    tone = "indigo",
+    className,
+    ...props
+  }) => {
+    const clampedValue = Math.min(100, Math.max(0, value));
 
-  return (
-    <div
-      className={cn("w-full overflow-hidden rounded-lg bg-secondary shadow-inner relative", height, className)}
-      {...props}
-    >
+    return (
       <div
         className={cn(
-          "h-full rounded-lg bg-gradient-to-r flex items-center justify-center text-white font-mono text-[9px] font-bold transition-all duration-500 relative overflow-hidden",
-          toneGradients[tone],
+          "w-full overflow-hidden rounded-lg bg-secondary shadow-inner relative",
+          height,
+          className,
         )}
-        style={{ width: `${clampedValue}%` }}
+        {...props}
       >
-        {showLabel && clampedValue > 10 && (
-          <span className="relative z-10 drop-shadow-xs px-2 truncate">
-            {clampedValue.toFixed(1)}%
-          </span>
-        )}
-        {animatedShine && (
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shine_3s_infinite]" />
-        )}
+        <div
+          className={cn(
+            "h-full rounded-lg bg-linear-to-r flex items-center justify-center text-white font-mono text-[9px] font-bold transition-all duration-500 relative overflow-hidden",
+            toneGradients[tone],
+          )}
+          style={{ width: `${clampedValue}%` }}
+        >
+          {showLabel && clampedValue > 10 && (
+            <span className="relative z-10 drop-shadow-xs px-2 truncate">
+              {clampedValue.toFixed(1)}%
+            </span>
+          )}
+          {animatedShine && (
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent animate-shine" />
+          )}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 Progress.displayName = "Progress";
 export default Progress;

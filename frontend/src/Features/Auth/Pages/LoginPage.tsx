@@ -4,21 +4,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../Hooks/useAuth";
 import { ROLE_DETAILS } from "../Constants/AuthConstant";
 import { Button } from "@/Components/Elements/Button";
-import { Badge } from "@/Components/Elements/Badge";
 import { Input } from "@/Components/Elements/Input";
 import { Label } from "@/Components/Elements/Label";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import type { UserRole } from "@/Types/auth";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import {
-  ShieldCheck,
-  CheckCircle2,
-  Key,
-  ArrowRight,
-  User,
-  Sliders,
-  Sparkles,
-} from "lucide-react";
+import { Key, ArrowRight, Sliders } from "lucide-react";
 
 export const LoginPage: React.FC = () => {
   useDocumentTitle(
@@ -37,7 +28,8 @@ export const LoginPage: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const tokenToUse = useCustomToken && customToken.trim() ? customToken.trim() : selectedDemo.token;
+    const tokenToUse =
+      useCustomToken && customToken.trim() ? customToken.trim() : selectedDemo.token;
     login(tokenToUse, selectedRole);
 
     const destination = location.state?.from?.pathname || ROUTE_PATHS.DASHBOARD;
@@ -61,7 +53,9 @@ export const LoginPage: React.FC = () => {
       <form onSubmit={handleLogin} className="space-y-4">
         {/* Role Selection Cards */}
         <div className="space-y-2.5">
-          <Label className="text-foreground text-xs font-bold">Pilih Akun Simulasi Aktor (Sprint 1):</Label>
+          <Label className="text-foreground text-xs font-bold">
+            Pilih Akun Simulasi Aktor (Sprint 1):
+          </Label>
 
           <div className="space-y-2">
             {demoTokens.map((item) => {
@@ -85,7 +79,9 @@ export const LoginPage: React.FC = () => {
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div
                         className={`w-7 h-7 rounded-lg font-bold text-[10px] grid place-items-center font-mono ${
-                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                          isSelected
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {meta?.short || item.role.slice(0, 2)}
@@ -111,7 +107,9 @@ export const LoginPage: React.FC = () => {
                           isSelected ? "border-primary bg-primary" : "border-input bg-card"
                         }`}
                       >
-                        {isSelected && <div className="size-1.5 rounded-full bg-primary-foreground" />}
+                        {isSelected && (
+                          <div className="size-1.5 rounded-full bg-primary-foreground" />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -129,7 +127,11 @@ export const LoginPage: React.FC = () => {
             className="text-[11px] text-muted-foreground hover:text-primary font-medium flex items-center gap-1 transition-colors"
           >
             <Sliders className="size-3" />
-            <span>{useCustomToken ? "Gunakan token demo otomatis" : "Atur Bearer Token manual (Opsional)"}</span>
+            <span>
+              {useCustomToken
+                ? "Gunakan token demo otomatis"
+                : "Atur Bearer Token manual (Opsional)"}
+            </span>
           </button>
 
           {useCustomToken && (

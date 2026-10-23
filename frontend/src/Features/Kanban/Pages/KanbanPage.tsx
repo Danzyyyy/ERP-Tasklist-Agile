@@ -11,28 +11,20 @@ import TaskDetailModal from "@/Features/Tasks/Components/TaskDetailModal";
 import ReviewModal from "@/Features/Reviews/Components/ReviewModal";
 import SignOffModal from "@/Features/Reviews/Components/SignOffModal";
 import { Button } from "@/Components/Elements/Button";
+import { Badge } from "@/Components/Elements/Badge";
 import { Select } from "@/Components/Elements/Select";
 import { Input } from "@/Components/Elements/Input";
-import { Badge } from "@/Components/Elements/Badge";
 import { useFilterParams } from "@/Hooks/useFilterParams";
 import type { Task, TaskStatus } from "@/Types/task";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import {
-  Plus,
-  Search,
-  Kanban,
-  CheckCircle2,
-  RefreshCw,
-  Clock,
-  Layers,
-} from "lucide-react";
+import { Plus, Search, RefreshCw } from "lucide-react";
 
 export const KanbanPage: React.FC = () => {
   useDocumentTitle(
     "Agile Kanban Board",
     "Papan tugas interaktif 5 tahap eksekusi sprint (Released, Development, Code Review, Testing, Done) dengan otomasi alur rework bug.",
   );
-  const { data: tasks = [], isLoading, refetch } = useTasks();
+  const { data: tasks = [], refetch } = useTasks();
   const { data: modules = [] } = useModules();
   const { mutate: updateStatus } = useUpdateTaskStatus();
 
@@ -122,12 +114,17 @@ export const KanbanPage: React.FC = () => {
             </Badge>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Alur kerja 5 tahap (Released &rarr; Development &rarr; Code Review &rarr; Testing &rarr; Done).
+            Alur kerja 5 tahap (Released &rarr; Development &rarr; Code Review &rarr; Testing &rarr;
+            Done).
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" onClick={() => refetch()} className="text-muted-foreground text-xs">
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            className="text-muted-foreground text-xs"
+          >
             <RefreshCw className="size-3.5 mr-1" />
             Segarkan
           </Button>
@@ -170,7 +167,7 @@ export const KanbanPage: React.FC = () => {
             </Select>
           </div>
 
-          <div className="relative flex-1 min-w-[200px]">
+          <div className="relative flex-1 min-w-50">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
             <Input
               placeholder="Cari kartu tugas di papan..."

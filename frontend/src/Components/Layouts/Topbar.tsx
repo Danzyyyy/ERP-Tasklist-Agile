@@ -16,12 +16,7 @@ import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
 import { Badge } from "@/Components/Elements/Badge";
 import { Button } from "@/Components/Elements/Button";
 import { ROUTES } from "@/Constants/RouteConstant";
-import {
-  Plus,
-  ChevronDown,
-  LogOut,
-  FileText,
-} from "lucide-react";
+import { Plus, ChevronDown, LogOut, FileText } from "lucide-react";
 
 export interface TopbarProps {
   onOpenTaskModal: () => void;
@@ -63,7 +58,9 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             <span className="font-extrabold text-xs text-foreground truncate">
               PT. Anaheim Nimbus Universal
             </span>
-            <span className="text-[10px] text-muted-foreground font-mono shrink-0">/ Modul E-4</span>
+            <span className="text-[10px] text-muted-foreground font-mono shrink-0">
+              / Modul E-4
+            </span>
           </div>
           <span className="text-[11px] text-muted-foreground hidden md:block truncate">
             Sistem Manajemen Eksekusi Agile, Dual-Approval Gate & Pelacakan Man-Hour
@@ -92,9 +89,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             aria-label="Menu Pengguna"
           >
             <Avatar size="sm">
-              <AvatarFallback tone={getRoleTone(role)}>
-                {roleMeta?.short || "USER"}
-              </AvatarFallback>
+              <AvatarFallback tone={getRoleTone(role)}>{roleMeta?.short || "USER"}</AvatarFallback>
             </Avatar>
 
             <div className="hidden sm:block text-left">
@@ -135,7 +130,9 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
               <FileText className="size-4 text-emerald-600 shrink-0" />
               <div className="flex-1 text-left">
                 <div className="font-semibold text-xs text-foreground">Buat Tugas Baru</div>
-                <div className="text-[10px] text-muted-foreground">Daftarkan backlog agile sprint</div>
+                <div className="text-[10px] text-muted-foreground">
+                  Daftarkan backlog agile sprint
+                </div>
               </div>
             </DropdownMenuItem>
 
@@ -150,7 +147,9 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
               <LogOut className="size-4 shrink-0" />
               <div className="flex-1 text-left">
                 <div className="font-semibold text-xs">Keluar (Logout)</div>
-                <div className="text-[10px] text-red-400">Keluar ke Login Page untuk ganti akun</div>
+                <div className="text-[10px] text-red-400">
+                  Keluar ke Login Page untuk ganti akun
+                </div>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>

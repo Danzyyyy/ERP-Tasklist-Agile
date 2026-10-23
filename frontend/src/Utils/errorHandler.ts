@@ -1,7 +1,9 @@
 // src/Utils/errorHandler.ts
-import type { ApiValidationError } from "@/Types/api";
 
-export function getErrorMessage(error: unknown, fallbackMessage = "Terjadi kesalahan sistem"): string {
+export function getErrorMessage(
+  error: unknown,
+  fallbackMessage = "Terjadi kesalahan sistem",
+): string {
   if (!error) return fallbackMessage;
 
   if (typeof error === "string") return error;

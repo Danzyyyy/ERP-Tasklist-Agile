@@ -9,8 +9,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm border border-transparent",
-        primary: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm border border-transparent",
+        default:
+          "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm border border-transparent",
+        primary:
+          "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm border border-transparent",
         outline: "border border-border bg-card hover:bg-accent text-foreground shadow-2xs",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
@@ -33,13 +35,21 @@ export const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   loading?: boolean;
 }
 
 export const Button = memo<ButtonProps>(
-  ({ className, variant, size, loading = false, disabled, children, type = "button", ...props }) => {
+  ({
+    className,
+    variant,
+    size,
+    loading = false,
+    disabled,
+    children,
+    type = "button",
+    ...props
+  }) => {
     return (
       <button
         type={type}

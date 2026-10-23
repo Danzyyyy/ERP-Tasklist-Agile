@@ -6,8 +6,6 @@ import ModuleService from "@/Features/Modules/Services/ModuleService";
 import TaskService from "../Services/TaskService";
 import ApprovalService from "@/Features/Approvals/Services/ApprovalService";
 import ReviewService from "@/Features/Reviews/Services/ReviewService";
-import { TASK_QUERY_KEYS } from "../Constants/TaskConstant";
-import { MODULE_QUERY_KEYS } from "@/Features/Modules/Constants/ModuleConstant";
 import { sessionUtils } from "@/Utils/sessionUtils";
 import { addDays, format } from "date-fns";
 
@@ -29,7 +27,8 @@ export const useSeedDemoData = () => {
         project_id: "PROJ-ERP-01",
         code: `MOD-E4-${Date.now().toString().slice(-4)}`,
         name: "Tasklist dan Eksekusi Agile",
-        description: "Pengelolaan hierarki pekerjaan, alur dual-approval rilis, dan pelacakan agile sprint.",
+        description:
+          "Pengelolaan hierarki pekerjaan, alur dual-approval rilis, dan pelacakan agile sprint.",
       });
 
       const moduleId = modRes.data.id;
@@ -53,12 +52,13 @@ export const useSeedDemoData = () => {
 
       // 3. Create Task 1 (DRAFT)
       sessionUtils.setToken("mock_tl");
-      const t1 = await TaskService.create({
+      await TaskService.create({
         module_id: moduleId,
         feature_id: feature1Id,
         task_code: `TSK-${Math.floor(10 + Math.random() * 89)}`,
         title: "Penyusunan Kontrak REST API Modul E-4",
-        description: "Spesifikasi endpoint hierarki modul, approval rilis, dan progres deliverable.",
+        description:
+          "Spesifikasi endpoint hierarki modul, approval rilis, dan progres deliverable.",
         complexity_weight: "MEDIUM",
         estimated_man_hours: 8.0,
         target_deadline: deadline,
@@ -143,7 +143,8 @@ export const useSeedDemoData = () => {
         feature_id: feature1Id,
         task_code: `TSK-${Math.floor(10 + Math.random() * 89)}`,
         title: "Mesin Kalkulasi Rasio Progres Deliverable Man-Hour",
-        description: "Rumus matematis (Man-hour DONE / Total Deliverable) * 100% dengan zero-division safe.",
+        description:
+          "Rumus matematis (Man-hour DONE / Total Deliverable) * 100% dengan zero-division safe.",
         complexity_weight: "LOW",
         estimated_man_hours: 6.5,
         target_deadline: deadline,

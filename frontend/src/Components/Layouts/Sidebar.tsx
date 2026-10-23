@@ -31,10 +31,7 @@ export const Sidebar = memo(() => {
       ((t as any).review_logs && (t as any).review_logs.length > 0),
     );
     const isSignOff = Boolean(
-      t.status === "TESTING" ||
-      t.status === "DONE" ||
-      t.is_pm_verified ||
-      t.is_tl_signed,
+      t.status === "TESTING" || t.status === "DONE" || t.is_pm_verified || t.is_tl_signed,
     );
     return (
       t.status === "CODE_REVIEW" ||
@@ -127,7 +124,9 @@ export const Sidebar = memo(() => {
               <h1 className="text-xs font-bold tracking-tight text-sidebar-foreground truncate">
                 PT. Anaheim Nimbus Universal
               </h1>
-              <p className="text-[10px] text-sidebar-foreground/60 font-mono truncate">ERP Modul E-4</p>
+              <p className="text-[10px] text-sidebar-foreground/60 font-mono truncate">
+                ERP Modul E-4
+              </p>
             </div>
           </div>
 
@@ -164,12 +163,12 @@ export const Sidebar = memo(() => {
                 }
               >
                 <div className="flex items-center gap-3 truncate">
-                  <Icon className="size-[18px] shrink-0 stroke-[2.2]" />
+                  <Icon className="size-4.5 shrink-0 stroke-[2.2]" />
                   <span className="truncate text-[13px]">{item.label}</span>
                 </div>
 
                 {item.badge !== undefined && (
-                  <span className="px-2 py-0.5 rounded-md bg-white text-rose-600 font-extrabold text-[11px] leading-tight shadow-xs min-w-[20px] text-center">
+                  <span className="px-2 py-0.5 rounded-md bg-white text-rose-600 font-extrabold text-[11px] leading-tight shadow-xs min-w-5 text-center">
                     {item.badge}
                   </span>
                 )}

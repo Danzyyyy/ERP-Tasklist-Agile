@@ -25,7 +25,7 @@ export interface SignOffModalProps {
 }
 
 export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) => {
-  const { role, user } = useAuth();
+  const { role } = useAuth();
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({
     spec: true,
     testing: true,
@@ -70,7 +70,7 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
         </div>
       }
       description={
-        <div className="break-words leading-relaxed">
+        <div className="wrap-break-word leading-relaxed">
           Otorisasi penyelesaian tugas{" "}
           <strong className="font-mono text-slate-800">{task.task_code}</strong>: "{task.title}".
         </div>
@@ -172,8 +172,8 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
             <div className="text-[11px] text-emerald-800 flex items-center gap-1.5 font-medium">
               <CheckCircle2 className="size-4 text-emerald-600" />
               <span>
-                Ceklis verifikasi berhasil divalidasi oleh {task.pm_verified_by || "Project Manager"}.
-                Gerbang 2 kini aktif!
+                Ceklis verifikasi berhasil divalidasi oleh{" "}
+                {task.pm_verified_by || "Project Manager"}. Gerbang 2 kini aktif!
               </span>
             </div>
           )}
@@ -185,8 +185,8 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
             task.is_tl_signed
               ? "border-emerald-300 bg-emerald-50/40"
               : isPmVerified
-              ? "border-blue-200 bg-blue-50/20 shadow-2xs"
-              : "border-slate-200 bg-slate-50/60 opacity-80"
+                ? "border-blue-200 bg-blue-50/20 shadow-2xs"
+                : "border-slate-200 bg-slate-50/60 opacity-80"
           }`}
         >
           <div className="flex items-center justify-between mb-2">
@@ -223,11 +223,7 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
                   : "Hanya peran Technical Lead yang berwenang melakukan final sign-off penutupan tugas."}
               </span>
               {isTl ? (
-                <Button
-                  variant="success"
-                  loading={isTlPending}
-                  onClick={() => tlSignoff()}
-                >
+                <Button variant="success" loading={isTlPending} onClick={() => tlSignoff()}>
                   <ShieldCheck className="size-4 mr-1.5" />
                   Otorisasi Selesai / Sign-off DONE
                 </Button>

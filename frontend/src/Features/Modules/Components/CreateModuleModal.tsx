@@ -36,7 +36,11 @@ export const CreateModuleModal = memo<CreateModuleModalProps>(({ isOpen, onClose
         </>
       }
     >
-      <form id="create-module-form" onSubmit={handleSubmit(handleSubmitForm)} className="space-y-3.5">
+      <form
+        id="create-module-form"
+        onSubmit={handleSubmit(handleSubmitForm)}
+        className="space-y-3.5"
+      >
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             Kode Modul <span className="text-red-500">*</span>

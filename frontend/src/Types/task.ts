@@ -1,25 +1,19 @@
 // src/Types/task.ts
 
-export type ComplexityWeight = 'LOW' | 'MEDIUM' | 'HIGH';
+export type ComplexityWeight = "LOW" | "MEDIUM" | "HIGH";
 
-export type TaskStatus =
-  | 'DRAFT'
-  | 'RELEASED'
-  | 'DEVELOPMENT'
-  | 'CODE_REVIEW'
-  | 'TESTING'
-  | 'DONE';
+export type TaskStatus = "DRAFT" | "RELEASED" | "DEVELOPMENT" | "CODE_REVIEW" | "TESTING" | "DONE";
 
-export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
 
-export type ReviewType = 'CODE_REVIEW' | 'TESTING';
+export type ReviewType = "CODE_REVIEW" | "TESTING";
 
-export type ReviewResult = 'PASSED' | 'REJECTED';
+export type ReviewResult = "PASSED" | "REJECTED";
 
 export interface TaskApproval {
   id: string;
   task_id: string;
-  role: 'TECHNICAL_LEAD' | 'PROJECT_MANAGER';
+  role: "TECHNICAL_LEAD" | "PROJECT_MANAGER";
   status: ApprovalStatus;
   approver_id?: string | null;
   approver_name?: string | null;

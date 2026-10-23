@@ -3,14 +3,7 @@ import React, { memo } from "react";
 import { Card } from "@/Components/Elements/Card";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
 import type { DeliverableProgress, Task } from "@/Types/task";
-import {
-  TrendingUp,
-  FileCheck2,
-  Clock,
-  ShieldAlert,
-  RotateCcw,
-  CheckCircle2,
-} from "lucide-react";
+import { TrendingUp, Clock, ShieldAlert, RotateCcw } from "lucide-react";
 
 export interface KPICardsProps {
   metrics: DeliverableProgress;
@@ -20,7 +13,6 @@ export interface KPICardsProps {
 export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
   const activeTasks = tasks.filter((t) => t.status !== "DONE" && t.status !== "DRAFT");
   const draftApprovals = tasks.filter((t) => t.status === "DRAFT");
-  const reworkTasks = tasks.filter((t) => t.rework || t.status === "DEVELOPMENT");
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -40,7 +32,8 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
           </span>
         </div>
         <span className="text-[11px] text-muted-foreground block mt-1">
-          {formatManHours(metrics.completedManHours)} / {formatManHours(metrics.totalEstimatedManHours)} Jam Selesai
+          {formatManHours(metrics.completedManHours)} /{" "}
+          {formatManHours(metrics.totalEstimatedManHours)} Jam Selesai
         </span>
       </Card>
 

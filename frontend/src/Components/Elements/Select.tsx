@@ -157,8 +157,7 @@ export const SelectRoot: React.FC<SelectCompoundProps> = ({
   );
 };
 
-export interface SelectTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   error?: boolean;
 }
 
@@ -204,10 +203,15 @@ export interface SelectValueProps {
   className?: string;
 }
 
-export const SelectValue: React.FC<SelectValueProps> = ({ placeholder = "Pilih opsi...", className }) => {
+export const SelectValue: React.FC<SelectValueProps> = ({
+  placeholder = "Pilih opsi...",
+  className,
+}) => {
   const ctx = useContext(SelectContext);
   return (
-    <span className={cn("truncate text-left flex-1", !ctx?.value && "text-muted-foreground", className)}>
+    <span
+      className={cn("truncate text-left flex-1", !ctx?.value && "text-muted-foreground", className)}
+    >
       {ctx?.value || placeholder}
     </span>
   );
@@ -330,13 +334,21 @@ export const SelectGroup = memo<React.HTMLAttributes<HTMLDivElement>>(({ classNa
 SelectGroup.displayName = "SelectGroup";
 
 export const SelectLabel = memo<React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }) => (
-  <div className={cn("px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider", className)} {...props} />
+  <div
+    className={cn(
+      "px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider",
+      className,
+    )}
+    {...props}
+  />
 ));
 SelectLabel.displayName = "SelectLabel";
 
-export const SelectSeparator = memo<React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }) => (
-  <div className={cn("-mx-1 my-1 h-px bg-slate-100", className)} {...props} />
-));
+export const SelectSeparator = memo<React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }) => (
+    <div className={cn("-mx-1 my-1 h-px bg-slate-100", className)} {...props} />
+  ),
+);
 SelectSeparator.displayName = "SelectSeparator";
 
 // ============================================================================
@@ -374,8 +386,7 @@ function extractOptions(children: ReactNode): ParsedOption[] {
   return options;
 }
 
-export interface SelectProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
+export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
   error?: boolean;
   onValueChange?: (val: string) => void;
 }
@@ -573,7 +584,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     className={cn(
                       "relative flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors select-none",
                       "hover:bg-accent hover:text-accent-foreground",
-                      isSelected && "bg-primary-subtle text-primary-subtle-foreground font-semibold",
+                      isSelected &&
+                        "bg-primary-subtle text-primary-subtle-foreground font-semibold",
                       opt.disabled && "pointer-events-none opacity-40 cursor-not-allowed",
                     )}
                   >

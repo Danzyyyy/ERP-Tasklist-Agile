@@ -1,6 +1,5 @@
 // src/Features/Dashboard/Services/ProgressService.ts
 import { apiUtils } from "@/Services/Common/Base";
-import type { DeliverableProgress } from "@/Types/task";
 import type { ProjectDeliverableResponse, ModuleProgressResponse } from "../Types/ProgressType";
 
 const ProgressService = {

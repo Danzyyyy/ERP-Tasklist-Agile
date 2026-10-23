@@ -31,10 +31,7 @@ const DashboardInner = memo(() => {
       </div>
 
       {/* Global Task Creation Modal */}
-      <TaskModal
-        isOpen={isTaskModalOpen}
-        onClose={() => setIsTaskModalOpen(false)}
-      />
+      <TaskModal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} />
     </div>
   );
 });

@@ -3,8 +3,7 @@ import React, { forwardRef } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
-export interface CheckboxProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
   onCheckedChange?: (checked: boolean) => void;
 }
 
@@ -31,7 +30,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           className="sr-only peer"
           {...props}
         />
-        {checked && <Check className="size-3 text-white stroke-[3]" />}
+        {checked && <Check className="size-3 text-white stroke-3" />}
       </label>
     );
   },

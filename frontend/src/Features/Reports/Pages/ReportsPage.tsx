@@ -7,7 +7,7 @@ import DeliverableProgressCard from "@/Features/Dashboard/Components/Deliverable
 import { Card } from "@/Components/Elements/Card";
 import { Badge } from "@/Components/Elements/Badge";
 import { Button } from "@/Components/Elements/Button";
-import { formatPercent, formatManHours, formatDate } from "@/Utils/formatters";
+import { formatManHours } from "@/Utils/formatters";
 import {
   BarChart,
   Bar,
@@ -23,16 +23,12 @@ import {
 import {
   FileSpreadsheet,
   Download,
-  Sparkles,
   BarChart3,
   PieChart as PieChartIcon,
   CheckCircle2,
-  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-
-const COLORS = ["#2563eb", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
 
 export const ReportsPage: React.FC = () => {
   useDocumentTitle(
@@ -60,9 +56,7 @@ export const ReportsPage: React.FC = () => {
       0,
     );
     const progressPercentage =
-      totalEstimatedManHours > 0
-        ? (completedManHours / totalEstimatedManHours) * 100
-        : 0.0;
+      totalEstimatedManHours > 0 ? (completedManHours / totalEstimatedManHours) * 100 : 0.0;
     const tasksAtRiskOrOverdue = tasks.filter((t) => {
       if (t.status === "DONE") return false;
       if (!t.target_deadline) return false;
@@ -86,10 +80,7 @@ export const ReportsPage: React.FC = () => {
     return modules.map((mod) => {
       // Find all tasks under this module
       const modTasks = tasks.filter((t) => t.module_id === mod.id);
-      const totalHours = modTasks.reduce(
-        (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-        0,
-      );
+      const totalHours = modTasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
       const doneHours = modTasks
         .filter((t) => t.status === "DONE")
         .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
@@ -119,20 +110,6 @@ export const ReportsPage: React.FC = () => {
     ].filter((item) => item.value > 0);
   }, [tasks]);
 
-  // Stage Distribution Data for Pie Chart
-  const stageChartData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    tasks.forEach((t) => {
-      counts[t.status] = (counts[t.status] || 0) + 1;
-    });
-
-    return Object.entries(counts).map(([status, count], idx) => ({
-      name: status,
-      value: count,
-      color: COLORS[idx % COLORS.length],
-    }));
-  }, [tasks]);
-
   const handleExport = () => {
     toast.success("Laporan deliverable sprint berhasil diunduh (Format JSON / CSV disiapkan).");
   };
@@ -153,7 +130,11 @@ export const ReportsPage: React.FC = () => {
           </p>
         </div>
 
-        <Button variant="outline" onClick={handleExport} className="text-foreground text-xs self-start sm:self-auto">
+        <Button
+          variant="outline"
+          onClick={handleExport}
+          className="text-foreground text-xs self-start sm:self-auto"
+        >
           <Download className="size-3.5 mr-1 text-primary" />
           Ekspor Laporan (SLA)
         </Button>
@@ -177,7 +158,10 @@ export const ReportsPage: React.FC = () => {
           <div className="h-64 w-full">
             {moduleChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={moduleChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart
+                  data={moduleChartData}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip
@@ -189,7 +173,12 @@ export const ReportsPage: React.FC = () => {
                     }}
                   />
                   <Bar dataKey="Total" fill="#93c5fd" radius={[4, 4, 0, 0]} name="Total Jam" />
-                  <Bar dataKey="Done" fill="#2563eb" radius={[4, 4, 0, 0]} name="Jam Selesai (Done)" />
+                  <Bar
+                    dataKey="Done"
+                    fill="#2563eb"
+                    radius={[4, 4, 0, 0]}
+                    name="Jam Selesai (Done)"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (

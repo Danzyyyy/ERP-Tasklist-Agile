@@ -15,7 +15,7 @@ import { Select } from "@/Components/Elements/Select";
 import { Progress } from "@/Components/Elements/Progress";
 import { Card } from "@/Components/Elements/Card";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
-import type { Task, Module } from "@/Types/task";
+import type { Task } from "@/Types/task";
 import {
   Plus,
   Search,
@@ -25,7 +25,6 @@ import {
   FolderPlus,
   RefreshCw,
   CheckCircle2,
-  Clock,
   Kanban,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -180,7 +179,8 @@ export const TasklistPage: React.FC = () => {
             Tasklist & Dual-Approval Gate
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Hierarki pekerjaan (Modul &rarr; Fitur &rarr; Tugas) sesuai SOP-05 dan akuntabilitas rilis.
+            Hierarki pekerjaan (Modul &rarr; Fitur &rarr; Tugas) sesuai SOP-05 dan akuntabilitas
+            rilis.
           </p>
         </div>
 
@@ -219,7 +219,7 @@ export const TasklistPage: React.FC = () => {
       </div>
 
       {/* Deliverable Progress Card (FTR-K04-07 & Q-03 Engine) */}
-      <Card className="p-4 bg-gradient-to-r from-card via-card to-primary-subtle/40 border-primary-subtle-border shadow-2xs">
+      <Card className="p-4 bg-linear-to-r from-card via-card to-primary-subtle/40 border-primary-subtle-border shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-primary-subtle text-primary grid place-items-center shrink-0">
@@ -236,8 +236,7 @@ export const TasklistPage: React.FC = () => {
               </div>
               <span className="text-[11px] text-muted-foreground font-mono truncate block">
                 {deliverableStats.doneTasksCount} dari {deliverableStats.totalTasksCount} tugas
-                selesai (
-                <b>{formatManHours(deliverableStats.doneHours)}</b> /{" "}
+                selesai (<b>{formatManHours(deliverableStats.doneHours)}</b> /{" "}
                 {formatManHours(deliverableStats.totalEstimatedHours)})
               </span>
             </div>
@@ -247,7 +246,9 @@ export const TasklistPage: React.FC = () => {
             <span className="text-xl font-extrabold text-primary font-mono">
               {formatPercent(deliverableStats.progressPercentage)}
             </span>
-            <span className="block text-[9px] text-muted-foreground font-medium">Akumulasi Selesai</span>
+            <span className="block text-[9px] text-muted-foreground font-medium">
+              Akumulasi Selesai
+            </span>
           </div>
         </div>
 
@@ -307,7 +308,7 @@ export const TasklistPage: React.FC = () => {
           </div>
 
           {/* Search Input */}
-          <div className="relative flex-1 min-w-[200px]">
+          <div className="relative flex-1 min-w-50">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
             <Input
               placeholder="Cari kode tugas atau judul..."
@@ -326,101 +327,98 @@ export const TasklistPage: React.FC = () => {
       {/* Hierarchy Table */}
       <div className="bg-card border border-border rounded-xl shadow-2xs overflow-hidden">
         <div className="overflow-x-auto w-full">
-          <table className="w-full min-w-[780px] border-collapse text-left">
-          <thead>
-            <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
-              <th className="py-2.5 px-3">Hierarki Modul & Tugas (SOP-05)</th>
-              <th className="py-2.5 px-3 w-28">Bobot (Q-01)</th>
-              <th className="py-2.5 px-3 w-28">Estimasi (Q-02)</th>
-              <th className="py-2.5 px-3 w-32">Tenggat (Q-11)</th>
-              <th className="py-2.5 px-3 w-36">Pelaksana (PIC)</th>
-              <th className="py-2.5 px-3 w-44">Status & Approval</th>
-              <th className="py-2.5 px-3 w-20 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="py-12 text-center text-xs text-muted-foreground">
-                  <RefreshCw className="size-5 animate-spin mx-auto text-primary mb-2" />
-                  Memuat pohon hierarki deliverable proyek...
-                </td>
+          <table className="w-full min-w-195 border-collapse text-left">
+            <thead>
+              <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
+                <th className="py-2.5 px-3">Hierarki Modul & Tugas (SOP-05)</th>
+                <th className="py-2.5 px-3 w-28">Bobot (Q-01)</th>
+                <th className="py-2.5 px-3 w-28">Estimasi (Q-02)</th>
+                <th className="py-2.5 px-3 w-32">Tenggat (Q-11)</th>
+                <th className="py-2.5 px-3 w-36">Pelaksana (PIC)</th>
+                <th className="py-2.5 px-3 w-44">Status & Approval</th>
+                <th className="py-2.5 px-3 w-20 text-right">Aksi</th>
               </tr>
-            ) : treeItems.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-16 text-center">
-                  <div className="max-w-sm mx-auto space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-primary-subtle text-primary grid place-items-center mx-auto">
-                      <Layers className="size-6" />
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-xs text-muted-foreground">
+                    <RefreshCw className="size-5 animate-spin mx-auto text-primary mb-2" />
+                    Memuat pohon hierarki deliverable proyek...
+                  </td>
+                </tr>
+              ) : treeItems.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-16 text-center">
+                    <div className="max-w-sm mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-full bg-primary-subtle text-primary grid place-items-center mx-auto">
+                        <Layers className="size-6" />
+                      </div>
+                      <h3 className="text-sm font-bold text-foreground">
+                        Belum Ada Modul atau Tugas
+                      </h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Mulai dengan membuat Modul baru atau muat data simulasi sprint lengkap untuk
+                        menguji seluruh skenario.
+                      </p>
+                      <div className="flex items-center justify-center gap-2 pt-2">
+                        <Button
+                          variant="primary"
+                          loading={seeding}
+                          onClick={seed}
+                          className="text-xs"
+                        >
+                          <Database className="size-3.5 mr-1" />
+                          Muat Data Contoh Sprint
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsModuleModalOpen(true)}
+                          className="text-xs"
+                        >
+                          Buat Modul Manual
+                        </Button>
+                      </div>
                     </div>
-                    <h3 className="text-sm font-bold text-foreground">
-                      Belum Ada Modul atau Tugas
-                    </h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Mulai dengan membuat Modul baru atau muat data simulasi sprint lengkap untuk
-                      menguji seluruh skenario.
-                    </p>
-                    <div className="flex items-center justify-center gap-2 pt-2">
-                      <Button
-                        variant="primary"
-                        loading={seeding}
-                        onClick={seed}
-                        className="text-xs"
-                      >
-                        <Database className="size-3.5 mr-1" />
-                        Muat Data Contoh Sprint
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsModuleModalOpen(true)}
-                        className="text-xs"
-                      >
-                        Buat Modul Manual
-                      </Button>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              treeItems.map((item, idx) => {
-                const nodeId =
-                  item.kind === "MODULE"
-                    ? item.data.id
-                    : item.kind === "FEATURE"
-                    ? item.data.id
-                    : item.data.id;
+                  </td>
+                </tr>
+              ) : (
+                treeItems.map((item, idx) => {
+                  const nodeId =
+                    item.kind === "MODULE"
+                      ? item.data.id
+                      : item.kind === "FEATURE"
+                        ? item.data.id
+                        : item.data.id;
 
-                return (
-                  <TaskTreeRow
-                    key={`${item.kind}-${nodeId}-${idx}`}
-                    item={item}
-                    isOpen={!collapsedNodes[nodeId]}
-                    onToggle={() => toggleNode(nodeId)}
-                    onSelectTask={(t) => setActiveTaskDetail(t)}
-                    onOpenApproval={(t) => setApprovalTask(t)}
-                    onAddFeature={(modId) => {
-                      setSelectedModuleForFeature(modId);
-                      setIsFeatureModalOpen(true);
-                    }}
-                    onAddTask={(modId) => {
-                      setIsTaskModalOpen(true);
-                    }}
-                  />
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                  return (
+                    <TaskTreeRow
+                      key={`${item.kind}-${nodeId}-${idx}`}
+                      item={item}
+                      isOpen={!collapsedNodes[nodeId]}
+                      onToggle={() => toggleNode(nodeId)}
+                      onSelectTask={(t) => setActiveTaskDetail(t)}
+                      onOpenApproval={(t) => setApprovalTask(t)}
+                      onAddFeature={(modId) => {
+                        setSelectedModuleForFeature(modId);
+                        setIsFeatureModalOpen(true);
+                      }}
+                      onAddTask={() => {
+                        setIsTaskModalOpen(true);
+                      }}
+                    />
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Modals */}
       <TaskModal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} />
 
-      <CreateModuleModal
-        isOpen={isModuleModalOpen}
-        onClose={() => setIsModuleModalOpen(false)}
-      />
+      <CreateModuleModal isOpen={isModuleModalOpen} onClose={() => setIsModuleModalOpen(false)} />
 
       <CreateFeatureModal
         isOpen={isFeatureModalOpen}

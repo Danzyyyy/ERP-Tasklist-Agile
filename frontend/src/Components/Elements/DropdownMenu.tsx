@@ -55,8 +55,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   );
 };
 
-export interface DropdownMenuTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean;
 }
 
@@ -149,7 +148,7 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
         role="menu"
         aria-orientation="vertical"
         className={cn(
-          "absolute z-50 mt-1.5 min-w-[190px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl transition-all animate-[pop_0.15s_ease]",
+          "absolute z-50 mt-1.5 min-w-47.5 rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl transition-all animate-[pop_0.15s_ease]",
           alignmentClasses[align],
           className,
         )}
@@ -186,7 +185,8 @@ export const DropdownMenuItem = memo<DropdownMenuItemProps>(
         className={cn(
           "relative flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none select-none cursor-pointer transition-colors",
           "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-          destructive && "text-destructive hover:bg-destructive-subtle hover:text-destructive-subtle-foreground focus:bg-destructive-subtle",
+          destructive &&
+            "text-destructive hover:bg-destructive-subtle hover:text-destructive-subtle-foreground focus:bg-destructive-subtle",
           disabled && "pointer-events-none opacity-50 cursor-not-allowed",
           inset && "pl-8",
           className,
@@ -204,18 +204,16 @@ export interface DropdownMenuLabelProps extends React.HTMLAttributes<HTMLDivElem
   inset?: boolean;
 }
 
-export const DropdownMenuLabel = memo<DropdownMenuLabelProps>(
-  ({ className, inset, ...props }) => (
-    <div
-      className={cn(
-        "px-2.5 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider",
-        inset && "pl-8",
-        className,
-      )}
-      {...props}
-    />
-  ),
-);
+export const DropdownMenuLabel = memo<DropdownMenuLabelProps>(({ className, inset, ...props }) => (
+  <div
+    className={cn(
+      "px-2.5 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider",
+      inset && "pl-8",
+      className,
+    )}
+    {...props}
+  />
+));
 DropdownMenuLabel.displayName = "DropdownMenuLabel";
 
 export const DropdownMenuSeparator = memo<React.HTMLAttributes<HTMLDivElement>>(
@@ -228,7 +226,10 @@ DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 export const DropdownMenuShortcut = memo<React.HTMLAttributes<HTMLSpanElement>>(
   ({ className, ...props }) => (
     <span
-      className={cn("ml-auto text-[10px] font-mono tracking-widest text-muted-foreground", className)}
+      className={cn(
+        "ml-auto text-[10px] font-mono tracking-widest text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   ),

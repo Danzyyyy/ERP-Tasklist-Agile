@@ -5,16 +5,7 @@ import { Button } from "@/Components/Elements/Button";
 import { cn } from "@/Utils/cn";
 import { formatManHours, formatDate } from "@/Utils/formatters";
 import type { Task, TaskStatus } from "@/Types/task";
-import {
-  Clock,
-  Calendar,
-  User,
-  ArrowRight,
-  RotateCcw,
-  CheckCircle2,
-  AlertTriangle,
-  GripVertical,
-} from "lucide-react";
+import { Clock, User, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export interface KanbanCardProps {
   task: Task;
@@ -41,12 +32,7 @@ const stageActionLabels: Record<TaskStatus, string> = {
   DONE: "Selesai",
 };
 
-export const KanbanCard = memo<KanbanCardProps>(({
-  task,
-  onSelect,
-  onAdvance,
-  onDragStart,
-}) => {
+export const KanbanCard = memo<KanbanCardProps>(({ task, onSelect, onAdvance, onDragStart }) => {
   const nextStatus = nextStageMap[task.status];
   const actionLabel = stageActionLabels[task.status];
 
@@ -96,7 +82,7 @@ export const KanbanCard = memo<KanbanCardProps>(({
           {formatManHours(task.estimated_man_hours)}
         </span>
 
-        <span className="flex items-center gap-1 truncate max-w-[110px]">
+        <span className="flex items-center gap-1 truncate max-w-27.5">
           <User className="size-3 text-muted-foreground shrink-0" />
           <span className="truncate">{task.assignee_name || "Belum Ada"}</span>
         </span>

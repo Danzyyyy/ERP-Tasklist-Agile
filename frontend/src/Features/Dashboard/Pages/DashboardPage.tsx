@@ -9,21 +9,10 @@ import { Button } from "@/Components/Elements/Button";
 import { Card } from "@/Components/Elements/Card";
 import { Badge } from "@/Components/Elements/Badge";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
-import { formatDate, formatManHours } from "@/Utils/formatters";
+import { formatManHours } from "@/Utils/formatters";
 import type { DeliverableProgress } from "@/Types/task";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import {
-  Sparkles,
-  Database,
-  ArrowRight,
-  ShieldCheck,
-  Kanban,
-  CheckCircle2,
-  Clock,
-  Layers,
-  History,
-  AlertTriangle,
-} from "lucide-react";
+import { Database, ArrowRight, Kanban, History } from "lucide-react";
 
 export const DashboardPage: React.FC = () => {
   useDocumentTitle(
@@ -31,8 +20,8 @@ export const DashboardPage: React.FC = () => {
     "Ringkasan eksekutif progres deliverable sprint, status eksekusi agile, dan rasio man-hour Formula Q-03.",
   );
   const navigate = useNavigate();
-  const { data: metrics, isLoading: isProgressLoading } = useDeliverableProgress();
-  const { data: tasks = [], isLoading: isTasksLoading } = useTasks();
+  const { data: metrics } = useDeliverableProgress();
+  const { data: tasks = [] } = useTasks();
   const { seed, seeding } = useSeedDemoData();
 
   // Formula Q-03 Deliverable Calculation
@@ -53,9 +42,7 @@ export const DashboardPage: React.FC = () => {
       0,
     );
     const progressPercentage =
-      totalEstimatedManHours > 0
-        ? (completedManHours / totalEstimatedManHours) * 100
-        : 0.0;
+      totalEstimatedManHours > 0 ? (completedManHours / totalEstimatedManHours) * 100 : 0.0;
     const tasksAtRiskOrOverdue = tasks.filter((t) => {
       if (t.status === "DONE") return false;
       if (!t.target_deadline) return false;
@@ -145,14 +132,47 @@ export const DashboardPage: React.FC = () => {
 
           <div className="space-y-2">
             {[
-              { status: "DRAFT", label: "Draft (Menunggu Approval)", count: stageCounts.DRAFT, color: "bg-slate-400" },
-              { status: "RELEASED", label: "Released (Siap Kerja)", count: stageCounts.RELEASED, color: "bg-indigo-500" },
-              { status: "DEVELOPMENT", label: "In Development", count: stageCounts.DEVELOPMENT, color: "bg-blue-500" },
-              { status: "CODE_REVIEW", label: "Code Review", count: stageCounts.CODE_REVIEW, color: "bg-purple-500" },
-              { status: "TESTING", label: "QA Testing", count: stageCounts.TESTING, color: "bg-cyan-500" },
-              { status: "DONE", label: "Definition of Done", count: stageCounts.DONE, color: "bg-emerald-500" },
+              {
+                status: "DRAFT",
+                label: "Draft (Menunggu Approval)",
+                count: stageCounts.DRAFT,
+                color: "bg-slate-400",
+              },
+              {
+                status: "RELEASED",
+                label: "Released (Siap Kerja)",
+                count: stageCounts.RELEASED,
+                color: "bg-indigo-500",
+              },
+              {
+                status: "DEVELOPMENT",
+                label: "In Development",
+                count: stageCounts.DEVELOPMENT,
+                color: "bg-blue-500",
+              },
+              {
+                status: "CODE_REVIEW",
+                label: "Code Review",
+                count: stageCounts.CODE_REVIEW,
+                color: "bg-purple-500",
+              },
+              {
+                status: "TESTING",
+                label: "QA Testing",
+                count: stageCounts.TESTING,
+                color: "bg-cyan-500",
+              },
+              {
+                status: "DONE",
+                label: "Definition of Done",
+                count: stageCounts.DONE,
+                color: "bg-emerald-500",
+              },
             ].map((item) => (
-              <div key={item.status} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border text-xs">
+              <div
+                key={item.status}
+                className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border border-border text-xs"
+              >
                 <div className="flex items-center gap-2">
                   <span className={`size-2 rounded-full ${item.color}`} />
                   <span className="text-foreground font-medium">{item.label}</span>

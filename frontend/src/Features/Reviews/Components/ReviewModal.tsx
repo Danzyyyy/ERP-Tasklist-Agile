@@ -7,14 +7,7 @@ import { Button } from "@/Components/Elements/Button";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { Select } from "@/Components/Elements/Select";
 import type { Task, ReviewType, ReviewResult } from "@/Types/task";
-import {
-  FileCode2,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  RotateCcw,
-  Sparkles,
-} from "lucide-react";
+import { FileCode2, CheckCircle2, XCircle, RotateCcw, Sparkles } from "lucide-react";
 
 export interface ReviewModalProps {
   task: Task | null;
@@ -65,7 +58,7 @@ export const ReviewModal = memo<ReviewModalProps>(({ task, isOpen, onClose }) =>
         </div>
       }
       description={
-        <div className="break-words leading-relaxed">
+        <div className="wrap-break-word leading-relaxed">
           Catat hasil pemeriksaan untuk tugas{" "}
           <strong className="font-mono text-slate-800">{task.task_code}</strong>: "{task.title}".
         </div>
@@ -102,10 +95,7 @@ export const ReviewModal = memo<ReviewModalProps>(({ task, isOpen, onClose }) =>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             Tahap Pemeriksaan <span className="text-red-500">*</span>
           </label>
-          <Select
-            value={reviewType}
-            onChange={(e) => setReviewType(e.target.value as ReviewType)}
-          >
+          <Select value={reviewType} onChange={(e) => setReviewType(e.target.value as ReviewType)}>
             <option value="CODE_REVIEW">Code Review (Peer Review Kualitas Kode)</option>
             <option value="TESTING">QA Testing (Pengujian Skenario & Fungsionalitas)</option>
           </Select>
@@ -150,16 +140,17 @@ export const ReviewModal = memo<ReviewModalProps>(({ task, isOpen, onClose }) =>
           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-900 text-[11px] leading-relaxed flex items-start gap-2">
             <RotateCcw className="size-4 text-red-600 shrink-0 mt-0.5" />
             <div>
-              <b>Otomasi Alur Rework (Q-05):</b> Kartu tugas ini akan secara otomatis dikembalikan ke
-              kolom <b>DEVELOPMENT</b> dengan label <b>REWORK</b>. Pengembang PIC wajib memperbaiki
-              temuan sebelum mengajukan kembali.
+              <b>Otomasi Alur Rework (Q-05):</b> Kartu tugas ini akan secara otomatis dikembalikan
+              ke kolom <b>DEVELOPMENT</b> dengan label <b>REWORK</b>. Pengembang PIC wajib
+              memperbaiki temuan sebelum mengajukan kembali.
             </div>
           </div>
         ) : (
           <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] leading-relaxed flex items-start gap-2">
             <Sparkles className="size-4 text-emerald-600 shrink-0 mt-0.5" />
             <div>
-              Pemeriksaan lolos verifikasi. Tugas siap dilanjutkan ke tahap berikutnya dalam siklus agile.
+              Pemeriksaan lolos verifikasi. Tugas siap dilanjutkan ke tahap berikutnya dalam siklus
+              agile.
             </div>
           </div>
         )}

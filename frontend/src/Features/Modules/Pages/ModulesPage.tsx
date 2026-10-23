@@ -12,18 +12,7 @@ import { Badge } from "@/Components/Elements/Badge";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { formatManHours } from "@/Utils/formatters";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import {
-  FolderKanban,
-  FolderTree,
-  Plus,
-  Layers,
-  FileCode2,
-  ListTodo,
-  Clock,
-  ArrowRight,
-  Sparkles,
-  Info,
-} from "lucide-react";
+import { FolderKanban, FolderTree, Plus, Layers, ArrowRight, Info } from "lucide-react";
 
 export const ModulesPage: React.FC = () => {
   useDocumentTitle(
@@ -32,7 +21,7 @@ export const ModulesPage: React.FC = () => {
   );
   const navigate = useNavigate();
   const { role } = useAuth();
-  const { data: modules = [], isLoading: isModulesLoading } = useModules();
+  const { data: modules = [] } = useModules();
   const { data: tasks = [] } = useTasks();
 
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
@@ -46,10 +35,7 @@ export const ModulesPage: React.FC = () => {
     const totalModules = modules.length;
     const totalFeatures = modules.reduce((acc, m) => acc + (m.features?.length || 0), 0);
     const totalTasks = tasks.length;
-    const totalManHours = tasks.reduce(
-      (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-      0,
-    );
+    const totalManHours = tasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
 
     return {
       totalModules,
@@ -77,7 +63,8 @@ export const ModulesPage: React.FC = () => {
             <span>Manajemen Modul & Fitur Proyek</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Hierarki terstruktur sesuai SOP-05: Proyek &rarr; Modul Proyek &rarr; Fitur (Opsional / Q-13) &rarr; Tugas Sprint.
+            Hierarki terstruktur sesuai SOP-05: Proyek &rarr; Modul Proyek &rarr; Fitur (Opsional /
+            Q-13) &rarr; Tugas Sprint.
           </p>
         </div>
 
@@ -106,7 +93,7 @@ export const ModulesPage: React.FC = () => {
       </div>
 
       {/* Project Overview Card */}
-      <Card className="p-5 bg-gradient-to-r from-slate-900 via-slate-900 to-blue-950 text-white border-slate-800 shadow-md">
+      <Card className="p-5 bg-linear-to-r from-slate-900 via-slate-900 to-blue-950 text-white border-slate-800 shadow-md">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs text-blue-400 font-mono font-semibold">
@@ -118,7 +105,8 @@ export const ModulesPage: React.FC = () => {
               PT. Anaheim Nimbus Universal — Modul E-4
             </h2>
             <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Sistem Tasklist dan Eksekusi Agile, Dual-Approval Task Release Gate, serta Pelacakan Progres Man-Hour Riil.
+              Sistem Tasklist dan Eksekusi Agile, Dual-Approval Task Release Gate, serta Pelacakan
+              Progres Man-Hour Riil.
             </p>
           </div>
 
@@ -162,9 +150,7 @@ export const ModulesPage: React.FC = () => {
             <Layers className="size-4 text-blue-600" />
             <span>Daftar Modul & Fitur Terdaftar</span>
           </h3>
-          <span className="text-[11px] text-slate-400">
-            {modules.length} Modul Terkonfigurasi
-          </span>
+          <span className="text-[11px] text-slate-400">{modules.length} Modul Terkonfigurasi</span>
         </div>
 
         {modules.length === 0 ? (
@@ -172,7 +158,8 @@ export const ModulesPage: React.FC = () => {
             <FolderTree className="size-10 text-slate-300 mx-auto mb-2" />
             <h4 className="font-bold text-sm text-slate-800">Belum Ada Modul Proyek</h4>
             <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-              Modul merupakan tingkat teratas pengelompokan deliverable dalam SOP-05. Silakan tambahkan modul pertama untuk mulai mendaftarkan fitur dan tugas.
+              Modul merupakan tingkat teratas pengelompokan deliverable dalam SOP-05. Silakan
+              tambahkan modul pertama untuk mulai mendaftarkan fitur dan tugas.
             </p>
             {canManage && (
               <Button
@@ -195,7 +182,10 @@ export const ModulesPage: React.FC = () => {
             const features = mod.features || [];
 
             return (
-              <Card key={mod.id} className="p-5 border-border bg-card shadow-2xs hover:border-border transition-all">
+              <Card
+                key={mod.id}
+                className="p-5 border-border bg-card shadow-2xs hover:border-border transition-all"
+              >
                 {/* Module Header Row */}
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-border/70">
                   <div className="min-w-0">
@@ -203,9 +193,7 @@ export const ModulesPage: React.FC = () => {
                       <span className="font-mono text-xs font-bold bg-primary-subtle text-primary-subtle-foreground px-2 py-0.5 rounded border border-primary-subtle-border">
                         {mod.code}
                       </span>
-                      <h4 className="text-sm font-bold text-foreground truncate">
-                        {mod.name}
-                      </h4>
+                      <h4 className="text-sm font-bold text-foreground truncate">{mod.name}</h4>
                       <Badge variant="outline" className="text-[10px]">
                         {features.length} Fitur
                       </Badge>
@@ -260,7 +248,8 @@ export const ModulesPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Info className="size-4 text-slate-400 shrink-0" />
                         <span>
-                          Modul ini belum memiliki fitur terdaftar. Tugas dapat langsung bernaung di bawah modul.
+                          Modul ini belum memiliki fitur terdaftar. Tugas dapat langsung bernaung di
+                          bawah modul.
                         </span>
                       </div>
                       {canManage && (
@@ -338,10 +327,7 @@ export const ModulesPage: React.FC = () => {
       </div>
 
       {/* Modals */}
-      <CreateModuleModal
-        isOpen={isModuleModalOpen}
-        onClose={() => setIsModuleModalOpen(false)}
-      />
+      <CreateModuleModal isOpen={isModuleModalOpen} onClose={() => setIsModuleModalOpen(false)} />
 
       <CreateFeatureModal
         isOpen={isFeatureModalOpen}

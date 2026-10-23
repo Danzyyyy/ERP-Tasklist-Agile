@@ -40,8 +40,20 @@ export const KANBAN_COLUMNS: readonly KanbanColumnDef[] = [
 ] as const;
 
 export const DEMO_DEVELOPERS = [
-  { id: "01926df4-0003-7000-8000-000000000003", name: "Ariel (Frontend Dev)", role: "Frontend Developer" },
-  { id: "01926df4-0001-7000-8000-000000000001", name: "Fauzan (Technical Lead)", role: "Technical Lead" },
-  { id: "01926df4-0002-7000-8000-000000000002", name: "Tubagus M. Wildan (PM)", role: "Project Manager" },
+  {
+    id: "01926df4-0003-7000-8000-000000000003",
+    name: "Ariel (Frontend Dev)",
+    role: "Frontend Developer",
+  },
+  {
+    id: "01926df4-0001-7000-8000-000000000001",
+    name: "Fauzan (Technical Lead)",
+    role: "Technical Lead",
+  },
+  {
+    id: "01926df4-0002-7000-8000-000000000002",
+    name: "Tubagus M. Wildan (PM)",
+    role: "Project Manager",
+  },
   { id: "01926df4-0004-7000-8000-000000000004", name: "Valdric (QA Tester)", role: "QA Tester" },
 ] as const;
