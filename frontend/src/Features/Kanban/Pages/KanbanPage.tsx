@@ -110,29 +110,29 @@ export const KanbanPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Page Header */}
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-subtle-foreground bg-primary-subtle px-2 py-0.5 rounded border border-primary-subtle-border">
             SPRINT EXECUTION / UI-K04-03
           </span>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight mt-1.5 flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5 flex items-center gap-2">
             <span>Papan Tugas Interaktif (Agile Kanban Board)</span>
             <Badge variant="success" dot size="sm">
               SPRINT AKTIF
             </Badge>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Alur kerja 5 tahap (Released &rarr; Development &rarr; Code Review &rarr; Testing &rarr; Done).
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => refetch()} className="text-slate-600">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => refetch()} className="text-muted-foreground text-xs">
             <RefreshCw className="size-3.5 mr-1" />
             Segarkan
           </Button>
 
-          <Button variant="primary" onClick={() => setIsTaskModalOpen(true)}>
+          <Button variant="primary" onClick={() => setIsTaskModalOpen(true)} className="text-xs">
             <Plus className="size-3.5 mr-1" />
             Buat Tugas Cepat
           </Button>
@@ -140,9 +140,9 @@ export const KanbanPage: React.FC = () => {
       </div>
 
       {/* Toolbar & Filter Bar */}
-      <div className="bg-white border border-slate-200 rounded-xl p-2.5 px-3 flex items-center justify-between gap-3 shadow-2xs">
-        <div className="flex items-center gap-2 flex-1 max-w-2xl">
-          <div className="w-48">
+      <div className="bg-white border border-slate-200 rounded-xl p-2.5 px-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-2xs">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 max-w-3xl">
+          <div className="w-full sm:w-48 shrink-0">
             <Select
               value={filters.module_id || "ALL"}
               onChange={(e) => setFilter("module_id", e.target.value)}
@@ -156,7 +156,7 @@ export const KanbanPage: React.FC = () => {
             </Select>
           </div>
 
-          <div className="w-48">
+          <div className="w-full sm:w-48 shrink-0">
             <Select
               value={filters.assignee_id || "ALL"}
               onChange={(e) => setFilter("assignee_id", e.target.value)}
@@ -170,7 +170,7 @@ export const KanbanPage: React.FC = () => {
             </Select>
           </div>
 
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
             <Input
               placeholder="Cari kartu tugas di papan..."
@@ -181,15 +181,15 @@ export const KanbanPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs font-mono text-slate-600">
+        <div className="flex items-center gap-4 text-xs font-mono text-slate-600 self-end md:self-auto shrink-0">
           <span>
             Aktif di Papan: <b>{filteredTasks.length}</b> Tugas
           </span>
         </div>
       </div>
 
-      {/* 5-Column Kanban Board */}
-      <div className="grid grid-cols-5 gap-3 items-start overflow-x-auto pb-4">
+      {/* 5-Column Kanban Board with Horizontal Scrolling on Mobile */}
+      <div className="flex gap-3 items-start overflow-x-auto pb-4 w-full scroll-smooth">
         {KANBAN_COLUMNS.map((col) => {
           const colTasks = filteredTasks.filter((t) => t.status === col.id);
 

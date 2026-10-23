@@ -69,14 +69,14 @@ export const ModulesPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-subtle-foreground bg-primary-subtle px-2 py-0.5 rounded border border-primary-subtle-border">
             STRUKTUR PROYEK & HIERARKI KERJA / FTR-K04-01
           </span>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight mt-1.5 flex items-center gap-2">
-            <FolderKanban className="size-6 text-blue-600" />
+          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5 flex items-center gap-2">
+            <FolderKanban className="size-6 text-primary" />
             <span>Manajemen Modul & Fitur Proyek</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Hierarki terstruktur sesuai SOP-05: Proyek &rarr; Modul Proyek &rarr; Fitur (Opsional / Q-13) &rarr; Tugas Sprint.
           </p>
         </div>
@@ -195,15 +195,15 @@ export const ModulesPage: React.FC = () => {
             const features = mod.features || [];
 
             return (
-              <Card key={mod.id} className="p-5 border-slate-200 bg-white shadow-2xs hover:border-slate-300 transition-all">
+              <Card key={mod.id} className="p-5 border-border bg-card shadow-2xs hover:border-border transition-all">
                 {/* Module Header Row */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-border/70">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-xs font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
+                      <span className="font-mono text-xs font-bold bg-primary-subtle text-primary-subtle-foreground px-2 py-0.5 rounded border border-primary-subtle-border">
                         {mod.code}
                       </span>
-                      <h4 className="text-sm font-bold text-slate-900 truncate">
+                      <h4 className="text-sm font-bold text-foreground truncate">
                         {mod.name}
                       </h4>
                       <Badge variant="outline" className="text-[10px]">
@@ -215,7 +215,7 @@ export const ModulesPage: React.FC = () => {
                     </div>
 
                     {mod.description && (
-                      <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
                         {mod.description}
                       </p>
                     )}
@@ -229,7 +229,7 @@ export const ModulesPage: React.FC = () => {
                         onClick={() => handleOpenAddFeature(mod.id)}
                         className="text-xs h-8"
                       >
-                        <Plus className="size-3 mr-1 text-blue-600" />
+                        <Plus className="size-3 mr-1 text-primary" />
                         Tambah Fitur
                       </Button>
                     )}
@@ -238,7 +238,7 @@ export const ModulesPage: React.FC = () => {
                       size="sm"
                       variant="ghost"
                       onClick={() => navigate(`${ROUTE_PATHS.TASKS}?module_id=${mod.id}`)}
-                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="text-xs h-8 text-primary hover:text-primary-hover hover:bg-primary-subtle"
                     >
                       <span>Lihat Tugas</span>
                       <ArrowRight className="size-3 ml-1" />

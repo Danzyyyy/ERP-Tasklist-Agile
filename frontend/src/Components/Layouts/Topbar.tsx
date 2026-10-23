@@ -3,6 +3,7 @@ import React, { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/Features/Auth/Hooks/useAuth";
 import { ROLE_DETAILS } from "@/Features/Auth/Constants/AuthConstant";
+import SidebarTrigger from "./SidebarTrigger";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -52,34 +53,42 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
-      {/* Left Info */}
-      <div className="flex items-center gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-extrabold text-xs text-slate-800">
+    <header className="h-16 bg-card border-b border-border px-3 sm:px-6 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
+      {/* Left Info with Shadcn SidebarTrigger */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <SidebarTrigger />
+
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="font-extrabold text-xs text-foreground truncate">
               PT. Anaheim Nimbus Universal
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">/ Modul E-4</span>
+            <span className="text-[10px] text-muted-foreground font-mono shrink-0">/ Modul E-4</span>
           </div>
-          <span className="text-[11px] text-slate-400 block truncate">
+          <span className="text-[11px] text-muted-foreground hidden md:block truncate">
             Sistem Manajemen Eksekusi Agile, Dual-Approval Gate & Pelacakan Man-Hour
           </span>
         </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Quick Add Task */}
-        <Button size="sm" variant="outline" onClick={onOpenTaskModal} className="h-8 text-xs">
-          <Plus className="size-3.5 mr-1 text-blue-600" />
-          <span>Buat Tugas</span>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onOpenTaskModal}
+          className="h-8 text-xs px-2.5 sm:px-3"
+        >
+          <Plus className="size-3.5 sm:mr-1 text-primary" />
+          <span className="hidden sm:inline">Buat Tugas</span>
+          <span className="sm:hidden text-[11px]">Tugas</span>
         </Button>
 
         {/* User Profile & Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100 hover:border-slate-300 transition-all text-left group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer"
+            className="flex items-center gap-2 sm:gap-2.5 px-2 sm:px-2.5 py-1.5 rounded-xl border border-border bg-secondary/80 hover:bg-secondary hover:border-border transition-all text-left group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
             aria-label="Menu Pengguna"
           >
             <Avatar size="sm">
@@ -90,12 +99,12 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
 
             <div className="hidden sm:block text-left">
               <div className="flex items-center gap-1.5 leading-none">
-                <span className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                   {user?.name || "Pengguna"}
                 </span>
-                <ChevronDown className="size-3 text-slate-400 group-hover:text-slate-600" />
+                <ChevronDown className="size-3 text-muted-foreground group-hover:text-foreground" />
               </div>
-              <span className="text-[10px] text-slate-500 block mt-0.5 leading-none">
+              <span className="text-[10px] text-muted-foreground block mt-0.5 leading-none">
                 {roleMeta?.label || role || "Pengguna Aktif"}
               </span>
             </div>
@@ -106,10 +115,10 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             <DropdownMenuLabel className="pb-1.5">
               <div className="flex items-center gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-900 truncate">
+                  <p className="text-xs font-bold text-foreground truncate">
                     {user?.name || "Pengguna Aktif"}
                   </p>
-                  <p className="text-[10px] text-slate-500 truncate font-mono">
+                  <p className="text-[10px] text-muted-foreground truncate font-mono">
                     {user?.email || "user@anaheim.id"}
                   </p>
                 </div>
@@ -125,8 +134,8 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             <DropdownMenuItem onClick={onOpenTaskModal} className="gap-2.5 py-2">
               <FileText className="size-4 text-emerald-600 shrink-0" />
               <div className="flex-1 text-left">
-                <div className="font-semibold text-xs text-slate-800">Buat Tugas Baru</div>
-                <div className="text-[10px] text-slate-400">Daftarkan backlog agile sprint</div>
+                <div className="font-semibold text-xs text-foreground">Buat Tugas Baru</div>
+                <div className="text-[10px] text-muted-foreground">Daftarkan backlog agile sprint</div>
               </div>
             </DropdownMenuItem>
 

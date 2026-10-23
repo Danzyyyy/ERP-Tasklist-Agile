@@ -30,7 +30,7 @@ export const Progress = memo<ProgressProps>(({
 
   return (
     <div
-      className={cn("w-full overflow-hidden rounded-lg bg-slate-200/80 shadow-inner relative", height, className)}
+      className={cn("w-full overflow-hidden rounded-lg bg-secondary shadow-inner relative", height, className)}
       {...props}
     >
       <div

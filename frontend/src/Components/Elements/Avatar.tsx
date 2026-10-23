@@ -49,11 +49,11 @@ export interface AvatarFallbackProps extends React.HTMLAttributes<HTMLDivElement
 }
 
 const toneMap = {
-  blue: "bg-blue-600 text-white",
-  indigo: "bg-indigo-600 text-white",
-  amber: "bg-amber-600 text-white",
-  emerald: "bg-emerald-600 text-white",
-  slate: "bg-slate-200 text-slate-700",
+  blue: "bg-primary text-primary-foreground",
+  indigo: "bg-sidebar-primary text-sidebar-primary-foreground",
+  amber: "bg-warning text-warning-foreground",
+  emerald: "bg-success text-success-foreground",
+  slate: "bg-secondary text-secondary-foreground",
 };
 
 export const AvatarFallback = memo<AvatarFallbackProps>(

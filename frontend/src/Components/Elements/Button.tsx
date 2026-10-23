@@ -9,14 +9,14 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm border border-transparent",
-        primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm border border-transparent",
-        outline: "border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs",
-        secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200",
-        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
-        ghost: "hover:bg-slate-100 text-slate-600 hover:text-slate-900",
-        link: "text-blue-600 underline-offset-4 hover:underline p-0 h-auto",
-        success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm border border-transparent",
+        primary: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm border border-transparent",
+        outline: "border border-border bg-card hover:bg-accent text-foreground shadow-2xs",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+        ghost: "hover:bg-accent text-muted-foreground hover:text-foreground",
+        link: "text-primary underline-offset-4 hover:underline p-0 h-auto",
+        success: "bg-success text-success-foreground hover:bg-success/90 shadow-sm",
       },
       size: {
         default: "h-8 px-3.5 py-1.5",

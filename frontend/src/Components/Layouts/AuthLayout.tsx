@@ -5,8 +5,8 @@ import { FolderKanban, ShieldCheck, CheckCircle2, TrendingUp, Layers } from "luc
 
 export const AuthLayout = memo(() => {
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 sm:p-6 selection:bg-blue-600 selection:text-white font-sans">
-      <div className="w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-white grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
+    <div className="min-h-screen bg-muted/40 flex items-center justify-center p-4 sm:p-6 selection:bg-primary selection:text-primary-foreground font-sans">
+      <div className="w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-border bg-card grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
         {/* Left Side: Brand & Specifications Showcase */}
         <div className="lg:col-span-5 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950 p-8 text-white flex flex-col justify-between relative overflow-hidden">
           {/* Subtle Glows */}
@@ -75,7 +75,7 @@ export const AuthLayout = memo(() => {
         </div>
 
         {/* Right Side: Form View */}
-        <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center bg-white">
+        <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center bg-card">
           <Outlet />
         </div>
       </div>

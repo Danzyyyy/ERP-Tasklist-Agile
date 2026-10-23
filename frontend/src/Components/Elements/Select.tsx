@@ -178,10 +178,10 @@ export const SelectTrigger = memo<SelectTriggerProps>(
         disabled={isDisabled}
         onClick={() => ctx.setOpen((prev) => !prev)}
         className={cn(
-          "flex h-8.5 w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-800 shadow-2xs transition-colors",
-          "hover:border-slate-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500",
-          error && "border-red-500 focus-visible:ring-red-500",
-          isDisabled && "cursor-not-allowed bg-slate-50 opacity-60",
+          "flex h-8.5 w-full items-center justify-between rounded-lg border border-input bg-card px-3 py-1.5 text-xs text-foreground shadow-2xs transition-colors",
+          "hover:border-ring/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
+          error && "border-destructive focus-visible:ring-destructive",
+          isDisabled && "cursor-not-allowed bg-muted opacity-60",
           className,
         )}
         {...props}
@@ -189,8 +189,8 @@ export const SelectTrigger = memo<SelectTriggerProps>(
         {children}
         <ChevronDown
           className={cn(
-            "size-3.5 text-slate-400 transition-transform duration-200 shrink-0",
-            ctx.open && "rotate-180 text-blue-600",
+            "size-3.5 text-muted-foreground transition-transform duration-200 shrink-0",
+            ctx.open && "rotate-180 text-primary",
           )}
         />
       </button>
@@ -207,7 +207,7 @@ export interface SelectValueProps {
 export const SelectValue: React.FC<SelectValueProps> = ({ placeholder = "Pilih opsi...", className }) => {
   const ctx = useContext(SelectContext);
   return (
-    <span className={cn("truncate text-left flex-1", !ctx?.value && "text-slate-400", className)}>
+    <span className={cn("truncate text-left flex-1", !ctx?.value && "text-muted-foreground", className)}>
       {ctx?.value || placeholder}
     </span>
   );
@@ -271,7 +271,7 @@ export const SelectContent = memo<SelectContentProps>(
           ...style,
         }}
         className={cn(
-          "max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 text-slate-800 shadow-2xl transition-all animate-[pop_0.15s_ease]",
+          "max-h-60 overflow-y-auto rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-2xl transition-all animate-[pop_0.15s_ease]",
           className,
         )}
         {...props}
@@ -309,15 +309,15 @@ export const SelectItem = memo<SelectItemProps>(
         onClick={handleClick}
         className={cn(
           "relative flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors select-none",
-          "hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900",
-          isSelected && "bg-blue-50/80 text-blue-900 font-semibold",
+          "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+          isSelected && "bg-primary-subtle text-primary-subtle-foreground font-semibold",
           disabled && "pointer-events-none opacity-40 cursor-not-allowed",
           className,
         )}
         {...props}
       >
         <span className="truncate">{children}</span>
-        {isSelected && <Check className="size-3.5 text-blue-600 shrink-0 stroke-[2.5]" />}
+        {isSelected && <Check className="size-3.5 text-primary shrink-0 stroke-[2.5]" />}
       </div>
     );
   },
@@ -558,7 +558,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                 zIndex: 99999,
               }}
               className={cn(
-                "max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 text-slate-800 shadow-2xl transition-all animate-[pop_0.15s_ease]",
+                "max-h-60 overflow-y-auto rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-2xl transition-all animate-[pop_0.15s_ease]",
               )}
             >
               {options.map((opt) => {
@@ -572,14 +572,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     onClick={() => handleSelectOption(opt)}
                     className={cn(
                       "relative flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors select-none",
-                      "hover:bg-slate-100 hover:text-slate-900",
-                      isSelected && "bg-blue-50 text-blue-900 font-semibold",
+                      "hover:bg-accent hover:text-accent-foreground",
+                      isSelected && "bg-primary-subtle text-primary-subtle-foreground font-semibold",
                       opt.disabled && "pointer-events-none opacity-40 cursor-not-allowed",
                     )}
                   >
                     <span className="truncate">{opt.label}</span>
                     {isSelected && (
-                      <Check className="size-3.5 text-blue-600 shrink-0 stroke-[2.5]" />
+                      <Check className="size-3.5 text-primary shrink-0 stroke-[2.5]" />
                     )}
                   </div>
                 );

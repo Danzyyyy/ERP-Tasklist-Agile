@@ -56,7 +56,7 @@ export const KanbanColumn = memo<KanbanColumnProps>(({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`flex flex-col rounded-2xl border transition-all min-h-[640px] max-h-[calc(100vh-210px)] bg-slate-100/60 p-2.5 ${
+      className={`w-[280px] sm:w-[310px] xl:w-auto xl:flex-1 xl:min-w-[210px] shrink-0 flex flex-col rounded-2xl border transition-all min-h-[640px] max-h-[calc(100vh-210px)] bg-slate-100/60 p-2.5 ${
         isOver
           ? "border-blue-400 bg-blue-50/40 ring-2 ring-blue-300"
           : "border-slate-200/90"

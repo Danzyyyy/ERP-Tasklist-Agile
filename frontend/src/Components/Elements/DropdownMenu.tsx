@@ -149,7 +149,7 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
         role="menu"
         aria-orientation="vertical"
         className={cn(
-          "absolute z-50 mt-1.5 min-w-[190px] rounded-xl border border-slate-200 bg-white p-1 text-slate-800 shadow-xl transition-all animate-[pop_0.15s_ease]",
+          "absolute z-50 mt-1.5 min-w-[190px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl transition-all animate-[pop_0.15s_ease]",
           alignmentClasses[align],
           className,
         )}
@@ -185,8 +185,8 @@ export const DropdownMenuItem = memo<DropdownMenuItemProps>(
         onClick={handleClick}
         className={cn(
           "relative flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none select-none cursor-pointer transition-colors",
-          "hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900",
-          destructive && "text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50",
+          "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+          destructive && "text-destructive hover:bg-destructive-subtle hover:text-destructive-subtle-foreground focus:bg-destructive-subtle",
           disabled && "pointer-events-none opacity-50 cursor-not-allowed",
           inset && "pl-8",
           className,
@@ -208,7 +208,7 @@ export const DropdownMenuLabel = memo<DropdownMenuLabelProps>(
   ({ className, inset, ...props }) => (
     <div
       className={cn(
-        "px-2.5 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider",
+        "px-2.5 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider",
         inset && "pl-8",
         className,
       )}
@@ -220,7 +220,7 @@ DropdownMenuLabel.displayName = "DropdownMenuLabel";
 
 export const DropdownMenuSeparator = memo<React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }) => (
-    <div className={cn("-mx-1 my-1 h-px bg-slate-100", className)} {...props} />
+    <div className={cn("-mx-1 my-1 h-px bg-border", className)} {...props} />
   ),
 );
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
@@ -228,7 +228,7 @@ DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 export const DropdownMenuShortcut = memo<React.HTMLAttributes<HTMLSpanElement>>(
   ({ className, ...props }) => (
     <span
-      className={cn("ml-auto text-[10px] font-mono tracking-widest text-slate-400", className)}
+      className={cn("ml-auto text-[10px] font-mono tracking-widest text-muted-foreground", className)}
       {...props}
     />
   ),

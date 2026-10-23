@@ -2,6 +2,7 @@
 import React, { memo } from "react";
 import { Badge } from "@/Components/Elements/Badge";
 import { Button } from "@/Components/Elements/Button";
+import { cn } from "@/Utils/cn";
 import { formatManHours, formatDate } from "@/Utils/formatters";
 import type { Task, TaskStatus } from "@/Types/task";
 import {
@@ -59,16 +60,16 @@ export const KanbanCard = memo<KanbanCardProps>(({
       draggable
       onDragStart={(e) => onDragStart && onDragStart(e, task)}
       onClick={() => onSelect(task)}
-      className={`group relative rounded-xl border p-3 bg-white shadow-2xs hover:shadow-md transition-all cursor-pointer select-none ${
+      className={`group relative rounded-xl border p-3 bg-card shadow-2xs hover:shadow-md transition-all cursor-pointer select-none ${
         hasRework
-          ? "border-rose-300 ring-1 ring-rose-200 bg-rose-50/20"
-          : "border-slate-200 hover:border-blue-300"
+          ? "border-destructive-subtle-border ring-1 ring-destructive-subtle-border bg-destructive-subtle/20"
+          : "border-border hover:border-primary/50"
       }`}
     >
       {/* Top Meta Row */}
       <div className="flex items-center justify-between gap-1 mb-1.5">
         <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded">
+          <span className="font-mono text-[10px] font-bold text-primary-subtle-foreground bg-primary-subtle border border-primary-subtle-border px-1.5 py-0.2 rounded">
             {task.task_code}
           </span>
           <Badge variant={task.complexity_weight as any} size="sm">
@@ -84,33 +85,38 @@ export const KanbanCard = memo<KanbanCardProps>(({
       </div>
 
       {/* Task Title */}
-      <h4 className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+      <h4 className="text-xs font-bold text-foreground line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
         {task.title}
       </h4>
 
       {/* Bottom Info Row */}
-      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-100">
-        <span className="flex items-center gap-1 font-mono font-bold text-slate-700">
-          <Clock className="size-3 text-slate-400" />
+      <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/70">
+        <span className="flex items-center gap-1 font-mono font-bold text-foreground">
+          <Clock className="size-3 text-muted-foreground" />
           {formatManHours(task.estimated_man_hours)}
         </span>
 
         <span className="flex items-center gap-1 truncate max-w-[110px]">
-          <User className="size-3 text-slate-400 shrink-0" />
+          <User className="size-3 text-muted-foreground shrink-0" />
           <span className="truncate">{task.assignee_name || "Belum Ada"}</span>
         </span>
       </div>
 
       {/* Quick Advance Button on hover/display */}
       {nextStatus && (
-        <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-[9px] text-slate-400">
+        <div className="mt-2.5 pt-2 border-t border-border/70 flex items-center justify-between">
+          <span className="text-[9px] text-muted-foreground">
             Jatuh Tempo: {formatDate(task.target_deadline)}
           </span>
           <Button
             size="sm"
             variant={task.status === "TESTING" ? "success" : "ghost"}
-            className="h-6 text-[10px] px-2 text-blue-600 hover:bg-blue-50"
+            className={cn(
+              "h-6 text-[10px] px-2 font-bold transition-all",
+              task.status === "TESTING"
+                ? "text-white hover:text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs"
+                : "text-primary hover:bg-primary-subtle",
+            )}
             onClick={(e) => {
               e.stopPropagation();
               onAdvance(task, nextStatus);

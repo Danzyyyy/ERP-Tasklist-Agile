@@ -140,21 +140,21 @@ export const ReportsPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-subtle-foreground bg-primary-subtle px-2 py-0.5 rounded border border-primary-subtle-border">
             DELIVERABLE ANALYTICS & AUDIT / FTR-K04-07
           </span>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight mt-1.5 flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5 flex items-center gap-2">
             <span>Pelaporan Progres Deliverable & Audit Sprint</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Integrasi metrik real-time untuk modul pelaporan (E-5) dan pengawasan proyek (D-3, D-4).
           </p>
         </div>
 
-        <Button variant="outline" onClick={handleExport} className="text-slate-700">
-          <Download className="size-3.5 mr-1 text-blue-600" />
+        <Button variant="outline" onClick={handleExport} className="text-foreground text-xs self-start sm:self-auto">
+          <Download className="size-3.5 mr-1 text-primary" />
           Ekspor Laporan (SLA)
         </Button>
       </div>
@@ -163,7 +163,7 @@ export const ReportsPage: React.FC = () => {
       <DeliverableProgressCard metrics={effectiveMetrics} />
 
       {/* Visual Charts Grid */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Module Burnout Bar Chart */}
         <Card className="p-4 border-slate-200 bg-white">
           <div className="flex items-center justify-between mb-3">
@@ -255,7 +255,7 @@ export const ReportsPage: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
                 <th className="p-2.5">Kode Tugas</th>
                 <th className="p-2.5">Judul Deliverable</th>
                 <th className="p-2.5">Bobot</th>
@@ -267,9 +267,9 @@ export const ReportsPage: React.FC = () => {
             </thead>
             <tbody>
               {tasks.map((task) => (
-                <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50/60">
-                  <td className="p-2.5 font-mono font-bold text-blue-700">{task.task_code}</td>
-                  <td className="p-2.5 font-medium text-slate-800">{task.title}</td>
+                <tr key={task.id} className="border-b border-border/70 hover:bg-muted/50">
+                  <td className="p-2.5 font-mono font-bold text-primary">{task.task_code}</td>
+                  <td className="p-2.5 font-medium text-foreground">{task.title}</td>
                   <td className="p-2.5">
                     <Badge variant={task.complexity_weight as any} size="sm">
                       {task.complexity_weight}

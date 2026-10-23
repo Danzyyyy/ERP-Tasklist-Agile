@@ -23,86 +23,86 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
   const reworkTasks = tasks.filter((t) => t.rework || t.status === "DEVELOPMENT");
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {/* KPI 1 */}
-      <Card className="p-4 border-slate-200 hover:border-blue-300 transition-all">
+      <Card className="p-4 border-border hover:border-primary/50 transition-all">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Progres Deliverable
           </span>
-          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">
+          <div className="w-8 h-8 rounded-lg bg-primary-subtle text-primary grid place-items-center">
             <TrendingUp className="size-4" />
           </div>
         </div>
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-black text-slate-900 font-mono">
+          <span className="text-2xl font-black text-foreground font-mono">
             {formatPercent(metrics.progressPercentage)}
           </span>
         </div>
-        <span className="text-[11px] text-slate-500 block mt-1">
+        <span className="text-[11px] text-muted-foreground block mt-1">
           {formatManHours(metrics.completedManHours)} / {formatManHours(metrics.totalEstimatedManHours)} Jam Selesai
         </span>
       </Card>
 
       {/* KPI 2 */}
-      <Card className="p-4 border-slate-200 hover:border-indigo-300 transition-all">
+      <Card className="p-4 border-border hover:border-primary/50 transition-all">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Tugas Aktif di Sprint
           </span>
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 grid place-items-center">
+          <div className="w-8 h-8 rounded-lg bg-primary-subtle text-primary grid place-items-center">
             <Clock className="size-4" />
           </div>
         </div>
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-black text-slate-900 font-mono">
+          <span className="text-2xl font-black text-foreground font-mono">
             {activeTasks.length}
           </span>
-          <span className="text-xs text-slate-400 font-medium">Tugas</span>
+          <span className="text-xs text-muted-foreground font-medium">Tugas</span>
         </div>
-        <span className="text-[11px] text-slate-500 block mt-1">
+        <span className="text-[11px] text-muted-foreground block mt-1">
           Sedang dalam pengerjaan & pengujian
         </span>
       </Card>
 
       {/* KPI 3 */}
-      <Card className="p-4 border-slate-200 hover:border-amber-300 transition-all">
+      <Card className="p-4 border-border hover:border-warning/50 transition-all">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Antrean Dual-Approval
           </span>
-          <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 grid place-items-center">
+          <div className="w-8 h-8 rounded-lg bg-warning-subtle text-warning-subtle-foreground grid place-items-center">
             <ShieldAlert className="size-4" />
           </div>
         </div>
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-black text-amber-600 font-mono">
+          <span className="text-2xl font-black text-warning-subtle-foreground font-mono">
             {draftApprovals.length}
           </span>
-          <span className="text-xs text-slate-400 font-medium">Draft</span>
+          <span className="text-xs text-muted-foreground font-medium">Draft</span>
         </div>
-        <span className="text-[11px] text-slate-500 block mt-1">
+        <span className="text-[11px] text-muted-foreground block mt-1">
           Menunggu persetujuan TL & PM
         </span>
       </Card>
 
       {/* KPI 4 */}
-      <Card className="p-4 border-slate-200 hover:border-rose-300 transition-all">
+      <Card className="p-4 border-border hover:border-destructive/50 transition-all">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Tugas Rework / Bug
           </span>
-          <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 grid place-items-center">
+          <div className="w-8 h-8 rounded-lg bg-destructive-subtle text-destructive-subtle-foreground grid place-items-center">
             <RotateCcw className="size-4" />
           </div>
         </div>
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-black text-rose-600 font-mono">
+          <span className="text-2xl font-black text-destructive-subtle-foreground font-mono">
             {tasks.filter((t) => t.rework).length}
           </span>
-          <span className="text-xs text-slate-400 font-medium">Tugas</span>
+          <span className="text-xs text-muted-foreground font-medium">Tugas</span>
         </div>
-        <span className="text-[11px] text-slate-500 block mt-1">
+        <span className="text-[11px] text-muted-foreground block mt-1">
           Otomasi pembalikan alur rework (Q-05)
         </span>
       </Card>

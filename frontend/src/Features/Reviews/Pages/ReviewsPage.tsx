@@ -34,123 +34,210 @@ export const ReviewsPage: React.FC = () => {
   const [activeSignOffTask, setActiveSignOffTask] = useState<Task | null>(null);
   const [activeDetailTask, setActiveDetailTask] = useState<Task | null>(null);
 
+  // Counts for each tab
+  const tabCounts = useMemo(() => {
+    let codeReview = 0;
+    let testing = 0;
+    let signoff = 0;
+    let all = 0;
+
+    tasks.forEach((t) => {
+      const hasReviewLogs = Boolean(
+        (t.reviewLogs && t.reviewLogs.length > 0) ||
+        ((t as any).review_logs && (t as any).review_logs.length > 0),
+      );
+      // Tasks in DoD Sign-Off stage: PM verified, TL signed, or marked DONE
+      const isSignOff = Boolean(
+        t.status === "DONE" ||
+        t.is_pm_verified ||
+        t.is_tl_signed,
+      );
+
+      // Tasks in Code Review stage
+      const isCr = t.status === "CODE_REVIEW";
+
+      // Tasks in QA Testing stage (in testing and not yet sign-off verified, or active rework)
+      const isTest =
+        !isSignOff &&
+        !isCr &&
+        (t.status === "TESTING" || Boolean(t.rework) || hasReviewLogs);
+
+      if (isCr) codeReview++;
+      if (isTest) testing++;
+      if (isSignOff) signoff++;
+
+      if (isCr || isTest || isSignOff || hasReviewLogs) {
+        all++;
+      }
+    });
+
+    return { codeReview, testing, signoff, all };
+  }, [tasks]);
+
   // Filter tasks in review / testing / sign-off stages
   const relevantTasks = useMemo(() => {
     return tasks.filter((t) => {
-      if (tab === "CODE_REVIEW") return t.status === "CODE_REVIEW";
-      if (tab === "TESTING") return t.status === "TESTING";
-      if (tab === "SIGNOFF") return t.status === "TESTING" || t.status === "DONE";
-      return (
-        t.status === "CODE_REVIEW" ||
-        t.status === "TESTING" ||
-        t.rework ||
-        Boolean(t.reviewLogs && t.reviewLogs.length > 0)
+      const hasReviewLogs = Boolean(
+        (t.reviewLogs && t.reviewLogs.length > 0) ||
+        ((t as any).review_logs && (t as any).review_logs.length > 0),
       );
+      const isSignOff = Boolean(
+        t.status === "DONE" ||
+        t.is_pm_verified ||
+        t.is_tl_signed,
+      );
+      const isCr = t.status === "CODE_REVIEW";
+      const isTest =
+        !isSignOff &&
+        !isCr &&
+        (t.status === "TESTING" || Boolean(t.rework) || hasReviewLogs);
+
+      if (tab === "CODE_REVIEW") return isCr;
+      if (tab === "TESTING") return isTest;
+      if (tab === "SIGNOFF") return isSignOff;
+
+      // Tab ALL ("Semua Pemeriksaan"): Union of all tasks in the review, testing, rework & sign-off lifecycle
+      return isCr || isTest || isSignOff || hasReviewLogs;
     });
   }, [tasks, tab]);
+
+  const getEmptyMessage = () => {
+    switch (tab) {
+      case "CODE_REVIEW":
+        return "Tidak Ada Tugas Dalam Antrean Code Review. Tarik kartu tugas ke kolom Code Review pada Papan Kanban untuk memulai peninjauan kode oleh TL atau PM.";
+      case "TESTING":
+        return "Tidak Ada Tugas Dalam Antrean QA Testing. Pindahkan tugas ke kolom Testing untuk memulai validasi pengujian dan skenario alur rework.";
+      case "SIGNOFF":
+        return "Tidak Ada Tugas Dalam Gerbang Sign-Off. Tugas dalam tahap Testing yang siap diverifikasi PM dan disign-off TL akan muncul di sini.";
+      default:
+        return "Tidak Ada Tugas Dalam Antrean Pemeriksaan. Tarik kartu tugas ke kolom Code Review atau Testing pada Papan Kanban untuk memulai pengujian dan alur rework.";
+    }
+  };
 
   return (
     <div className="space-y-4">
       {/* Page Header */}
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-subtle-foreground bg-purple-subtle px-2 py-0.5 rounded border border-purple-subtle-border">
             QUALITY ASSURANCE & SIGN-OFF / FTR-K04-05 & 06
           </span>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight mt-1.5 flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5 flex items-center gap-2">
             <span>Pemeriksaan Kode, QA & Otorisasi DoD</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Pencatatan manual review kode, otomasi alur rework bug, dan gerbang Definition of Done (PM & TL).
           </p>
         </div>
 
-        <Button variant="outline" onClick={() => refetch()} className="text-slate-600">
+        <Button variant="outline" onClick={() => refetch()} className="text-muted-foreground text-xs self-start sm:self-auto">
           Segarkan Antrean
         </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      {/* Tabs with Item Counts */}
+      <div className="flex items-center gap-2 border-b border-border pb-2 overflow-x-auto scrollbar-none">
         <button
           type="button"
           onClick={() => setTab("ALL")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
             tab === "ALL"
-              ? "bg-slate-900 text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100"
+              ? "bg-foreground text-background shadow-xs"
+              : "text-muted-foreground hover:bg-muted"
           }`}
         >
-          Semua Pemeriksaan
+          <span>Semua Pemeriksaan</span>
+          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+            tab === "ALL" ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
+          }`}>
+            {tabCounts.all}
+          </span>
         </button>
+
         <button
           type="button"
           onClick={() => setTab("CODE_REVIEW")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
             tab === "CODE_REVIEW"
               ? "bg-purple-600 text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100"
+              : "text-muted-foreground hover:bg-muted"
           }`}
         >
-          Code Review
+          <span>Code Review</span>
+          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+            tab === "CODE_REVIEW" ? "bg-purple-700 text-white" : "bg-purple-subtle text-purple-subtle-foreground"
+          }`}>
+            {tabCounts.codeReview}
+          </span>
         </button>
+
         <button
           type="button"
           onClick={() => setTab("TESTING")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
             tab === "TESTING"
               ? "bg-cyan-600 text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100"
+              : "text-muted-foreground hover:bg-muted"
           }`}
         >
-          QA Testing (Alur Rework)
+          <span>QA Testing (Alur Rework)</span>
+          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+            tab === "TESTING" ? "bg-cyan-700 text-white" : "bg-cyan-subtle text-cyan-subtle-foreground"
+          }`}>
+            {tabCounts.testing}
+          </span>
         </button>
+
         <button
           type="button"
           onClick={() => setTab("SIGNOFF")}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
             tab === "SIGNOFF"
               ? "bg-emerald-600 text-white shadow-xs"
-              : "text-slate-600 hover:bg-slate-100"
+              : "text-muted-foreground hover:bg-muted"
           }`}
         >
-          Gerbang Sign-Off (DoD)
+          <span>Gerbang Sign-Off (DoD)</span>
+          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+            tab === "SIGNOFF" ? "bg-emerald-700 text-white" : "bg-success-subtle text-success-subtle-foreground"
+          }`}>
+            {tabCounts.signoff}
+          </span>
         </button>
       </div>
 
       {/* Task List */}
       <div className="space-y-3">
         {isLoading ? (
-          <div className="p-12 text-center text-xs text-slate-400">
+          <div className="p-12 text-center text-xs text-muted-foreground">
             Memuat antrean pemeriksaan kualitas...
           </div>
         ) : relevantTasks.length === 0 ? (
-          <Card className="p-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 grid place-items-center mx-auto mb-3">
+          <Card className="p-12 text-center border-dashed border-border bg-card">
+            <div className="w-12 h-12 rounded-full bg-muted text-muted-foreground grid place-items-center mx-auto mb-3">
               <FileCheck2 className="size-6" />
             </div>
-            <h3 className="text-sm font-bold text-slate-800">
-              Tidak Ada Tugas Dalam Antrean Pemeriksaan
+            <h3 className="text-sm font-bold text-foreground">
+              Tidak Ada Tugas Dalam Antrean Ini
             </h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
-              Tarik kartu tugas ke kolom Code Review atau Testing pada Papan Kanban untuk memulai
-              pengujian dan alur rework.
+            <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1">
+              {getEmptyMessage()}
             </p>
           </Card>
         ) : (
           relevantTasks.map((task) => (
             <Card
               key={task.id}
-              className={`p-4 transition-all hover:shadow-xs ${
+              className={`p-4 transition-all hover:shadow-xs border-border bg-card ${
                 task.rework
-                  ? "border-rose-300 bg-rose-50/15"
-                  : "border-slate-200 bg-white"
+                  ? "border-destructive-subtle-border bg-destructive-subtle/10"
+                  : ""
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+                    <span className="font-mono text-xs font-bold text-primary-subtle-foreground bg-primary-subtle border border-primary-subtle-border px-2 py-0.5 rounded">
                       {task.task_code}
                     </span>
                     <Badge variant={task.status as any} dot>
@@ -162,7 +249,7 @@ export const ReviewsPage: React.FC = () => {
                     {task.rework && <Badge variant="REWORK">REWORK / BUG</Badge>}
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                  <h3 className="text-sm font-bold text-foreground leading-snug">
                     {task.title}
                   </h3>
 

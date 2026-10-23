@@ -49,19 +49,19 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(({
       (mod.features?.reduce((acc, f) => acc + (f.tasks?.length || 0), 0) || 0);
 
     return (
-      <tr className="bg-slate-100/70 hover:bg-slate-100/90 transition-colors border-b border-slate-200">
+      <tr className="bg-secondary/70 hover:bg-secondary/90 transition-colors border-b border-border">
         <td colSpan={7} className="py-2.5 px-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer select-none" onClick={onToggle}>
-              <span className="text-slate-500">
+              <span className="text-muted-foreground">
                 {isOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
               </span>
-              <span className="p-1 rounded bg-blue-100 text-blue-700">
+              <span className="p-1 rounded bg-primary-subtle text-primary">
                 {isOpen ? <FolderOpen className="size-4" /> : <Folder className="size-4" />}
               </span>
-              <span className="font-mono text-xs font-extrabold text-blue-900">{mod.code}</span>
-              <span className="text-xs font-bold text-slate-800">{mod.name}</span>
-              <span className="text-[10px] text-slate-400 font-normal">
+              <span className="font-mono text-xs font-extrabold text-primary">{mod.code}</span>
+              <span className="text-xs font-bold text-foreground">{mod.name}</span>
+              <span className="text-[10px] text-muted-foreground font-normal">
                 ({taskCount} tugas · {mod.features?.length || 0} fitur)
               </span>
             </div>
@@ -71,7 +71,7 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(({
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-6 text-[10px] text-blue-700 hover:bg-blue-100/60"
+                  className="h-6 text-[10px] text-primary hover:bg-primary-subtle"
                   onClick={() => onAddFeature(mod.id)}
                 >
                   <Plus className="size-3 mr-1" />
@@ -101,26 +101,26 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(({
     const taskCount = ftr.tasks?.length || 0;
 
     return (
-      <tr className="bg-slate-50/50 hover:bg-slate-100/50 transition-colors border-b border-slate-200/60">
+      <tr className="bg-muted/40 hover:bg-muted/60 transition-colors border-b border-border/70">
         <td colSpan={7} className="py-2 px-3 pl-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer select-none" onClick={onToggle}>
-              <span className="text-slate-400">
+              <span className="text-muted-foreground">
                 {isOpen ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
               </span>
-              <span className="p-1 rounded bg-purple-50 text-purple-700">
+              <span className="p-1 rounded bg-purple-subtle text-purple-subtle-foreground">
                 <Layers className="size-3.5" />
               </span>
-              <span className="font-mono text-[11px] font-bold text-purple-900">{ftr.code}</span>
-              <span className="text-[11px] font-semibold text-slate-700">{ftr.name}</span>
-              <span className="text-[10px] text-slate-400 font-normal">({taskCount} tugas)</span>
+              <span className="font-mono text-[11px] font-bold text-purple-subtle-foreground">{ftr.code}</span>
+              <span className="text-[11px] font-semibold text-foreground">{ftr.name}</span>
+              <span className="text-[10px] text-muted-foreground font-normal">({taskCount} tugas)</span>
             </div>
 
             {onAddTask && (
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-6 text-[10px] text-purple-700 hover:bg-purple-50"
+                className="h-6 text-[10px] text-purple-subtle-foreground hover:bg-purple-subtle"
                 onClick={() => onAddTask(ftr.module_id, ftr.id)}
               >
                 <Plus className="size-3 mr-1" />
@@ -148,16 +148,16 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(({
   return (
     <tr
       onClick={() => onSelectTask && onSelectTask(task)}
-      className="hover:bg-blue-50/30 transition-colors border-b border-slate-100 cursor-pointer text-xs"
+      className="hover:bg-primary-subtle/30 transition-colors border-b border-border/70 cursor-pointer text-xs"
     >
       {/* Title & Hierarchy Path */}
       <td className={`py-2.5 px-3 ${paddingLeft}`}>
         <div className="flex items-center gap-2">
-          <FileText className="size-3.5 text-slate-400 shrink-0" />
-          <span className="font-mono text-[11px] font-bold text-blue-700 shrink-0">
+          <FileText className="size-3.5 text-muted-foreground shrink-0" />
+          <span className="font-mono text-[11px] font-bold text-primary shrink-0">
             {task.task_code}
           </span>
-          <span className="font-medium text-slate-800 hover:text-blue-600 truncate max-w-md">
+          <span className="font-medium text-foreground hover:text-primary truncate max-w-md">
             {task.title}
           </span>
           {task.rework && <Badge variant="REWORK">REWORK</Badge>}

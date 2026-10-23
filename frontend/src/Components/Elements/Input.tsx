@@ -11,8 +11,8 @@ export const Input = memo<InputProps>(({ className, type = "text", error, ...pro
     <input
       type={type}
       className={cn(
-        "flex h-8 w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs text-slate-800 shadow-2xs transition-colors placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60",
-        error && "border-red-500 focus-visible:ring-red-500",
+        "flex h-8 w-full rounded-lg border border-input bg-card px-3 py-1 text-xs text-foreground shadow-2xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60",
+        error && "border-destructive focus-visible:ring-destructive",
         className,
       )}
       {...props}

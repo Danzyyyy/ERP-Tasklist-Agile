@@ -7,7 +7,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 export const Card = memo<CardProps>(({ className, ...props }) => (
   <div
     className={cn(
-      "rounded-xl border border-slate-200 bg-white text-slate-800 shadow-2xs transition-all",
+      "rounded-xl border border-border bg-card text-card-foreground shadow-2xs transition-all",
       className,
     )}
     {...props}
@@ -21,12 +21,12 @@ export const CardHeader = memo<CardProps>(({ className, ...props }) => (
 CardHeader.displayName = "CardHeader";
 
 export const CardTitle = memo<React.HTMLAttributes<HTMLHeadingElement>>(({ className, ...props }) => (
-  <h3 className={cn("font-bold text-sm text-slate-900 leading-snug tracking-tight", className)} {...props} />
+  <h3 className={cn("font-bold text-sm text-foreground leading-snug tracking-tight", className)} {...props} />
 ));
 CardTitle.displayName = "CardTitle";
 
 export const CardDescription = memo<React.HTMLAttributes<HTMLParagraphElement>>(({ className, ...props }) => (
-  <p className={cn("text-xs text-slate-500", className)} {...props} />
+  <p className={cn("text-xs text-muted-foreground", className)} {...props} />
 ));
 CardDescription.displayName = "CardDescription";
 

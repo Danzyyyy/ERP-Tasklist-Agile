@@ -13,9 +13,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     return (
       <label
         className={cn(
-          "relative inline-flex items-center justify-center size-4 rounded-xs border border-slate-300 bg-white transition-colors cursor-pointer select-none",
-          checked ? "bg-blue-600 border-blue-600 text-white" : "hover:border-slate-400",
-          disabled && "cursor-not-allowed opacity-50 bg-slate-100",
+          "relative inline-flex items-center justify-center size-4 rounded-xs border border-input bg-card transition-colors cursor-pointer select-none",
+          checked ? "bg-primary border-primary text-primary-foreground" : "hover:border-ring",
+          disabled && "cursor-not-allowed opacity-50 bg-muted",
           className,
         )}
       >

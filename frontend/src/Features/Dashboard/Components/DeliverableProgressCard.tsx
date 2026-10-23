@@ -12,22 +12,22 @@ export interface DeliverableProgressCardProps {
 
 export const DeliverableProgressCard = memo<DeliverableProgressCardProps>(({ metrics }) => {
   return (
-    <Card className="p-4 bg-gradient-to-r from-white via-white to-blue-50/40 border-blue-200 shadow-2xs">
-      <div className="flex items-center justify-between mb-2">
+    <Card className="p-4 bg-gradient-to-r from-card via-card to-primary-subtle/40 border-primary-subtle-border shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-blue-100/80 text-blue-600 grid place-items-center">
+          <div className="w-9 h-9 rounded-xl bg-primary-subtle text-primary grid place-items-center shrink-0">
             <Sparkles className="size-4" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-900">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold text-foreground">
                 Mesin Kalkulasi Progres Deliverable
               </span>
-              <span className="text-[10px] font-mono font-bold bg-blue-50 text-blue-700 px-2 py-0.2 rounded border border-blue-200">
+              <span className="text-[10px] font-mono font-bold bg-primary-subtle text-primary-subtle-foreground px-2 py-0.2 rounded border border-primary-subtle-border">
                 Formula Q-03 / API-K04-01
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+            <p className="text-[11px] text-muted-foreground font-mono mt-0.5 truncate">
               Rasio jam kerja riil:{" "}
               <b>{formatManHours(metrics.completedManHours)}</b> selesai dari total{" "}
               <b>{formatManHours(metrics.totalEstimatedManHours)}</b> deliverable
@@ -35,11 +35,11 @@ export const DeliverableProgressCard = memo<DeliverableProgressCardProps>(({ met
           </div>
         </div>
 
-        <div className="text-right">
-          <span className="text-2xl font-black text-blue-600 font-mono tracking-tight">
+        <div className="text-left sm:text-right shrink-0">
+          <span className="text-2xl font-black text-primary font-mono tracking-tight">
             {formatPercent(metrics.progressPercentage)}
           </span>
-          <span className="block text-[9px] text-slate-400 font-medium">Deliverable Selesai</span>
+          <span className="block text-[9px] text-muted-foreground font-medium">Deliverable Selesai</span>
         </div>
       </div>
 
@@ -51,7 +51,7 @@ export const DeliverableProgressCard = memo<DeliverableProgressCardProps>(({ met
         className="my-2"
       />
 
-      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-border text-[11px] text-muted-foreground">
         <span className="flex items-center gap-1 font-mono">
           <CheckCircle2 className="size-3 text-emerald-600" />
           Tugas Selesai: <b>{metrics.completedTasks}</b> / {metrics.totalTasks}

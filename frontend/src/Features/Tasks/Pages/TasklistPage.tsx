@@ -169,30 +169,30 @@ export const TasklistPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Top Banner / Heading */}
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-subtle-foreground bg-primary-subtle px-2 py-0.5 rounded border border-primary-subtle-border">
               EXECUTION WORKSPACE / UI-K04-01
             </span>
           </div>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight mt-1.5">
+          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5">
             Tasklist & Dual-Approval Gate
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Hierarki pekerjaan (Modul &rarr; Fitur &rarr; Tugas) sesuai SOP-05 dan akuntabilitas rilis.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {hierarchy.length === 0 && (
             <Button
               variant="outline"
               loading={seeding}
               onClick={seed}
-              className="text-indigo-600 border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50"
+              className="text-primary border-primary-subtle-border bg-primary-subtle/50 hover:bg-primary-subtle text-xs"
             >
-              <Database className="size-3.5 mr-1 text-indigo-600" />
+              <Database className="size-3.5 mr-1 text-primary" />
               Muat Data Demonstrasi
             </Button>
           )}
@@ -200,18 +200,18 @@ export const TasklistPage: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => navigate(ROUTE_PATHS.KANBAN)}
-            className="text-slate-700"
+            className="text-foreground text-xs"
           >
-            <Kanban className="size-3.5 mr-1 text-blue-600" />
+            <Kanban className="size-3.5 mr-1 text-primary" />
             Papan Kanban
           </Button>
 
-          <Button variant="outline" onClick={() => setIsModuleModalOpen(true)}>
-            <FolderPlus className="size-3.5 mr-1 text-slate-600" />
+          <Button variant="outline" onClick={() => setIsModuleModalOpen(true)} className="text-xs">
+            <FolderPlus className="size-3.5 mr-1 text-muted-foreground" />
             Tambah Modul
           </Button>
 
-          <Button variant="primary" onClick={() => setIsTaskModalOpen(true)}>
+          <Button variant="primary" onClick={() => setIsTaskModalOpen(true)} className="text-xs">
             <Plus className="size-3.5 mr-1" />
             Tambah Tugas Baru
           </Button>
@@ -219,22 +219,22 @@ export const TasklistPage: React.FC = () => {
       </div>
 
       {/* Deliverable Progress Card (FTR-K04-07 & Q-03 Engine) */}
-      <Card className="p-4 bg-gradient-to-r from-white via-white to-blue-50/40 border-blue-200 shadow-2xs">
-        <div className="flex items-center justify-between mb-2">
+      <Card className="p-4 bg-gradient-to-r from-card via-card to-primary-subtle/40 border-primary-subtle-border shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-100/70 text-blue-600 grid place-items-center">
+            <div className="w-8 h-8 rounded-lg bg-primary-subtle text-primary grid place-items-center shrink-0">
               <Sparkles className="size-4" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-800">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold text-foreground">
                   Progres Deliverable Sprint Aktif
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">
+                <span className="text-[10px] font-mono text-muted-foreground">
                   (Formula Q-03: Man-Hour DONE / Total Man-Hour)
                 </span>
               </div>
-              <span className="text-[11px] text-slate-500 font-mono">
+              <span className="text-[11px] text-muted-foreground font-mono truncate block">
                 {deliverableStats.doneTasksCount} dari {deliverableStats.totalTasksCount} tugas
                 selesai (
                 <b>{formatManHours(deliverableStats.doneHours)}</b> /{" "}
@@ -243,11 +243,11 @@ export const TasklistPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-right">
-            <span className="text-xl font-extrabold text-blue-600 font-mono">
+          <div className="text-left sm:text-right shrink-0">
+            <span className="text-xl font-extrabold text-primary font-mono">
               {formatPercent(deliverableStats.progressPercentage)}
             </span>
-            <span className="block text-[9px] text-slate-400 font-medium">Akumulasi Selesai</span>
+            <span className="block text-[9px] text-muted-foreground font-medium">Akumulasi Selesai</span>
           </div>
         </div>
 
@@ -275,10 +275,10 @@ export const TasklistPage: React.FC = () => {
       </Card>
 
       {/* Filter Bar */}
-      <div className="bg-white border border-slate-200 rounded-xl p-2.5 px-3 flex items-center justify-between gap-3 shadow-2xs">
-        <div className="flex items-center gap-2 flex-1 max-w-2xl">
+      <div className="bg-white border border-slate-200 rounded-xl p-2.5 px-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-2xs">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 max-w-3xl">
           {/* Module Filter */}
-          <div className="w-48">
+          <div className="w-full sm:w-48 shrink-0">
             <Select
               value={filters.module_id || "ALL"}
               onChange={(e) => setFilter("module_id", e.target.value)}
@@ -293,7 +293,7 @@ export const TasklistPage: React.FC = () => {
           </div>
 
           {/* Status Filter */}
-          <div className="w-44">
+          <div className="w-full sm:w-44 shrink-0">
             <Select
               value={filters.status || "ALL"}
               onChange={(e) => setFilter("status", e.target.value)}
@@ -307,7 +307,7 @@ export const TasklistPage: React.FC = () => {
           </div>
 
           {/* Search Input */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
             <Input
               placeholder="Cari kode tugas atau judul..."
@@ -318,16 +318,17 @@ export const TasklistPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-[11px] text-slate-500 font-mono">
+        <div className="text-[11px] text-slate-500 font-mono self-end md:self-auto shrink-0">
           Total Baris: <b>{treeItems.length}</b>
         </div>
       </div>
 
       {/* Hierarchy Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-2xs overflow-hidden">
-        <table className="w-full border-collapse text-left">
+      <div className="bg-card border border-border rounded-xl shadow-2xs overflow-hidden">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full min-w-[780px] border-collapse text-left">
           <thead>
-            <tr className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+            <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
               <th className="py-2.5 px-3">Hierarki Modul & Tugas (SOP-05)</th>
               <th className="py-2.5 px-3 w-28">Bobot (Q-01)</th>
               <th className="py-2.5 px-3 w-28">Estimasi (Q-02)</th>
@@ -340,8 +341,8 @@ export const TasklistPage: React.FC = () => {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-xs text-slate-400">
-                  <RefreshCw className="size-5 animate-spin mx-auto text-blue-600 mb-2" />
+                <td colSpan={7} className="py-12 text-center text-xs text-muted-foreground">
+                  <RefreshCw className="size-5 animate-spin mx-auto text-primary mb-2" />
                   Memuat pohon hierarki deliverable proyek...
                 </td>
               </tr>
@@ -349,13 +350,13 @@ export const TasklistPage: React.FC = () => {
               <tr>
                 <td colSpan={7} className="py-16 text-center">
                   <div className="max-w-sm mx-auto space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 grid place-items-center mx-auto">
+                    <div className="w-12 h-12 rounded-full bg-primary-subtle text-primary grid place-items-center mx-auto">
                       <Layers className="size-6" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800">
+                    <h3 className="text-sm font-bold text-foreground">
                       Belum Ada Modul atau Tugas
                     </h3>
-                    <p className="text-xs text-slate-500 leading-relaxed">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
                       Mulai dengan membuat Modul baru atau muat data simulasi sprint lengkap untuk
                       menguji seluruh skenario.
                     </p>
@@ -410,6 +411,7 @@ export const TasklistPage: React.FC = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Modals */}
