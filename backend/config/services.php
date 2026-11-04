@@ -35,4 +35,22 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Modul Eksternal ERP PT. Anaheim Nimbus Universal
+    |--------------------------------------------------------------------------
+    */
+    'f1' => [
+        'url' => env('F1_SERVICE_URL', 'http://127.0.0.1:4010'),
+    ],
+
+    'd1' => [
+        'url' => env('D1_SERVICE_URL', 'http://127.0.0.1:3000/api/v1'),
+        'enforce_guard' => env('D1_ENFORCE_GUARD', false),
+    ],
+
+    'e3' => [
+        'url' => env('E3_SERVICE_URL', 'http://127.0.0.1:8002/api/v1'),
+    ],
+
 ];

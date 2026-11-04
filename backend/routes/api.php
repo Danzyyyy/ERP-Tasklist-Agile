@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\v1\ApprovalController;
 use App\Http\Controllers\Api\v1\AuthController;
+use App\Http\Controllers\Api\v1\ExternalProjectController;
 use App\Http\Controllers\Api\v1\ModuleController;
 use App\Http\Controllers\Api\v1\ProgressController;
 use App\Http\Controllers\Api\v1\ReviewController;
@@ -16,14 +17,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
-    // Demo Authentication & Token endpoints (Local / Sprint 1 mock testing)
+    // Authentication endpoints (F-1 Login & Mock demo tokens)
+    Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/auth/demo-tokens', [AuthController::class, 'demoTokens']);
 
     // Authenticated API Endpoints (Bearer JWT Token with F-1 Claims)
     Route::middleware('jwt.verify')->group(function () {
 
-        // User Profile
+        // User Profile & F-1 Identity Endpoints
         Route::get('/auth/me', [AuthController::class, 'me']);
+        Route::get('/identity/accounts/{accountId}', [AuthController::class, 'getAccountIdentity']);
+        Route::get('/identitas/akun/{accountId}', [AuthController::class, 'getAccountIdentity']); // Alias Bahasa
+        Route::get('/accounts/{accountId}/role', [AuthController::class, 'getAccountRole']);
+        Route::get('/akun/{accountId}/peran', [AuthController::class, 'getAccountRole']); // Alias Bahasa
 
         // Module & Feature Hierarchy
         Route::get('/modules', [ModuleController::class, 'index']);
@@ -53,5 +59,10 @@ Route::prefix('v1')->group(function () {
         // FTR-K04-07 & API-K04-01: Deliverable Progress Calculation Engine
         Route::get('/projects/{projectId}/deliverable-progress', [ProgressController::class, 'getDeliverableProgress']);
         Route::get('/modules/{moduleId}/progress', [ProgressController::class, 'getModuleProgress']);
+
+        // Integrasi Eksternal: Modul E-3 (Execution Readiness - Prioritas P6) & Modul D-1 (Project Intake)
+        Route::get('/projects/{projectId}/execution-readiness', [ExternalProjectController::class, 'executionReadiness']);
+        Route::get('/projects/{projectId}', [ExternalProjectController::class, 'projectIntake']);
+        Route::get('/projects/{projectId}/guard', [ExternalProjectController::class, 'projectGuard']);
     });
 });

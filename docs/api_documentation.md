@@ -340,6 +340,76 @@ Jika proyek belum memiliki tugas, sistem menghasilkan `progressPercentage: 0.0` 
 
 ---
 
+### H. Integrasi Lintas-Modul (F-1, D-1, E-3)
+
+Endpoints berikut mengintegrasikan sistem dengan modul eksternal ERP PT. Anaheim Nimbus Universal:
+
+#### 1. Modul F-1 (Identitas & Hak Akses)
+
+##### `POST /auth/login`
+- **Deskripsi**: Login akun pengguna yang diteruskan ke Modul F-1. Menghasilkan Bearer JWT token resmi beserta ringkasan akun.
+- **Akses**: Publik.
+- **Body JSON**:
+```json
+{
+  "emailOrUsername": "fauzan",
+  "password": "Rahasia#2026",
+  "rememberMe": false
+}
+```
+*(Catatan: Field `username` atau `email` didukung sebagai alias)*
+
+##### `GET /identity/accounts/{accountId}` atau `GET /identitas/akun/{akunId}`
+- **Deskripsi**: Mengambil data profil dan identitas akun dari Modul F-1.
+- **Headers**: `Authorization: Bearer <token>`
+
+##### `GET /accounts/{accountId}/role` atau `GET /akun/{akunId}/peran`
+- **Deskripsi**: Memeriksa peran (`roleCode`) dan status keaktifan akun dari Modul F-1.
+- **Headers**: `Authorization: Bearer <token>`
+
+#### 2. Modul D-1 (Registrasi & Project Intake)
+
+##### `GET /projects/{projectId}`
+- **Deskripsi**: Mengambil detail kanonis proyek dari sistem Intake D-1 (nama proyek, klien, PM, status).
+- **Headers**: `Authorization: Bearer <token>`
+
+##### `GET /projects/{projectId}/guard`
+- **Deskripsi**: Memvalidasi guard kelayakan proyek (wajib berstatus `REGISTERED` sebelum tugas eksekusi Agile dapat diproses).
+- **Headers**: `Authorization: Bearer <token>`
+- **Respon (200 OK)**:
+```json
+{
+  "status": "success",
+  "projectId": "PROJ-ERP-01",
+  "allowed": true,
+  "projectStatus": "REGISTERED",
+  "message": "Proyek terverifikasi dan berstatus REGISTERED."
+}
+```
+
+#### 3. Modul E-3 (Execution Readiness — Prioritas Utama P6)
+
+##### `GET /projects/{projectId}/execution-readiness`
+- **Deskripsi**: Mengambil status kesiapan eksekusi proyek dari Modul E-3 berdasarkan kelengkapan Kickoff Meeting dan MoM.
+- **Headers**: `Authorization: Bearer <token>`
+- **Respon (200 OK)**:
+```json
+{
+  "status": "success",
+  "projectId": "PROJ-ERP-01",
+  "data": {
+    "projectId": "PROJ-ERP-01",
+    "kickoffId": "01929b4a-5f10-7a22-9d44-3c8f1b2e7a01",
+    "momId": "01929b4a-5f10-7a22-9d44-3c8f1b2e7a02",
+    "status": "COMPLETED",
+    "completedAt": "2026-11-04T10:00:00Z",
+    "readyForExecution": true
+  }
+}
+```
+
+---
+
 ## 4. Panduan Eksekusi Automated Tests
 
 Untuk memvalidasi seluruh kontrak bisnis dan kriteria penerimaan di atas:

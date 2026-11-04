@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Feature;
 use App\Models\Module;
+use App\Services\ExternalIntegrationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ModuleController extends Controller
 {
+    public function __construct(
+        protected ExternalIntegrationService $integrationService
+    ) {}
+
     /**
      * List all modules with features.
      */
@@ -26,6 +31,7 @@ class ModuleController extends Controller
 
     /**
      * Store new module.
+     * Guards that the project must be REGISTERED in D-1 before creating modules.
      */
     public function store(Request $request): JsonResponse
     {
@@ -35,6 +41,16 @@ class ModuleController extends Controller
             'name' => ['required', 'string'],
             'description' => ['nullable', 'string'],
         ]);
+
+        // D-1 Guard Check: Status REGISTERED
+        $guard = $this->integrationService->guardD1ProjectStatus($validated['project_id'], $request->bearerToken());
+        if (!$guard['allowed']) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 'PROJECT_NOT_REGISTERED',
+                'message' => $guard['message'],
+            ], 422);
+        }
 
         $module = Module::create($validated);
 
