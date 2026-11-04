@@ -182,6 +182,14 @@ class ExternalIntegrationService
         } catch (\Throwable $e) {
             Log::warning("[D-1 Integration] Project lookup failed: " . $e->getMessage());
 
+            if ($this->d1EnforceGuard) {
+                return [
+                    'success' => false,
+                    'status' => 503,
+                    'message' => 'Layanan D-1 Project Intake tidak dapat dihubungi dan strict guard aktif.',
+                ];
+            }
+
             // Fallback canonical response for offline development
             return [
                 'success' => true,
@@ -358,9 +366,11 @@ class ExternalIntegrationService
         }
 
         if (!$matched) {
-            // Default to TL if credentials provided
-            $matched = $mockUsers['tl@anaheim.id'];
-            $matched['email'] = $usernameOrEmail;
+            return [
+                'success' => false,
+                'status' => 401,
+                'message' => 'Email/username atau password salah.',
+            ];
         }
 
         return [

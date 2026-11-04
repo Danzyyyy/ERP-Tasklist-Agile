@@ -97,7 +97,7 @@ class ExternalIntegrationTest extends TestCase
         $projectId = 'PROJ-ERP-01';
 
         $response = $this->withHeader('Authorization', 'Bearer mock_tl')
-            ->getJson("/api/v1/projects/{projectId}/execution-readiness");
+            ->getJson("/api/v1/projects/{$projectId}/execution-readiness");
 
         $response->assertStatus(200)
             ->assertJsonPath('status', 'success')
@@ -121,7 +121,7 @@ class ExternalIntegrationTest extends TestCase
 
         // 1. Project Details
         $response = $this->withHeader('Authorization', 'Bearer mock_tl')
-            ->getJson("/api/v1/projects/{projectId}");
+            ->getJson("/api/v1/projects/{$projectId}");
 
         $response->assertStatus(200)
             ->assertJsonPath('status', 'success')
@@ -133,7 +133,7 @@ class ExternalIntegrationTest extends TestCase
 
         // 2. Guard Check
         $guardResponse = $this->withHeader('Authorization', 'Bearer mock_tl')
-            ->getJson("/api/v1/projects/{projectId}/guard");
+            ->getJson("/api/v1/projects/{$projectId}/guard");
 
         $guardResponse->assertStatus(200)
             ->assertJsonPath('status', 'success')

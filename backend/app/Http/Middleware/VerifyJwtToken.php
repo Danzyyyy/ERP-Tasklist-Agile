@@ -80,8 +80,11 @@ class VerifyJwtToken
         $parts = explode('.', $token);
         if (count($parts) === 3) {
             $payloadBase64 = strtr($parts[1], '-_', '+/');
-            $paddedPayload = str_pad($payloadBase64, strlen($payloadBase64) % 4, '=', STR_PAD_RIGHT);
-            $decodedJson = base64_decode($paddedPayload);
+            $remainder = strlen($payloadBase64) % 4;
+            if ($remainder) {
+                $payloadBase64 .= str_repeat('=', 4 - $remainder);
+            }
+            $decodedJson = base64_decode($payloadBase64);
             if ($decodedJson) {
                 $payload = json_decode($decodedJson, true);
                 if (is_array($payload) && (isset($payload['role']) || isset($payload['roleCode']))) {
