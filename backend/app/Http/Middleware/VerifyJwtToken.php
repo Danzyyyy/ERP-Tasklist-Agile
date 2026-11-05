@@ -80,17 +80,15 @@ class VerifyJwtToken
         $parts = explode('.', $token);
         if (count($parts) === 3) {
             $payloadBase64 = strtr($parts[1], '-_', '+/');
-            $paddedPayload = str_pad($payloadBase64, strlen($payloadBase64) % 4, '=', STR_PAD_RIGHT);
-            $decodedJson = base64_decode($paddedPayload);
+            $remainder = strlen($payloadBase64) % 4;
+            if ($remainder) {
+                $payloadBase64 .= str_repeat('=', 4 - $remainder);
+            }
+            $decodedJson = base64_decode($payloadBase64);
             if ($decodedJson) {
                 $payload = json_decode($decodedJson, true);
-                if (is_array($payload) && isset($payload['role'])) {
-                    return [
-                        'id' => $payload['sub'] ?? $payload['id'] ?? '01926df4-0000-7000-8000-000000000000',
-                        'name' => $payload['name'] ?? 'User',
-                        'email' => $payload['email'] ?? 'user@anaheim.id',
-                        'role' => $payload['role'],
-                    ];
+                if (is_array($payload) && (isset($payload['role']) || isset($payload['roleCode']))) {
+                    return $this->formatUserData($payload);
                 }
             }
         }
@@ -99,16 +97,35 @@ class VerifyJwtToken
         $rawDecoded = base64_decode($token, true);
         if ($rawDecoded) {
             $json = json_decode($rawDecoded, true);
-            if (is_array($json) && isset($json['role'])) {
-                return [
-                    'id' => $json['id'] ?? $json['sub'] ?? '01926df4-0000-7000-8000-000000000000',
-                    'name' => $json['name'] ?? 'User',
-                    'email' => $json['email'] ?? 'user@anaheim.id',
-                    'role' => $json['role'],
-                ];
+            if (is_array($json) && (isset($json['role']) || isset($json['roleCode']))) {
+                return $this->formatUserData($json);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Normalize user payload from F-1 or internal token.
+     */
+    protected function formatUserData(array $payload): array
+    {
+        $rawRole = $payload['role'] ?? $payload['roleCode'] ?? 'DEVELOPER';
+
+        $mappedRole = match (strtoupper((string) $rawRole)) {
+            'TL', 'TECHNICAL_LEAD' => 'TECHNICAL_LEAD',
+            'PM', 'PROJECT_MANAGER' => 'PROJECT_MANAGER',
+            'DEV', 'DEVELOPER', 'EMPLOYEE', 'SPECIALIST' => 'DEVELOPER',
+            'TESTER', 'QA' => 'TESTER',
+            default => $rawRole,
+        };
+
+        return [
+            'id' => $payload['accountId'] ?? $payload['sub'] ?? $payload['id'] ?? '01926df4-0000-7000-8000-000000000000',
+            'name' => $payload['name'] ?? $payload['username'] ?? 'User',
+            'email' => $payload['email'] ?? 'user@anaheim.id',
+            'role' => $mappedRole,
+            'roleCode' => $rawRole,
+        ];
     }
 }

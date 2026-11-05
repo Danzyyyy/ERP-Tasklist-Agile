@@ -1,0 +1,1927 @@
+---
+openapi: 3.0.3
+info:
+  title: ERP PT. Anaheim Nimbus Universal — Modul E-4 (Tasklist & Eksekusi Agile)
+    API
+  description: |
+    Spesifikasi RESTful API untuk **Modul E-4: Tasklist dan Eksekusi Agile (Kelompok 4 / Kelas E)** — ERP Software PT. Anaheim Nimbus Universal.
+
+    ### Ringkasan Fitur & Kontrak Bisnis:
+    - **Hierarki Data SOP-05 (FTR-K04-01)**: `Module -> Feature (opsional/nullable) -> Task`.
+    - **Task Template & Parameter Estimasi (FTR-K04-02)**: Bobot kompleksitas (`LOW`, `MEDIUM`, `HIGH`), satuan estimasi jam kerja riil (`estimated_man_hours`), dan kepatuhan SLA tenggat H-1 (`target_deadline`).
+    - **Dual-Approval Task Release Gate (FTR-K04-03)**: Tugas baru berstatus `DRAFT` dan wajib disetujui secara terpisah oleh `TECHNICAL_LEAD` dan `PROJECT_MANAGER` sebelum beralih ke `RELEASED`.
+    - **Agile Kanban Board 5 Kolom (FTR-K04-04)**: `RELEASED -> DEVELOPMENT -> CODE_REVIEW -> TESTING -> DONE`. Wajib menetapkan pelaksana (`assignee_id`) saat berpindah ke `DEVELOPMENT`.
+    - **Pencatatan Review, QA Testing, & Otomasi Alur Rework (FTR-K04-05)**: Jika hasil pemeriksaan `REJECTED`, tugas otomatis dikembalikan ke kolom `DEVELOPMENT`.
+    - **Two-Gate Definition of Done Sign-off (FTR-K04-06)**: Gerbang 1 verifikasi ceklis PM (`is_pm_verified = true`), dilanjutkan Gerbang 2 otorisasi akhir TL (`is_tl_signed = true`) untuk mengubah status menjadi `DONE`.
+    - **Mesin Kalkulasi Progres Deliverable (FTR-K04-07 & API-K04-01)**: Menghitung persentase progres deliverable proyek/modul berdasarkan rasio man-hour tugas `DONE` terhadap total estimasi man-hour (aman terhadap pembagian nol).
+
+    ### Akun Simulasi / Mock Bearer Tokens (Kontrak Modul F-1):
+    - `mock_tl` — **Technical Lead** (`Fauzan`)
+    - `mock_pm` — **Project Manager** (`Tubagus M. Wildan`)
+    - `mock_dev` — **Frontend Developer** (`Ariel`)
+    - `mock_tester` — **QA Tester** (`Valdric`)
+  version: 1.0.0
+  contact:
+    name: Kelompok 4 / Kelas E — PT. Anaheim Nimbus Universal
+    email: pm@anaheim.id
+servers:
+- url: http://127.0.0.1:8000/api/v1
+  description: Local Development Server (Default Port 8000)
+- url: http://127.0.0.1:8001/api/v1
+  description: Local Development Server (Port 8001)
+tags:
+- name: Authentication
+  description: Autentikasi simulasi Modul F-1 dan informasi profil pengguna aktif
+- name: Modules & Features
+  description: Pengelolaan hierarki Modul dan Fitur proyek (FTR-K04-01)
+- name: Tasks
+  description: Manajemen Task Template, pohon hierarki, penugasan PIC, dan papan Agile
+    Kanban (FTR-K04-01, FTR-K04-02, FTR-K04-04)
+- name: Approvals
+  description: Mekanisme Dual-Approval Task Release oleh Technical Lead & Project
+    Manager (FTR-K04-03)
+- name: Reviews & Sign-off
+  description: Pencatatan Code Review/QA Testing, otomasi alur Rework, serta verifikasi
+    2 gerbang Definition of Done (FTR-K04-05 & FTR-K04-06)
+- name: Deliverable Progress
+  description: Mesin kalkulasi progres deliverable proyek dan modul untuk konsumsi
+    modul E-5, D-3, dan D-4 (FTR-K04-07 & API-K04-01)
+- name: External - Modul F-1 (Identity & Auth)
+  description: Integrasi Autentikasi Login, data Identitas, dan Hak Akses Akun dari
+    Modul F-1
+- name: External - Modul D-1 (Project Intake)
+  description: Integrasi Data Proyek dan Guard Status REGISTERED dari Modul D-1
+- name: External - Modul E-3 (Execution Readiness)
+  description: Integrasi Kesiapan Eksekusi Proyek (Prioritas Utama P6) dari Modul
+    E-3
+security:
+- bearerAuth: []
+paths:
+  "/auth/demo-tokens":
+    get:
+      tags:
+      - Authentication
+      summary: Ambil daftar token simulasi (Mock Tokens F-1)
+      description: Mendapatkan daftar peran pengguna simulasi beserta Bearer token
+        untuk pengujian lokal/Sprint 1 tanpa login OAuth eksternal.
+      operationId: getDemoTokens
+      security: []
+      responses:
+        '200':
+          description: Daftar token simulasi berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/DemoToken"
+  "/auth/me":
+    get:
+      tags:
+      - Authentication
+      summary: Lihat profil pengguna yang sedang login
+      description: Mengembalikan informasi profil dan peran pengguna berdasarkan klaim
+        Bearer token pada header `Authorization`.
+      operationId: getAuthenticatedUser
+      responses:
+        '200':
+          description: Informasi pengguna berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    "$ref": "#/components/schemas/AuthUser"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/modules":
+    get:
+      tags:
+      - Modules & Features
+      summary: Ambil daftar modul beserta fitur di bawahnya
+      description: Mengambil seluruh modul proyek beserta relasi daftar fitur di bawah
+        masing-masing modul.
+      operationId: getModules
+      parameters:
+      - name: project_id
+        in: query
+        description: Kode identifikasi proyek
+        required: false
+        schema:
+          type: string
+          default: PROJ-ERP-01
+          example: PROJ-ERP-01
+      responses:
+        '200':
+          description: Daftar modul dan fitur berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ModuleWithFeatures"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+    post:
+      tags:
+      - Modules & Features
+      summary: Buat modul proyek baru
+      description: Menambahkan modul baru ke dalam proyek.
+      operationId: createModule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateModuleRequest"
+      responses:
+        '201':
+          description: Modul berhasil dibuat.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Modul berhasil dibuat.
+                  data:
+                    "$ref": "#/components/schemas/Module"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '422':
+          "$ref": "#/components/responses/ValidationError"
+  "/modules/{moduleId}/features":
+    post:
+      tags:
+      - Modules & Features
+      summary: Tambahkan fitur baru di bawah modul tertentu
+      description: Membuat entitas fitur baru yang berinduk pada `moduleId` tertentu.
+      operationId: createFeature
+      parameters:
+      - "$ref": "#/components/parameters/ModuleIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateFeatureRequest"
+      responses:
+        '201':
+          description: Fitur berhasil dibuat.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Fitur berhasil dibuat.
+                  data:
+                    "$ref": "#/components/schemas/Feature"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '422':
+          "$ref": "#/components/responses/ValidationError"
+  "/tasks":
+    get:
+      tags:
+      - Tasks
+      summary: Ambil daftar tugas dengan filter opsional
+      description: Mengambil seluruh tugas beserta informasi modul, fitur, status
+        Dual-Approval, dan riwayat review/testing.
+      operationId: getTasks
+      parameters:
+      - name: status
+        in: query
+        description: Filter berdasarkan status siklus hidup tugas
+        required: false
+        schema:
+          "$ref": "#/components/schemas/TaskStatusEnum"
+      - name: module_id
+        in: query
+        description: Filter berdasarkan UUID modul
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: feature_id
+        in: query
+        description: Filter berdasarkan UUID fitur
+        required: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Daftar tugas berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/TaskDetail"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+    post:
+      tags:
+      - Tasks
+      summary: Buat tugas baru (status awal DRAFT & inisialisasi Dual-Approval)
+      description: |
+        Menambahkan tugas baru dengan atribut Task Template terstandarisasi (FTR-K04-02).
+        Status awal tugas otomatis disetel ke **`DRAFT`** dan sistem menginisialisasi 2 catatan persetujuan (`TECHNICAL_LEAD` dan `PROJECT_MANAGER`) dengan status `PENDING`.
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateTaskRequest"
+      responses:
+        '201':
+          description: Tugas berhasil dibuat dengan status DRAFT dan menunggu Dual-Approval.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Tugas berhasil dibuat dengan status DRAFT dan menunggu
+                      Dual-Approval.
+                  data:
+                    "$ref": "#/components/schemas/TaskDetail"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '422':
+          "$ref": "#/components/responses/ValidationError"
+  "/tasks/hierarchy":
+    get:
+      tags:
+      - Tasks
+      summary: Ambil pohon hierarki lengkap proyek (Module -> Feature -> Tasks)
+      description: Mengambil struktur pohon hierarki proyek sesuai SOP-05, mencakup
+        tugas yang berada di bawah fitur maupun tugas yang berinduk langsung ke modul
+        (`feature_id = null`).
+      operationId: getTaskHierarchy
+      parameters:
+      - name: project_id
+        in: query
+        description: Kode identifikasi proyek
+        required: false
+        schema:
+          type: string
+          default: PROJ-ERP-01
+          example: PROJ-ERP-01
+      responses:
+        '200':
+          description: Pohon hierarki proyek berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ModuleHierarchyNode"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/tasks/{id}":
+    get:
+      tags:
+      - Tasks
+      summary: Ambil detail lengkap satu tugas
+      description: Mendapatkan informasi lengkap sebuah tugas beserta relasi modul,
+        fitur, approvals, review logs, dan dependensi prasyarat.
+      operationId: getTaskById
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdPathParam"
+      responses:
+        '200':
+          description: Detail tugas berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    "$ref": "#/components/schemas/TaskDetail"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+  "/tasks/{id}/assign":
+    patch:
+      tags:
+      - Tasks
+      summary: Tetapkan PIC pengembang (Assignee) pada tugas
+      description: Menetapkan ID dan nama pengembang pelaksana (PIC) pada tugas tertentu.
+      operationId: assignTask
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/AssignTaskRequest"
+      responses:
+        '200':
+          description: Pengembang berhasil ditugaskan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Pengembang berhasil ditugaskan.
+                  data:
+                    "$ref": "#/components/schemas/Task"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '422':
+          "$ref": "#/components/responses/ValidationError"
+  "/tasks/{id}/status":
+    patch:
+      tags:
+      - Tasks
+      summary: Ubah status kolom Kanban tugas (FTR-K04-04)
+      description: |
+        Memindahkan kartu tugas antar 5 kolom standar papan Agile Kanban (`RELEASED`, `DEVELOPMENT`, `CODE_REVIEW`, `TESTING`, `DONE`).
+        - **Aturan Assignee**: Saat memindahkan ke `DEVELOPMENT`, tugas wajib telah memiliki pelaksana atau menyertakan `assignee_id` pada request body.
+        - **Aturan Done**: Untuk berpindah ke `DONE`, verifikasi ceklis PM (`is_pm_verified`) dan sign-off TL (`is_tl_signed`) wajib terpenuhi.
+      operationId: updateTaskStatus
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateTaskStatusRequest"
+      responses:
+        '200':
+          description: Status tugas berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Status tugas berhasil diperbarui ke DEVELOPMENT.
+                  data:
+                    "$ref": "#/components/schemas/TaskDetail"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '422':
+          description: Gagal memvalidasi prasyarat perpindahan status (misal belum
+            ada assignee saat ke DEVELOPMENT).
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+              examples:
+                missingAssignee:
+                  summary: Belum ada pelaksana (assignee) saat pindah ke DEVELOPMENT
+                  value:
+                    message: Tentukan pelaksana (assignee) sebelum memulai development.
+                    errors:
+                      assignee:
+                      - Tentukan pelaksana (assignee) sebelum memulai development.
+  "/tasks/{taskId}/approvals":
+    get:
+      tags:
+      - Approvals
+      summary: Lihat status Dual-Approval rilis tugas
+      description: Mengambil daftar catatan persetujuan (`TECHNICAL_LEAD` dan `PROJECT_MANAGER`)
+        untuk sebuah tugas.
+      operationId: getTaskApprovals
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdNamedParam"
+      responses:
+        '200':
+          description: Data persetujuan rilis tugas berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      task_id:
+                        type: string
+                        format: uuid
+                        example: 01a15be6-5638-72a3-a9b8-61a5e3da72de
+                      task_title:
+                        type: string
+                        example: Implementasi endpoint rekap invoice
+                      task_status:
+                        "$ref": "#/components/schemas/TaskStatusEnum"
+                      approvals:
+                        type: array
+                        items:
+                          "$ref": "#/components/schemas/TaskApproval"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+    post:
+      tags:
+      - Approvals
+      summary: Kirim keputusan persetujuan/penolakan rilis tugas (Dual-Approval Gate)
+      description: |
+        Memberikan keputusan `APPROVED` atau `REJECTED` atas rilis tugas (FTR-K04-03).
+        - **Hak Akses**: Hanya untuk peran `TECHNICAL_LEAD` atau `PROJECT_MANAGER` (peran lain ditolak dengan HTTP 403).
+        - **Aturan Rilis**: Tugas baru berubah menjadi `RELEASED` apabila **kedua** peran (`TECHNICAL_LEAD` dan `PROJECT_MANAGER`) telah berstatus `APPROVED`. Jika salah satu `REJECTED`, tugas terkunci di `DRAFT`.
+      operationId: submitTaskApproval
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdNamedParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/SubmitApprovalRequest"
+      responses:
+        '200':
+          description: Keputusan persetujuan berhasil dicatat.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Persetujuan rilis peran TECHNICAL_LEAD berhasil dicatat
+                      dengan hasil APPROVED.
+                  data:
+                    type: object
+                    properties:
+                      approval:
+                        "$ref": "#/components/schemas/TaskApproval"
+                      task:
+                        "$ref": "#/components/schemas/TaskDetail"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          description: Akses ditolak karena pengguna bukan Technical Lead atau Project
+            Manager.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ForbiddenErrorResponse"
+              example:
+                status: error
+                message: Akses ditolak. Hanya peran Technical Lead dan Project Manager
+                  yang berwenang memberikan persetujuan rilis.
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '422':
+          "$ref": "#/components/responses/ValidationError"
+  "/tasks/{taskId}/reviews":
+    post:
+      tags:
+      - Reviews & Sign-off
+      summary: Catat hasil Code Review atau QA Testing & picu Alur Rework (FTR-K04-05)
+      description: |
+        Mencatat hasil pemeriksaan manual `CODE_REVIEW` atau `TESTING` (`QA_TESTING`).
+        - Jika `result` bernilai **`REJECTED`**, sistem otomatis mengembalikan status tugas ke kolom **`DEVELOPMENT`** (Alur Rework).
+        - Jika `review_type` adalah `CODE_REVIEW` dan `result` bernilai **`PASSED`** saat tugas berada di `CODE_REVIEW`, status tugas otomatis maju ke **`TESTING`**.
+      operationId: submitTaskReview
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdNamedParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/SubmitReviewRequest"
+      responses:
+        '200':
+          description: Hasil review/testing berhasil dicatat.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Pemeriksaan TESTING ditolak. Tugas otomatis dikembalikan
+                      ke DEVELOPMENT (Alur Rework).
+                  data:
+                    type: object
+                    properties:
+                      log:
+                        "$ref": "#/components/schemas/TaskReviewLog"
+                      task:
+                        "$ref": "#/components/schemas/TaskDetail"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '422':
+          "$ref": "#/components/responses/ValidationError"
+  "/tasks/{taskId}/pm-verify":
+    patch:
+      tags:
+      - Reviews & Sign-off
+      summary: Gerbang 1 Definition of Done — Verifikasi Ceklis PM (FTR-K04-06)
+      description: |
+        Validasi ceklis kelayakan penyelesaian tugas oleh Project Manager (`is_pm_verified = true`).
+        Wajib dilakukan oleh pengguna dengan peran `PROJECT_MANAGER` sebelum Technical Lead dapat melakukan sign-off akhir.
+      operationId: verifyTaskByPm
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdNamedParam"
+      responses:
+        '200':
+          description: Ceklis verifikasi kelayakan PM berhasil divalidasi.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Ceklis verifikasi kelayakan PM berhasil divalidasi. Tombol
+                      otorisasi TL kini aktif.
+                  data:
+                    "$ref": "#/components/schemas/Task"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          description: Akses ditolak karena pengguna bukan Project Manager.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ForbiddenErrorResponse"
+              example:
+                status: error
+                message: Akses ditolak. Hanya peran Project Manager yang berwenang
+                  mengisi verifikasi ceklis penyelesaian.
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+  "/tasks/{taskId}/tl-signoff":
+    patch:
+      tags:
+      - Reviews & Sign-off
+      summary: Gerbang 2 Definition of Done — Otorisasi Sign-off Akhir TL (FTR-K04-06)
+      description: |
+        Otorisasi akhir oleh Technical Lead (`is_tl_signed = true`) yang mengesahkan status tugas menjadi **`DONE`**.
+        - **Hak Akses**: Wajib peran `TECHNICAL_LEAD` (selain itu ditolak dengan HTTP 403).
+        - **Prasyarat Gerbang**: Wajib telah diverifikasi oleh PM (`is_pm_verified = true`). Jika belum, sistem menolak dengan HTTP 422.
+      operationId: signOffTaskByTl
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdNamedParam"
+      responses:
+        '200':
+          description: Otorisasi sign-off penutupan tugas oleh Technical Lead berhasil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Otorisasi sign-off penutupan tugas oleh Technical Lead
+                      berhasil. Tugas resmi berstatus DONE.
+                  data:
+                    "$ref": "#/components/schemas/Task"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          description: Akses ditolak karena pengguna bukan Technical Lead.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ForbiddenErrorResponse"
+              example:
+                status: error
+                message: Hanya peran Technical Lead yang berwenang melakukan final
+                  sign-off penutupan tugas.
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '422':
+          description: Ceklis verifikasi PM belum dipenuhi sebelum sign-off TL.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+              example:
+                message: Verifikasi ceklis PM wajib dipenuhi sebelum TL dapat mengesahkan
+                  tugas menjadi Done.
+                errors:
+                  verification:
+                  - Verifikasi ceklis PM wajib dipenuhi sebelum TL dapat mengesahkan
+                    tugas menjadi Done.
+  "/tasks/{taskId}/sign-off-done":
+    patch:
+      tags:
+      - Reviews & Sign-off
+      summary: Alias Gerbang 2 Definition of Done — Otorisasi Sign-off Akhir TL (FTR-K04-06)
+      description: Endpoint alias dari `PATCH /tasks/{taskId}/tl-signoff` sesuai spesifikasi
+        fitur minimum FTR-K04-06 untuk mengesahkan tugas menjadi `DONE` oleh Technical
+        Lead.
+      operationId: signOffDoneTaskByTl
+      parameters:
+      - "$ref": "#/components/parameters/TaskIdNamedParam"
+      responses:
+        '200':
+          description: Otorisasi sign-off penutupan tugas oleh Technical Lead berhasil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Otorisasi sign-off penutupan tugas oleh Technical Lead
+                      berhasil. Tugas resmi berstatus DONE.
+                  data:
+                    "$ref": "#/components/schemas/Task"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          description: Akses ditolak karena pengguna bukan Technical Lead.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ForbiddenErrorResponse"
+              example:
+                status: error
+                message: Hanya peran Technical Lead yang berwenang melakukan final
+                  sign-off penutupan tugas.
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '422':
+          description: Ceklis verifikasi PM belum dipenuhi sebelum sign-off TL.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+              example:
+                message: Verifikasi ceklis PM wajib dipenuhi sebelum TL dapat mengesahkan
+                  tugas menjadi Done.
+                errors:
+                  verification:
+                  - Verifikasi ceklis PM wajib dipenuhi sebelum TL dapat mengesahkan
+                    tugas menjadi Done.
+  "/projects/{projectId}/deliverable-progress":
+    get:
+      tags:
+      - Deliverable Progress
+      summary: Hitung persentase progres deliverable proyek (API-K04-01 / FTR-K04-07)
+      description: |
+        Menghitung secara matematis persentase progres deliverable proyek berbasis akumulasi jam kerja (man-hour) tugas berstatus `DONE` sesuai ketetapan Q-03:
+        `progressPercentage = (completedManHours / totalEstimatedManHours) * 100%`.
+        Jika proyek belum memiliki tugas atau total estimasi man-hour adalah 0, sistem mengembalikan `0.0` (aman terhadap pembagian dengan nol).
+        Endpoint ini dikonsumsi oleh modul E-5, D-3, dan D-4.
+      operationId: getProjectDeliverableProgress
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: Kode identifikasi proyek (misal `PROJ-ERP-01`)
+        schema:
+          type: string
+          example: PROJ-ERP-01
+      responses:
+        '200':
+          description: Metrik progres deliverable proyek berhasil dihitung.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  projectId:
+                    type: string
+                    example: PROJ-ERP-01
+                  data:
+                    "$ref": "#/components/schemas/DeliverableProgressMetrics"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/modules/{moduleId}/progress":
+    get:
+      tags:
+      - Deliverable Progress
+      summary: Hitung persentase progres deliverable spesifik pada satu modul
+      description: Menghitung metrik progres deliverable untuk tugas-tugas yang berada
+        di bawah satu modul spesifik.
+      operationId: getModuleDeliverableProgress
+      parameters:
+      - "$ref": "#/components/parameters/ModuleIdParam"
+      responses:
+        '200':
+          description: Metrik progres deliverable modul berhasil dihitung.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  moduleId:
+                    type: string
+                    format: uuid
+                    example: 01a15be6-5631-718d-a765-08ec530e5cb6
+                  moduleName:
+                    type: string
+                    example: Tasklist dan Eksekusi Agile
+                  moduleCode:
+                    type: string
+                    example: MOD-E4
+                  data:
+                    "$ref": "#/components/schemas/DeliverableProgressMetrics"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+  "/auth/login":
+    post:
+      tags:
+      - External - Modul F-1 (Identity & Auth)
+      - Authentication
+      summary: Login pengguna via Modul F-1 (POST /auth/login)
+      description: Memvalidasi kredensial pengguna (email/username & password) ke
+        Modul F-1 dan menerbitkan Bearer JWT Token.
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LoginRequest"
+      responses:
+        '200':
+          description: Login berhasil, token JWT dan data akun diterbitkan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Login berhasil.
+                  data:
+                    "$ref": "#/components/schemas/LoginResponse"
+        '401':
+          description: Kredensial tidak valid.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+        '422':
+          "$ref": "#/components/responses/ValidationError"
+  "/identity/accounts/{accountId}":
+    get:
+      tags:
+      - External - Modul F-1 (Identity & Auth)
+      summary: Ambil identitas akun via Modul F-1 (GET /identity/accounts/{accountId})
+      description: Mengambil data identitas pengguna (profil, nama, email, role) dari
+        sistem Modul F-1.
+      operationId: getAccountIdentity
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1'
+      responses:
+        '200':
+          description: Identitas akun berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    "$ref": "#/components/schemas/UserIdentity"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+  "/identitas/akun/{accountId}":
+    get:
+      tags:
+      - External - Modul F-1 (Identity & Auth)
+      summary: Alias Bahasa Indonesia untuk /identity/accounts/{accountId}
+      description: Endpoint alias sesuai dokumen kesepakatan integrasi untuk mengambil
+        data identitas akun dari Modul F-1.
+      operationId: getAccountIdentityId
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Identitas akun berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    "$ref": "#/components/schemas/UserIdentity"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/accounts/{accountId}/role":
+    get:
+      tags:
+      - External - Modul F-1 (Identity & Auth)
+      summary: Ambil peran akun via Modul F-1 (GET /accounts/{accountId}/role)
+      description: Memeriksa kode peran (roleCode) dan status keaktifan akun dari
+        Modul F-1.
+      operationId: getAccountRole
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1'
+      responses:
+        '200':
+          description: Peran akun berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    "$ref": "#/components/schemas/AccountRole"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+  "/akun/{accountId}/peran":
+    get:
+      tags:
+      - External - Modul F-1 (Identity & Auth)
+      summary: Alias Bahasa Indonesia untuk /accounts/{accountId}/role
+      description: Endpoint alias sesuai dokumen kesepakatan integrasi untuk memeriksa
+        peran akun dari Modul F-1.
+      operationId: getAccountRoleId
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Peran akun berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    "$ref": "#/components/schemas/AccountRole"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/projects/{projectId}":
+    get:
+      tags:
+      - External - Modul D-1 (Project Intake)
+      summary: Ambil informasi proyek kanonis dari Modul D-1 (GET /projects/{projectId})
+      description: Mengambil data proyek resmi dari sistem Intake D-1 untuk memverifikasi
+        detail klien, PM, dan status registrasi.
+      operationId: getProjectIntakeDetails
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: UUID v7 atau kode proyek
+        schema:
+          type: string
+          example: '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90'
+      responses:
+        '200':
+          description: Data proyek berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  projectId:
+                    type: string
+                    example: '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90'
+                  data:
+                    "$ref": "#/components/schemas/ProjectIntakeResponse"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+  "/projects/{projectId}/guard":
+    get:
+      tags:
+      - External - Modul D-1 (Project Intake)
+      summary: Periksa guard kelayakan proyek (Wajib status REGISTERED)
+      description: Memastikan bahwa proyek telah disahkan dengan status REGISTERED
+        di sistem intake D-1 sebelum modul/tugas eksekusi Agile dapat diproses.
+      operationId: checkProjectGuard
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: PROJ-ERP-01
+      responses:
+        '200':
+          description: Proyek terverifikasi dan memenuhi syarat (status REGISTERED).
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProjectGuardResponse"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '422':
+          description: Proyek tidak berstatus REGISTERED atau belum terdaftar di D-1.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProjectGuardResponse"
+  "/projects/{projectId}/execution-readiness":
+    get:
+      tags:
+      - External - Modul E-3 (Execution Readiness)
+      summary: Ambil status kesiapan eksekusi proyek dari Modul E-3 (Prioritas Utama
+        P6)
+      description: Mengambil status kesiapan eksekusi proyek dari Modul E-3 berdasarkan
+        penyelesaian Kickoff Meeting dan MoM. Hasil mencakup flag readyForExecution.
+      operationId: getProjectExecutionReadiness
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: PROJ-ERP-01
+      responses:
+        '200':
+          description: Status kesiapan eksekusi proyek berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  projectId:
+                    type: string
+                    example: PROJ-ERP-01
+                  data:
+                    "$ref": "#/components/schemas/ExecutionReadinessResponse"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Masukkan Bearer Token JWT sesuai kontrak Modul F-1 atau gunakan
+        token simulasi (`mock_tl`, `mock_pm`, `mock_dev`, `mock_tester`).
+
+'
+  parameters:
+    ModuleIdParam:
+      name: moduleId
+      in: path
+      required: true
+      description: UUID v7 dari Modul
+      schema:
+        type: string
+        format: uuid
+        example: 01a15be6-5631-718d-a765-08ec530e5cb6
+    TaskIdPathParam:
+      name: id
+      in: path
+      required: true
+      description: UUID v7 dari Tugas (Task)
+      schema:
+        type: string
+        format: uuid
+        example: 01a15be6-5638-72a3-a9b8-61a5e3da72de
+    TaskIdNamedParam:
+      name: taskId
+      in: path
+      required: true
+      description: UUID v7 dari Tugas (Task)
+      schema:
+        type: string
+        format: uuid
+        example: 01a15be6-5638-72a3-a9b8-61a5e3da72de
+  responses:
+    UnauthorizedError:
+      description: Tidak terotentikasi — Header Authorization Bearer token tidak ada
+        atau tidak valid.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+          example:
+            status: error
+            message: 'Unauthenticated: Bearer token is missing or invalid.'
+    NotFoundError:
+      description: Entitas atau sumber daya yang diminta tidak ditemukan.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: No query results for model [App\Models\Task] 01a15be6-0000-7000-8000-000000000000
+    ValidationError:
+      description: Kesalahan validasi input (Unprocessable Content).
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/ValidationErrorResponse"
+  schemas:
+    UserRoleEnum:
+      type: string
+      enum:
+      - TECHNICAL_LEAD
+      - PROJECT_MANAGER
+      - DEVELOPER
+      - TESTER
+      example: TECHNICAL_LEAD
+    ComplexityWeightEnum:
+      type: string
+      enum:
+      - LOW
+      - MEDIUM
+      - HIGH
+      example: HIGH
+    TaskStatusEnum:
+      type: string
+      enum:
+      - DRAFT
+      - RELEASED
+      - DEVELOPMENT
+      - CODE_REVIEW
+      - TESTING
+      - DONE
+      example: DEVELOPMENT
+    ApprovalStatusEnum:
+      type: string
+      enum:
+      - PENDING
+      - APPROVED
+      - REJECTED
+      example: APPROVED
+    ReviewTypeEnum:
+      type: string
+      enum:
+      - CODE_REVIEW
+      - TESTING
+      - QA_TESTING
+      description: Nilai `QA_TESTING` diterima pada input dan dinormalisasi menjadi
+        `TESTING`.
+      example: TESTING
+    ReviewResultEnum:
+      type: string
+      enum:
+      - PASSED
+      - REJECTED
+      example: REJECTED
+    DependencyTypeEnum:
+      type: string
+      enum:
+      - HARD_BLOCK
+      - WARNING
+      example: HARD_BLOCK
+    DemoToken:
+      type: object
+      properties:
+        role:
+          "$ref": "#/components/schemas/UserRoleEnum"
+        name:
+          type: string
+          example: Fauzan (Technical Lead)
+        email:
+          type: string
+          format: email
+          example: tl@anaheim.id
+        token:
+          type: string
+          example: mock_tl
+        description:
+          type: string
+          example: Memiliki hak Dual-Approval Task Release dan Sign-off Final DONE.
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '01926df4-0001-7000-8000-000000000001'
+        name:
+          type: string
+          example: Fauzan (Technical Lead)
+        email:
+          type: string
+          format: email
+          example: tl@anaheim.id
+        role:
+          "$ref": "#/components/schemas/UserRoleEnum"
+    Module:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 01a15be6-5631-718d-a765-08ec530e5cb6
+        project_id:
+          type: string
+          example: PROJ-ERP-01
+        code:
+          type: string
+          example: MOD-E4
+        name:
+          type: string
+          example: Tasklist dan Eksekusi Agile
+        description:
+          type: string
+          nullable: true
+          example: Modul pengelolaan hierarki tugas dan eksekusi Agile Kanban
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Feature:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 01a15be6-5634-72a3-a9b8-61a5e3da72de
+        module_id:
+          type: string
+          format: uuid
+          example: 01a15be6-5631-718d-a765-08ec530e5cb6
+        code:
+          type: string
+          example: FTR-K04-03
+        name:
+          type: string
+          example: Dual-Approval Task Release Gate
+        description:
+          type: string
+          nullable: true
+          example: Mekanisme persetujuan ganda oleh TL dan PM sebelum tugas dirilis
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ModuleWithFeatures:
+      allOf:
+      - "$ref": "#/components/schemas/Module"
+      - type: object
+        properties:
+          features:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Feature"
+    ModuleHierarchyNode:
+      allOf:
+      - "$ref": "#/components/schemas/Module"
+      - type: object
+        properties:
+          features:
+            type: array
+            items:
+              allOf:
+              - "$ref": "#/components/schemas/Feature"
+              - type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/TaskWithApprovals"
+          tasks:
+            type: array
+            description: Tugas-tugas yang berinduk langsung pada modul tanpa fitur
+              (`feature_id = null`)
+            items:
+              "$ref": "#/components/schemas/TaskWithApprovals"
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 01a15be6-5638-72a3-a9b8-61a5e3da72de
+        module_id:
+          type: string
+          format: uuid
+          example: 01a15be6-5631-718d-a765-08ec530e5cb6
+        feature_id:
+          type: string
+          format: uuid
+          nullable: true
+          example: 01a15be6-5634-72a3-a9b8-61a5e3da72de
+        task_code:
+          type: string
+          example: TSK-099
+        title:
+          type: string
+          example: Implementasi endpoint rekap invoice
+        description:
+          type: string
+          nullable: true
+          example: Integrasi perhitungan PPN 12% dan diskon volume
+        complexity_weight:
+          "$ref": "#/components/schemas/ComplexityWeightEnum"
+        estimated_man_hours:
+          type: number
+          format: float
+          example: 14.5
+        actual_man_hours:
+          type: number
+          format: float
+          example: 0
+        target_deadline:
+          type: string
+          format: date-time
+          example: '2026-11-15T17:00:00Z'
+        status:
+          "$ref": "#/components/schemas/TaskStatusEnum"
+        is_pm_verified:
+          type: boolean
+          example: false
+        pm_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: 
+        pm_verified_by:
+          type: string
+          nullable: true
+          example: 
+        is_tl_signed:
+          type: boolean
+          example: false
+        tl_signed_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: 
+        tl_signed_by:
+          type: string
+          nullable: true
+          example: 
+        assignee_id:
+          type: string
+          nullable: true
+          example: '01926df4-0003-7000-8000-000000000003'
+        assignee_name:
+          type: string
+          nullable: true
+          example: Ariel (Frontend Dev)
+        created_by:
+          type: string
+          nullable: true
+          example: '01926df4-0001-7000-8000-000000000001'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TaskApproval:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 01a15be6-5640-7111-9000-111111111111
+        task_id:
+          type: string
+          format: uuid
+          example: 01a15be6-5638-72a3-a9b8-61a5e3da72de
+        role:
+          type: string
+          enum:
+          - TECHNICAL_LEAD
+          - PROJECT_MANAGER
+          example: TECHNICAL_LEAD
+        status:
+          "$ref": "#/components/schemas/ApprovalStatusEnum"
+        approver_id:
+          type: string
+          nullable: true
+          example: '01926df4-0001-7000-8000-000000000001'
+        approver_name:
+          type: string
+          nullable: true
+          example: Fauzan (Technical Lead)
+        notes:
+          type: string
+          nullable: true
+          example: Estimasi waktu dan arsitektur telah diverifikasi sesuai SLA SOP-07.
+        actioned_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TaskReviewLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 01a15be6-5650-7222-9000-222222222222
+        task_id:
+          type: string
+          format: uuid
+          example: 01a15be6-5638-72a3-a9b8-61a5e3da72de
+        review_type:
+          type: string
+          enum:
+          - CODE_REVIEW
+          - TESTING
+          example: TESTING
+        result:
+          "$ref": "#/components/schemas/ReviewResultEnum"
+        reviewer_id:
+          type: string
+          example: '01926df4-0004-7000-8000-000000000004'
+        reviewer_name:
+          type: string
+          example: Valdric (QA Tester)
+        notes:
+          type: string
+          nullable: true
+          example: 'Bug ditemukan: nilai total diskon bernilai negatif saat kupon
+            kadaluarsa.'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TaskDependency:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        task_id:
+          type: string
+          format: uuid
+        prerequisite_task_id:
+          type: string
+          format: uuid
+        dependency_type:
+          "$ref": "#/components/schemas/DependencyTypeEnum"
+        prerequisite_task:
+          "$ref": "#/components/schemas/Task"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TaskWithApprovals:
+      allOf:
+      - "$ref": "#/components/schemas/Task"
+      - type: object
+        properties:
+          approvals:
+            type: array
+            items:
+              "$ref": "#/components/schemas/TaskApproval"
+    TaskDetail:
+      allOf:
+      - "$ref": "#/components/schemas/Task"
+      - type: object
+        properties:
+          module:
+            "$ref": "#/components/schemas/Module"
+          feature:
+            allOf:
+            - "$ref": "#/components/schemas/Feature"
+            nullable: true
+          approvals:
+            type: array
+            items:
+              "$ref": "#/components/schemas/TaskApproval"
+          review_logs:
+            type: array
+            items:
+              "$ref": "#/components/schemas/TaskReviewLog"
+          dependencies:
+            type: array
+            items:
+              "$ref": "#/components/schemas/TaskDependency"
+    DeliverableProgressMetrics:
+      type: object
+      properties:
+        totalTasks:
+          type: integer
+          example: 8
+        completedTasks:
+          type: integer
+          example: 3
+        totalEstimatedManHours:
+          type: number
+          format: float
+          example: 78.5
+        completedManHours:
+          type: number
+          format: float
+          example: 32.0
+        actualManHoursSpent:
+          type: number
+          format: float
+          example: 28.5
+        progressPercentage:
+          type: number
+          format: float
+          description: Rasio (completedManHours / totalEstimatedManHours) * 100%,
+            bernilai 0.0 jika belum ada tugas.
+          example: 40.76
+        tasksAtRiskOrOverdue:
+          type: integer
+          description: Jumlah tugas belum DONE yang telah melewati tenggat H-1 (`target_deadline`).
+          example: 1
+        calculatedAt:
+          type: string
+          format: date-time
+          example: '2026-10-21T07:50:00+00:00'
+    CreateModuleRequest:
+      type: object
+      required:
+      - project_id
+      - code
+      - name
+      properties:
+        project_id:
+          type: string
+          example: PROJ-ERP-01
+        code:
+          type: string
+          description: Kode unik modul
+          example: MOD-INV
+        name:
+          type: string
+          example: Inventory & Asset Management
+        description:
+          type: string
+          nullable: true
+          example: Pengelolaan stok barang dan inventaris gudang
+    CreateFeatureRequest:
+      type: object
+      required:
+      - code
+      - name
+      properties:
+        code:
+          type: string
+          description: Kode unik fitur
+          example: FTR-INV-01
+        name:
+          type: string
+          example: Barcode Scanning
+        description:
+          type: string
+          nullable: true
+          example: Pemindaian barcode barang masuk
+    CreateTaskRequest:
+      type: object
+      required:
+      - module_id
+      - task_code
+      - title
+      - complexity_weight
+      - estimated_man_hours
+      - target_deadline
+      properties:
+        module_id:
+          type: string
+          format: uuid
+          example: 01a15be6-5631-718d-a765-08ec530e5cb6
+        feature_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Opsional sesuai Q-13 (SOP-05)
+          example: 01a15be6-5634-72a3-a9b8-61a5e3da72de
+        task_code:
+          type: string
+          maxLength: 50
+          example: TSK-099
+        title:
+          type: string
+          maxLength: 255
+          example: Implementasi endpoint rekap invoice
+        description:
+          type: string
+          nullable: true
+          example: Integrasi perhitungan PPN 12% dan diskon volume
+        complexity_weight:
+          "$ref": "#/components/schemas/ComplexityWeightEnum"
+        estimated_man_hours:
+          type: number
+          format: float
+          minimum: 0.25
+          description: Estimasi beban jam kerja riil (minimal 0.25 man-hour sesuai
+            Q-02)
+          example: 14.5
+        actual_man_hours:
+          type: number
+          format: float
+          minimum: 0
+          nullable: true
+          example: 0
+        target_deadline:
+          type: string
+          format: date-time
+          description: Tenggat waktu acuan H-1 deliverable dalam format ISO 8601 (Q-11)
+          example: '2026-11-15T17:00:00Z'
+    AssignTaskRequest:
+      type: object
+      required:
+      - assignee_id
+      - assignee_name
+      properties:
+        assignee_id:
+          type: string
+          example: '01926df4-0003-7000-8000-000000000003'
+        assignee_name:
+          type: string
+          example: Ariel (Frontend Dev)
+    UpdateTaskStatusRequest:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - RELEASED
+          - DEVELOPMENT
+          - CODE_REVIEW
+          - TESTING
+          - DONE
+          example: DEVELOPMENT
+        assignee_id:
+          type: string
+          nullable: true
+          description: Wajib diisi apabila tugas belum memiliki assignee dan target
+            status adalah DEVELOPMENT
+          example: '01926df4-0003-7000-8000-000000000003'
+        assignee_name:
+          type: string
+          nullable: true
+          example: Ariel (Frontend Dev)
+    SubmitApprovalRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - APPROVED
+          - REJECTED
+          description: Keputusan persetujuan rilis (`decision` juga didukung sebagai
+            alias dari `status`)
+          example: APPROVED
+        decision:
+          type: string
+          enum:
+          - APPROVED
+          - REJECTED
+          description: Alias opsional untuk field `status`
+          example: APPROVED
+        notes:
+          type: string
+          nullable: true
+          example: Estimasi waktu dan arsitektur telah diverifikasi sesuai SLA SOP-07.
+    SubmitReviewRequest:
+      type: object
+      required:
+      - review_type
+      - result
+      properties:
+        review_type:
+          "$ref": "#/components/schemas/ReviewTypeEnum"
+        result:
+          "$ref": "#/components/schemas/ReviewResultEnum"
+        notes:
+          type: string
+          nullable: true
+          example: 'Bug ditemukan: nilai total diskon bernilai negatif saat kupon
+            kadaluarsa.'
+    UnauthorizedErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: 'Unauthenticated: Bearer token is missing or invalid.'
+    ForbiddenErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Akses ditolak. Hanya peran Technical Lead dan Project Manager yang
+            berwenang memberikan persetujuan rilis.
+    ValidationErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    LoginRequest:
+      type: object
+      required:
+      - password
+      properties:
+        emailOrUsername:
+          type: string
+          description: Email atau nama pengguna F-1
+          example: nauval.rizki@anaheimnimbus.co.id
+        username:
+          type: string
+          description: Alias input username
+          example: fauzan
+        password:
+          type: string
+          format: password
+          example: Rahasia#2026
+        rememberMe:
+          type: boolean
+          default: false
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiJ9.contoh-token-jwt
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          example: 3600
+        account:
+          type: object
+          properties:
+            accountId:
+              type: string
+              format: uuid
+              example: '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1'
+            name:
+              type: string
+              example: Fauzan (Technical Lead)
+            email:
+              type: string
+              example: tl@anaheim.id
+            roleCode:
+              type: string
+              example: TL
+            role:
+              type: string
+              example: TECHNICAL_LEAD
+    UserIdentity:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          example: '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1'
+        employeeId:
+          type: string
+          format: uuid
+          example: '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90'
+        name:
+          type: string
+          example: Fauzan
+        roleCode:
+          type: string
+          example: TL
+        position:
+          type: string
+          example: Technical Lead
+        email:
+          type: string
+          format: email
+          example: tl@anaheim.id
+        status:
+          type: string
+          example: active
+    AccountRole:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          example: '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1'
+        roleCode:
+          type: string
+          example: TL
+        status:
+          type: string
+          example: active
+    ProjectIntakeResponse:
+      type: object
+      properties:
+        projectId:
+          type: string
+          example: '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90'
+        canonicalCode:
+          type: string
+          example: '202601'
+        projectName:
+          type: string
+          example: Implementasi ERP Modul E-4 Tasklist
+        clientId:
+          type: string
+          example: CLI-001
+        clientName:
+          type: string
+          example: PT. Anaheim Nimbus Universal
+        amName:
+          type: string
+          example: Fikri Lazuardi Fadilla (AM)
+        pmName:
+          type: string
+          example: Sandy Walsh
+        status:
+          type: string
+          example: REGISTERED
+        active:
+          type: boolean
+          example: true
+    ProjectGuardResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        projectId:
+          type: string
+          example: PROJ-ERP-01
+        allowed:
+          type: boolean
+          example: true
+        projectStatus:
+          type: string
+          example: REGISTERED
+        message:
+          type: string
+          example: Proyek terverifikasi dan berstatus REGISTERED.
+        data:
+          "$ref": "#/components/schemas/ProjectIntakeResponse"
+    ExecutionReadinessResponse:
+      type: object
+      properties:
+        projectId:
+          type: string
+          example: PROJ-ERP-01
+        kickoffId:
+          type: string
+          nullable: true
+          example: '01929b4a-5f10-7a22-9d44-3c8f1b2e7a01'
+        momId:
+          type: string
+          nullable: true
+          example: '01929b4a-5f10-7a22-9d44-3c8f1b2e7a02'
+        status:
+          type: string
+          example: COMPLETED
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-11-04T10:00:00Z'
+        readyForExecution:
+          type: boolean
+          example: true
