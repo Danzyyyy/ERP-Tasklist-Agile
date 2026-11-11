@@ -41,6 +41,11 @@ export const KANBAN_COLUMNS: readonly KanbanColumnDef[] = [
 
 export const DEMO_DEVELOPERS = [
   {
+    id: "01926df4-0005-7000-8000-000000000005",
+    name: "Muhamad Fajri (Backend Dev)",
+    role: "Backend Developer",
+  },
+  {
     id: "01926df4-0003-7000-8000-000000000003",
     name: "Ariel (Frontend Dev)",
     role: "Frontend Developer",

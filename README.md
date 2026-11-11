@@ -169,6 +169,7 @@ Aplikasi dilengkapi tombol beralih peran instan di pojok kanan atas navbar:
 - **Technical Lead**: `Fauzan (TL)` &bull; Token: `mock_tl` *(Otoritas Dual-Approval & Sign-off Final)*
 - **Project Manager**: `Tubagus M. Wildan (PM)` &bull; Token: `mock_pm` *(Otoritas Dual-Approval & Ceklis PM)*
 - **Frontend Developer**: `Ariel (Dev)` &bull; Token: `mock_dev` *(Eksekusi Development & Pengajuan Review)*
+- **Backend Developer**: `Muhamad Fajri (BE)` &bull; Token: `mock_fajri` *(Eksekusi Backend & Integrasi API)*
 - **QA Tester**: `Valdric (QA)` &bull; Token: `mock_tester` *(Pengujian QA & Pemicu Alur Rework)*
 
 ---

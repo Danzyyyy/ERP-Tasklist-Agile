@@ -121,6 +121,13 @@ class AuthController extends Controller
                 'description' => 'Dapat menarik tugas ke Development dan mengajukan Code Review.',
             ],
             [
+                'role' => 'DEVELOPER',
+                'name' => 'Muhamad Fajri (Backend Dev)',
+                'email' => 'fajri@anaheim.id',
+                'token' => 'mock_fajri',
+                'description' => 'Dapat menarik tugas ke Development, integrasi API Backend, dan update status.',
+            ],
+            [
                 'role' => 'TESTER',
                 'name' => 'Valdric (QA Tester)',
                 'email' => 'tester@anaheim.id',
