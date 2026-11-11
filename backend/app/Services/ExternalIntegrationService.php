@@ -344,6 +344,13 @@ class ExternalIntegrationService
                 'name' => 'Ariel (Frontend Dev)',
                 'id' => '01926df4-0003-7000-8000-000000000003',
             ],
+            'fajri@anaheim.id' => [
+                'role' => 'DEVELOPER',
+                'roleCode' => 'DEV',
+                'token' => 'mock_fajri',
+                'name' => 'Muhamad Fajri (Backend Dev)',
+                'id' => '01926df4-0005-7000-8000-000000000005',
+            ],
             'tester@anaheim.id' => [
                 'role' => 'TESTER',
                 'roleCode' => 'TESTER',

@@ -19,6 +19,7 @@ info:
     - `mock_tl` — **Technical Lead** (`Fauzan`)
     - `mock_pm` — **Project Manager** (`Tubagus M. Wildan`)
     - `mock_dev` — **Frontend Developer** (`Ariel`)
+    - `mock_fajri` — **Backend Developer** (`Muhamad Fajri`)
     - `mock_tester` — **QA Tester** (`Valdric`)
   version: 1.0.0
   contact:
@@ -1085,7 +1086,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: 'Masukkan Bearer Token JWT sesuai kontrak Modul F-1 atau gunakan
-        token simulasi (`mock_tl`, `mock_pm`, `mock_dev`, `mock_tester`).
+        token simulasi (`mock_tl`, `mock_pm`, `mock_dev`, `mock_fajri`, `mock_tester`).
 
 '
   parameters:

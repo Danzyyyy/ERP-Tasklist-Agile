@@ -23,6 +23,7 @@ Untuk keperluan pengujian lokal / Postman selama Sprint 1, sistem menyediakan to
 | **Technical Lead (TL)** | `mock_tl` | `01926df4-0001-7000-8000-000000000001` | Dual-Approval Task Release & Otorisasi Sign-off Akhir (`DONE`) |
 | **Project Manager (PM)** | `mock_pm` | `01926df4-0002-7000-8000-000000000002` | Dual-Approval Task Release & Verifikasi Ceklis PM |
 | **Frontend Developer** | `mock_dev` | `01926df4-0003-7000-8000-000000000003` | Menarik tugas ke `DEVELOPMENT`, update status, penugasan PIC |
+| **Backend Developer** | `mock_fajri` | `01926df4-0005-7000-8000-000000000005` | Eksekusi Backend, integrasi API, update status tugas |
 | **QA Tester** | `mock_tester` | `01926df4-0004-7000-8000-000000000004` | Pengujian QA & Pemicu Otomasi Alur *Rework* |
 
 ---

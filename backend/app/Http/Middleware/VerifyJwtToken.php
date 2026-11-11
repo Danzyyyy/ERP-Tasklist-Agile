@@ -64,6 +64,18 @@ class VerifyJwtToken
                 'email' => 'dev@anaheim.id',
                 'role' => 'DEVELOPER',
             ],
+            'mock_fajri' => [
+                'id' => '01926df4-0005-7000-8000-000000000005',
+                'name' => 'Muhamad Fajri (Backend Dev)',
+                'email' => 'fajri@anaheim.id',
+                'role' => 'DEVELOPER',
+            ],
+            'mock_be' => [
+                'id' => '01926df4-0005-7000-8000-000000000005',
+                'name' => 'Muhamad Fajri (Backend Dev)',
+                'email' => 'fajri@anaheim.id',
+                'role' => 'DEVELOPER',
+            ],
             'mock_tester' => [
                 'id' => '01926df4-0004-7000-8000-000000000004',
                 'name' => 'Valdric (QA Tester)',
