@@ -101,6 +101,8 @@ Untuk keperluan pengujian lokal / Postman selama Sprint 1, sistem menyediakan to
 
 #### `POST /modules`
 - **Deskripsi**: Membuat modul proyek baru.
+- **Hak Akses**: Wajib role `TECHNICAL_LEAD` atau `PROJECT_MANAGER` (HTTP 403 Forbidden bagi Developer/Tester).
+- **Guard Proyek**: Proyek wajib terdaftar dengan status `REGISTERED` di Modul D-1 (HTTP 422).
 - **Headers**: `Authorization: Bearer mock_pm`
 - **Body JSON**:
 ```json
@@ -114,6 +116,8 @@ Untuk keperluan pengujian lokal / Postman selama Sprint 1, sistem menyediakan to
 
 #### `POST /modules/{moduleId}/features`
 - **Deskripsi**: Menambahkan fitur baru di bawah modul tertentu.
+- **Hak Akses**: Wajib role `TECHNICAL_LEAD` atau `PROJECT_MANAGER` (HTTP 403 Forbidden bagi Developer/Tester).
+- **Guard Proyek**: Modul wajib terdaftar pada proyek berstatus `REGISTERED` di Modul D-1.
 - **Headers**: `Authorization: Bearer mock_pm`
 - **Body JSON**:
 ```json
@@ -143,6 +147,8 @@ Untuk keperluan pengujian lokal / Postman selama Sprint 1, sistem menyediakan to
 
 #### `POST /tasks`
 - **Deskripsi**: Menambahkan tugas baru. Status awal otomatis **`DRAFT`** dan sistem otomatis menginisialisasi catatan Dual-Approval (`TL` dan `PM` berstatus `PENDING`).
+- **Hak Akses**: Wajib role `TECHNICAL_LEAD` atau `PROJECT_MANAGER` (HTTP 403 Forbidden bagi Developer/Tester).
+- **Guard Proyek**: Modul terkait wajib berada pada proyek berstatus `REGISTERED` di Modul D-1 (HTTP 422).
 - **Headers**: `Authorization: Bearer mock_tl`
 - **Body JSON**:
 ```json
@@ -210,6 +216,13 @@ Tugas baru berstatus `DRAFT`. Sebelum masuk ke papan Agile, tugas wajib disetuju
 
 #### `PATCH /tasks/{id}/assign`
 - **Deskripsi**: Menetapkan PIC pengembang pada tugas.
+- **Hak Akses**:
+  - `TECHNICAL_LEAD` dan `PROJECT_MANAGER` dapat menugaskan pengembang manapun.
+  - `DEVELOPER` hanya berwenang menugaskan diri sendiri (`assignee_id === auth_user.id`, HTTP 403 jika menugaskan orang lain).
+  - `TESTER` dilarang menugaskan PIC (HTTP 403 Forbidden).
+- **Guard Status Tugas**:
+  - Tugas berstatus `DRAFT` belum boleh di-assign PIC sebelum dirilis via Dual-Approval (HTTP 422).
+  - Tugas berstatus `DONE` bersifat final dan tidak boleh di-assign ulang (HTTP 422).
 - **Headers**: `Authorization: Bearer mock_dev`
 - **Body JSON**:
 ```json
@@ -231,6 +244,14 @@ Tugas baru berstatus `DRAFT`. Sebelum masuk ke papan Agile, tugas wajib disetuju
 }
 ```
 
+**Aturan Immutabilitas Status DONE (Bug Fix):**
+Tugas yang telah berstatus **`DONE`** bersifat final dan tidak dapat diubah kembali ke kolom manapun (HTTP 422 Unprocessable Content).
+
+**Aturan Otorisasi Role Pengembang:**
+- Pengembang **TIDAK berwenang** memindahkan status tugas yang sedang berada di kolom `CODE_REVIEW` atau `TESTING` (HTTP 403 Forbidden).
+- Pengembang **TIDAK berwenang** memindahkan tugas langsung menjadi `DONE` (HTTP 403 Forbidden; status `DONE` hanya dapat dicapai melalui otorisasi sign-off TL).
+- Pengembang hanya berwenang menarik tugas dari `RELEASED` ke `DEVELOPMENT` dan mengajukan dari `DEVELOPMENT` ke `CODE_REVIEW`.
+
 **Aturan Validasi Assignee (FTR-K04-04):**
 Jika berpindah ke kolom `DEVELOPMENT` tanpa menyertakan/memiliki `assignee_id`, sistem mengembalikan **HTTP 422 Unprocessable Entity**:
 ```json
@@ -244,6 +265,9 @@ Jika berpindah ke kolom `DEVELOPMENT` tanpa menyertakan/memiliki `assignee_id`, 
 
 #### `POST /tasks/{taskId}/reviews` (Pencatatan Review & Alur Rework)
 - **Deskripsi**: Mencatat hasil pemeriksaan Code Review atau QA Testing secara manual.
+- **Hak Akses**:
+  - `CODE_REVIEW`: Hanya `TECHNICAL_LEAD` dan `PROJECT_MANAGER` (HTTP 403 bagi peran Developer).
+  - `TESTING`: Hanya `TESTER`, `TECHNICAL_LEAD`, dan `PROJECT_MANAGER` (HTTP 403 bagi peran Developer).
 - **Headers**: `Authorization: Bearer mock_tester` (atau `mock_tl`)
 - **Body JSON**:
 ```json

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Enums\ReviewResult;
 use App\Enums\ReviewType;
+use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReviewLogRequest;
 use App\Models\Task;
@@ -20,14 +21,48 @@ class ReviewController extends Controller
     /**
      * Submit manual code review or QA test log (FTR-K04-05).
      * If REJECTED, automatically triggers rework path back to DEVELOPMENT.
+     * Guarded: Role checks (Developers cannot submit reviews) and terminal state immutability.
      */
     public function submitReview(ReviewLogRequest $request, string $taskId): JsonResponse
     {
         $authUser = $request->attributes->get('auth_user');
+        $userRole = $authUser['role'] ?? null;
         $task = Task::findOrFail($taskId);
+
+        // Terminal state check
+        if ($task->status === TaskStatus::DONE) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tugas yang telah berstatus DONE tidak dapat ditinjau atau diuji ulang.',
+            ], 422);
+        }
 
         $reviewType = ReviewType::from($request->input('review_type'));
         $result = ReviewResult::from($request->input('result'));
+
+        // Role Guard: Developer cannot submit code review or testing
+        if ($userRole === 'DEVELOPER') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akses ditolak. Peran Developer tidak berwenang mencatat hasil pemeriksaan Code Review atau Testing.',
+            ], 403);
+        }
+
+        // Role Guard for Code Review: TL or PM
+        if ($reviewType === ReviewType::CODE_REVIEW && !in_array($userRole, ['TECHNICAL_LEAD', 'PROJECT_MANAGER'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akses ditolak. Hanya peran Technical Lead dan Project Manager yang berwenang melakukan Code Review.',
+            ], 403);
+        }
+
+        // Role Guard for Testing: Tester, TL, or PM
+        if ($reviewType === ReviewType::TESTING && !in_array($userRole, ['TESTER', 'TECHNICAL_LEAD', 'PROJECT_MANAGER'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akses ditolak. Hanya peran Tester, Technical Lead, dan Project Manager yang berwenang mencatat hasil pengujian QA.',
+            ], 403);
+        }
 
         $log = $this->stateMachine->processReview(
             $task,
@@ -68,6 +103,13 @@ class ReviewController extends Controller
 
         $task = Task::findOrFail($taskId);
 
+        if ($task->status === TaskStatus::DONE) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tugas telah resmi berstatus DONE.',
+            ], 422);
+        }
+
         $updatedTask = $this->stateMachine->verifyPm(
             $task,
             $authUser['id'] ?? 'pm-id',
@@ -97,6 +139,13 @@ class ReviewController extends Controller
         }
 
         $task = Task::findOrFail($taskId);
+
+        if ($task->status === TaskStatus::DONE) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tugas telah resmi berstatus DONE.',
+            ], 422);
+        }
 
         $updatedTask = $this->stateMachine->signOffTl(
             $task,
