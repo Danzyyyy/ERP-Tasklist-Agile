@@ -41,6 +41,12 @@ class TaskStateMachineService
         ?string $approverName,
         ?string $notes = null
     ): TaskApproval {
+        if ($task->status === TaskStatus::DONE) {
+            throw ValidationException::withMessages([
+                'status' => ['Persetujuan rilis tidak dapat diubah untuk tugas yang telah berstatus DONE.']
+            ]);
+        }
+
         if (!in_array($role, [UserRole::TECHNICAL_LEAD->value, UserRole::PROJECT_MANAGER->value])) {
             throw ValidationException::withMessages([
                 'role' => ['Hanya peran Technical Lead dan Project Manager yang berwenang memberikan persetujuan rilis.']
@@ -87,6 +93,20 @@ class TaskStateMachineService
         ?string $assigneeId = null,
         ?string $assigneeName = null
     ): Task {
+        // Enforce rule: Terminal state protection - DONE tasks cannot move to another status
+        if ($task->status === TaskStatus::DONE) {
+            throw ValidationException::withMessages([
+                'status' => ['Tugas yang telah berstatus DONE bersifat final dan tidak dapat diubah kembali ke fase lain.']
+            ]);
+        }
+
+        // Enforce rule: DRAFT task cannot move directly on Kanban before being RELEASED via Dual-Approval
+        if ($task->status === TaskStatus::DRAFT) {
+            throw ValidationException::withMessages([
+                'status' => ['Tugas masih berstatus DRAFT dan belum disetujui rilis (Dual-Approval) oleh TL dan PM.']
+            ]);
+        }
+
         // Enforce rule: To move to DEVELOPMENT, assignee is required (FTR-K04-04)
         if ($targetStatus === TaskStatus::DEVELOPMENT) {
             if (empty($assigneeId) && empty($task->assignee_id)) {
@@ -132,6 +152,12 @@ class TaskStateMachineService
         string $reviewerName,
         ?string $notes = null
     ): TaskReviewLog {
+        if ($task->status === TaskStatus::DONE) {
+            throw ValidationException::withMessages([
+                'status' => ['Tugas yang telah berstatus DONE tidak dapat ditinjau atau diuji ulang.']
+            ]);
+        }
+
         $log = TaskReviewLog::create([
             'task_id' => $task->id,
             'review_type' => $reviewType,
@@ -163,6 +189,12 @@ class TaskStateMachineService
      */
     public function verifyPm(Task $task, string $pmId, string $pmName): Task
     {
+        if ($task->status === TaskStatus::DONE) {
+            throw ValidationException::withMessages([
+                'status' => ['Tugas telah resmi berstatus DONE.']
+            ]);
+        }
+
         $task->update([
             'is_pm_verified' => true,
             'pm_verified_at' => now(),
@@ -177,6 +209,12 @@ class TaskStateMachineService
      */
     public function signOffTl(Task $task, string $tlId, string $tlName): Task
     {
+        if ($task->status === TaskStatus::DONE) {
+            throw ValidationException::withMessages([
+                'status' => ['Tugas telah resmi berstatus DONE.']
+            ]);
+        }
+
         if (!$task->is_pm_verified) {
             throw ValidationException::withMessages([
                 'verification' => ['Verifikasi ceklis PM wajib dipenuhi sebelum TL dapat mengesahkan tugas menjadi Done.']
