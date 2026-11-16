@@ -977,6 +977,69 @@ paths:
                     "$ref": "#/components/schemas/AccountRole"
         '401':
           "$ref": "#/components/responses/UnauthorizedError"
+  "/projects":
+    get:
+      tags:
+      - External - Modul D-1 (Project Intake)
+      summary: Daftar proyek untuk switcher proyek (GET /projects)
+      description: Mengambil daftar proyek kanonis dari Modul D-1 dan proyek internal E-4 untuk kebutuhan pengalihan (switcher) proyek di antarmuka frontend.
+      operationId: getProjectsList
+      parameters:
+      - name: status
+        in: query
+        required: false
+        description: Filter status proyek (e.g. REGISTERED, UNDER_REVIEW, ALL)
+        schema:
+          type: string
+          example: REGISTERED
+      - name: q
+        in: query
+        required: false
+        description: Kata kunci pencarian nama atau kode proyek
+        schema:
+          type: string
+          example: Nimbus
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+      responses:
+        '200':
+          description: Daftar proyek berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/ProjectIntakeResponse"
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 2
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
   "/projects/{projectId}":
     get:
       tags:
@@ -1881,6 +1944,12 @@ components:
         active:
           type: boolean
           example: true
+        moduleCount:
+          type: integer
+          example: 3
+        taskCount:
+          type: integer
+          example: 8
     ProjectGuardResponse:
       type: object
       properties:

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Module;
+use App\Models\Task;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -153,10 +155,230 @@ class ExternalIntegrationService
     }
 
     /**
+     * Get list of projects from Modul D-1 with fallback and internal project support.
+     * Supports query parameters: status, q, page, limit.
+     */
+    public function getD1Projects(array $queryParams = [], ?string $token = null): array
+    {
+        $statusFilter = $queryParams['status'] ?? null;
+        $qFilter = isset($queryParams['q']) ? trim(strtolower($queryParams['q'])) : null;
+
+        $moduleCountDefault = Module::where('project_id', 'PROJ-ERP-01')->count();
+        $taskCountDefault = Task::whereHas('module', fn($q) => $q->where('project_id', 'PROJ-ERP-01'))->count();
+
+        $internalDefaultProject = [
+            'projectId' => 'PROJ-ERP-01',
+            'canonicalCode' => 'PROJ-ERP-01',
+            'projectName' => 'ERP Anaheim Nimbus Tasklist & Agile',
+            'clientId' => 'CLI-001',
+            'clientName' => 'PT. Anaheim Nimbus Universal',
+            'amEmployeeId' => '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1',
+            'amName' => 'Fikri Lazuardi Fadilla (AM)',
+            'pmEmployeeId' => '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90',
+            'pmName' => 'Sandy Walsh',
+            'startDate' => '2026-01-01',
+            'targetEndDate' => '2026-12-31',
+            'documentsComplete' => true,
+            'poReceived' => true,
+            'status' => 'REGISTERED',
+            'active' => true,
+            'moduleCount' => $moduleCountDefault,
+            'taskCount' => $taskCountDefault,
+            'source' => 'internal_canonical',
+        ];
+
+        try {
+            $request = Http::timeout(3)->acceptJson();
+            if ($token) {
+                $request = $request->withToken($token);
+            }
+
+            $query = array_filter([
+                'status' => $statusFilter,
+                'q' => $queryParams['q'] ?? null,
+                'page' => $queryParams['page'] ?? null,
+                'limit' => $queryParams['limit'] ?? null,
+            ], fn($v) => !is_null($v) && $v !== '');
+
+            $response = $request->get("{$this->d1BaseUrl}/projects", $query);
+
+            if ($response->successful()) {
+                $body = $response->json();
+                $remoteProjects = $body['data'] ?? $body['items'] ?? [];
+
+                $allProjects = [];
+                $projectIds = array_column($remoteProjects, 'projectId');
+
+                // Check if internal default project matches filter
+                $matchesStatus = empty($statusFilter) || $statusFilter === 'ALL' || $statusFilter === 'REGISTERED';
+                $matchesQuery = empty($qFilter) || (
+                    str_contains(strtolower($internalDefaultProject['projectName']), $qFilter)
+                    || str_contains(strtolower($internalDefaultProject['canonicalCode']), $qFilter)
+                    || str_contains(strtolower($internalDefaultProject['clientName']), $qFilter)
+                    || str_contains(strtolower($internalDefaultProject['projectId']), $qFilter)
+                );
+
+                if (!in_array('PROJ-ERP-01', $projectIds) && $matchesStatus && $matchesQuery) {
+                    $allProjects[] = $internalDefaultProject;
+                }
+
+                foreach ($remoteProjects as $p) {
+                    $pid = $p['projectId'] ?? '';
+                    $p['moduleCount'] = Module::where('project_id', $pid)->count();
+                    $p['taskCount'] = Task::whereHas('module', fn($q) => $q->where('project_id', $pid))->count();
+                    $allProjects[] = $p;
+                }
+
+                return [
+                    'success' => true,
+                    'status' => 200,
+                    'data' => $allProjects,
+                    'meta' => [
+                        'total' => count($allProjects),
+                        'page' => (int)($body['meta']['page'] ?? 1),
+                        'limit' => (int)($body['meta']['limit'] ?? count($allProjects)),
+                    ],
+                ];
+            }
+        } catch (\Throwable $e) {
+            Log::warning("[D-1 Integration] Project list fetch failed: " . $e->getMessage());
+        }
+
+        // Fallback list when D-1 is offline
+        $fallbackProjects = [
+            $internalDefaultProject,
+            [
+                'projectId' => '01924b1e-7f32-7a81-9b12-45e8a1234567',
+                'canonicalCode' => '202601',
+                'projectName' => 'Modernisasi Gedung Operasional',
+                'clientId' => 'CL-001',
+                'clientName' => 'PT Cakra Infrastruktur',
+                'amEmployeeId' => '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1',
+                'amName' => 'Fikri Lazuardi Fadilla (AM)',
+                'pmEmployeeId' => '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90',
+                'pmName' => 'Sandy Walsh',
+                'startDate' => '2026-03-01',
+                'targetEndDate' => '2026-08-31',
+                'documentsComplete' => true,
+                'poReceived' => true,
+                'status' => 'REGISTERED',
+                'active' => true,
+                'moduleCount' => Module::where('project_id', '01924b1e-7f32-7a81-9b12-45e8a1234567')->count(),
+                'taskCount' => Task::whereHas('module', fn($q) => $q->where('project_id', '01924b1e-7f32-7a81-9b12-45e8a1234567'))->count(),
+                'source' => 'd1_canonical_seed',
+            ],
+            [
+                'projectId' => '01924b1e-7f32-7a81-9b12-45e8a1234002',
+                'canonicalCode' => '202602',
+                'projectName' => 'Integrasi Sistem Gudang & Otomasi Logistik',
+                'clientId' => 'PTHAEKAL',
+                'clientName' => 'PT Haekal Kreasi Nusantara',
+                'amEmployeeId' => '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1',
+                'amName' => 'Fikri Lazuardi Fadilla (AM)',
+                'pmEmployeeId' => '01929b4a-5f10-7a22-9d44-3c8f1b2e7a01',
+                'pmName' => 'Haekal Khadafy',
+                'startDate' => '2026-11-01',
+                'targetEndDate' => '2027-05-30',
+                'documentsComplete' => true,
+                'poReceived' => false,
+                'status' => 'UNDER_REVIEW',
+                'active' => false,
+                'moduleCount' => 0,
+                'taskCount' => 0,
+                'source' => 'd1_canonical_seed',
+            ],
+        ];
+
+        // Also check any other distinct project_id from local modules table
+        $existingPids = array_column($fallbackProjects, 'projectId');
+        $dbPids = Module::select('project_id')->distinct()->pluck('project_id')->toArray();
+        foreach ($dbPids as $dbPid) {
+            if (!in_array($dbPid, $existingPids)) {
+                $fallbackProjects[] = [
+                    'projectId' => $dbPid,
+                    'canonicalCode' => $dbPid,
+                    'projectName' => "Proyek {$dbPid}",
+                    'clientId' => 'CLI-001',
+                    'clientName' => 'PT. Anaheim Nimbus Universal',
+                    'amEmployeeId' => '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1',
+                    'amName' => 'Fikri Lazuardi Fadilla (AM)',
+                    'pmEmployeeId' => '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90',
+                    'pmName' => 'Sandy Walsh',
+                    'startDate' => '2026-01-01',
+                    'targetEndDate' => '2026-12-31',
+                    'documentsComplete' => true,
+                    'poReceived' => true,
+                    'status' => 'REGISTERED',
+                    'active' => true,
+                    'moduleCount' => Module::where('project_id', $dbPid)->count(),
+                    'taskCount' => Task::whereHas('module', fn($q) => $q->where('project_id', $dbPid))->count(),
+                    'source' => 'local_database',
+                ];
+            }
+        }
+
+        // Apply filters
+        if (!empty($statusFilter) && $statusFilter !== 'ALL') {
+            $fallbackProjects = array_values(array_filter($fallbackProjects, fn($p) => ($p['status'] ?? '') === $statusFilter));
+        }
+
+        if (!empty($qFilter)) {
+            $fallbackProjects = array_values(array_filter($fallbackProjects, function($p) use ($qFilter) {
+                return str_contains(strtolower($p['projectName'] ?? ''), $qFilter)
+                    || str_contains(strtolower($p['canonicalCode'] ?? ''), $qFilter)
+                    || str_contains(strtolower($p['clientName'] ?? ''), $qFilter)
+                    || str_contains(strtolower($p['projectId'] ?? ''), $qFilter);
+            }));
+        }
+
+        return [
+            'success' => true,
+            'status' => 200,
+            'data' => $fallbackProjects,
+            'meta' => [
+                'total' => count($fallbackProjects),
+                'page' => 1,
+                'limit' => count($fallbackProjects),
+            ],
+        ];
+    }
+
+    /**
      * Get canonical project details from Modul D-1 (GET /api/v1/projects/{projectId}).
      */
     public function getD1Project(string $projectId, ?string $token = null): array
     {
+        // 1. Handle default internal project PROJ-ERP-01 directly
+        if ($projectId === 'PROJ-ERP-01') {
+            $moduleCount = Module::where('project_id', 'PROJ-ERP-01')->count();
+            $taskCount = Task::whereHas('module', fn($q) => $q->where('project_id', 'PROJ-ERP-01'))->count();
+
+            return [
+                'success' => true,
+                'status' => 200,
+                'data' => [
+                    'projectId' => 'PROJ-ERP-01',
+                    'canonicalCode' => 'PROJ-ERP-01',
+                    'projectName' => 'ERP Anaheim Nimbus Tasklist & Agile',
+                    'clientId' => 'CLI-001',
+                    'clientName' => 'PT. Anaheim Nimbus Universal',
+                    'amEmployeeId' => '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1',
+                    'amName' => 'Fikri Lazuardi Fadilla (AM)',
+                    'pmEmployeeId' => '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90',
+                    'pmName' => 'Sandy Walsh',
+                    'startDate' => '2026-01-01',
+                    'targetEndDate' => '2026-12-31',
+                    'documentsComplete' => true,
+                    'poReceived' => true,
+                    'status' => 'REGISTERED',
+                    'active' => true,
+                    'moduleCount' => $moduleCount,
+                    'taskCount' => $taskCount,
+                    'source' => 'internal_canonical',
+                ],
+            ];
+        }
+
         try {
             $request = Http::timeout(3)->acceptJson();
             if ($token) {
@@ -166,10 +388,18 @@ class ExternalIntegrationService
             $response = $request->get("{$this->d1BaseUrl}/projects/{$projectId}");
 
             if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['data']) && is_array($data['data'])) {
+                    $data = $data['data'];
+                }
+
+                $data['moduleCount'] = Module::where('project_id', $projectId)->count();
+                $data['taskCount'] = Task::whereHas('module', fn($q) => $q->where('project_id', $projectId))->count();
+
                 return [
                     'success' => true,
                     'status' => 200,
-                    'data' => $response->json(),
+                    'data' => $data,
                 ];
             }
 
@@ -190,6 +420,9 @@ class ExternalIntegrationService
                 ];
             }
 
+            $moduleCount = Module::where('project_id', $projectId)->count();
+            $taskCount = Task::whereHas('module', fn($q) => $q->where('project_id', $projectId))->count();
+
             // Fallback canonical response for offline development
             return [
                 'success' => true,
@@ -200,8 +433,14 @@ class ExternalIntegrationService
                     'projectName' => 'Implementasi ERP Modul E-4 Tasklist',
                     'clientId' => 'CLI-001',
                     'clientName' => 'PT. Anaheim Nimbus Universal',
+                    'amEmployeeId' => '01929b4a-6e2a-7b3f-8c71-0ab4e3d9f2a1',
+                    'amName' => 'Fikri Lazuardi Fadilla (AM)',
+                    'pmEmployeeId' => '01929b4a-5f10-7a22-9d44-3c8f1b2e7a90',
+                    'pmName' => 'Sandy Walsh',
                     'status' => 'REGISTERED',
                     'active' => true,
+                    'moduleCount' => $moduleCount,
+                    'taskCount' => $taskCount,
                     'source' => 'mock_fallback',
                 ],
             ];
