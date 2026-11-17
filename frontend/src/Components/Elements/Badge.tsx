@@ -11,35 +11,35 @@ export const badgeVariants = cva(
       variant: {
         default: "bg-muted text-muted-foreground border-border",
         outline: "border-border text-foreground bg-transparent",
-        primary: "bg-[#eef2ff] text-[#4338ca] border-[#c7d2fe]",
+        primary: "bg-primary-subtle text-primary border-primary-subtle-border",
         secondary: "bg-muted text-muted-foreground border-border",
-        success: "bg-[#ecfdf5] text-[#065f46] border-[#a7f3d0]",
-        warning: "bg-[#fffbeb] text-[#b45309] border-[#fde68a]",
-        destructive: "bg-[#fef2f2] text-[#991b1b] border-[#fecaca]",
-        purple: "bg-[#faf5ff] text-[#6b21a8] border-[#e9d5ff]",
-        cyan: "bg-[#f0f9ff] text-[#0369a1] border-[#bae6fd]",
-        indigo: "bg-[#eef2ff] text-[#4338ca] border-[#c7d2fe]",
+        success: "bg-success-subtle text-success-subtle-foreground border-success-subtle-border",
+        warning: "bg-warning-subtle text-warning-subtle-foreground border-warning-subtle-border",
+        destructive: "bg-destructive-subtle text-destructive-subtle-foreground border-destructive-subtle-border",
+        purple: "bg-purple-subtle text-purple-subtle-foreground border-purple-subtle-border",
+        cyan: "bg-cyan-subtle text-cyan-subtle-foreground border-cyan-subtle-border",
+        indigo: "bg-primary-subtle text-primary border-primary-subtle-border",
 
         // Agile Lifecycle Statuses (FigCraft Specimen 05)
-        DRAFT: "bg-[#f1f5f9] text-[#475569] border-[#e2e8f0]",
-        RELEASED: "bg-[#faf5ff] text-[#6b21a8] border-[#e9d5ff]",
-        DEVELOPMENT: "bg-[#eef2ff] text-[#4338ca] border-[#c7d2fe]",
-        CODE_REVIEW: "bg-[#faf5ff] text-[#6b21a8] border-[#e9d5ff]",
-        TESTING: "bg-[#f0f9ff] text-[#0369a1] border-[#bae6fd]",
-        DONE: "bg-[#ecfdf5] text-[#065f46] border-[#a7f3d0]",
+        DRAFT: "bg-muted text-muted-foreground border-border",
+        RELEASED: "bg-purple-subtle text-purple-subtle-foreground border-purple-subtle-border",
+        DEVELOPMENT: "bg-primary-subtle text-primary border-primary-subtle-border",
+        CODE_REVIEW: "bg-purple-subtle text-purple-subtle-foreground border-purple-subtle-border",
+        TESTING: "bg-cyan-subtle text-cyan-subtle-foreground border-cyan-subtle-border",
+        DONE: "bg-success-subtle text-success-subtle-foreground border-success-subtle-border",
 
         // Approval Statuses
-        PENDING: "bg-[#fffbeb] text-[#b45309] border-[#fde68a]",
-        APPROVED: "bg-[#ecfdf5] text-[#065f46] border-[#a7f3d0]",
-        REJECTED: "bg-[#fef2f2] text-[#991b1b] border-[#fecaca]",
+        PENDING: "bg-muted text-muted-foreground border-border",
+        APPROVED: "bg-success-subtle text-success-subtle-foreground border-success-subtle-border",
+        REJECTED: "bg-destructive-subtle text-destructive-subtle-foreground border-destructive-subtle-border",
 
         // Complexity Tones
-        LOW: "bg-[#ecfdf5] text-[#065f46] border-[#a7f3d0]",
-        MEDIUM: "bg-[#fffbeb] text-[#b45309] border-[#fde68a]",
-        HIGH: "bg-[#fef2f2] text-[#991b1b] border-[#fecaca]",
+        LOW: "bg-success-subtle text-success-subtle-foreground border-success-subtle-border",
+        MEDIUM: "bg-warning-subtle text-warning-subtle-foreground border-warning-subtle-border",
+        HIGH: "bg-destructive-subtle text-destructive-subtle-foreground border-destructive-subtle-border",
 
         // Rework Tag
-        REWORK: "bg-[#fef2f2] text-[#991b1b] border-[#fecaca] font-black animate-pulse",
+        REWORK: "bg-destructive-subtle text-destructive-subtle-foreground border-destructive-subtle-border font-black animate-pulse",
       },
       size: {
         default: "h-[22px] px-2 py-0.5 text-[10.5px]",

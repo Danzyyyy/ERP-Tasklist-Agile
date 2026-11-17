@@ -4,7 +4,8 @@ import { ChevronDown, ChevronRight, MoreHorizontal, Layers } from "lucide-react"
 import type { Task, Module, Feature } from "@/Types/task";
 import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
 import { Button } from "@/Components/Elements/Button";
-import { getInitials, getAvatarBg } from "@/Utils/taskUtils";
+import { Badge } from "@/Components/Elements/Badge";
+import { getInitials, getAvatarBg, calculateTasksProgress } from "@/Utils/taskUtils";
 import { cn } from "@/Utils/cn";
 
 const ModuleHoursCell: React.FC<{ moduleId: string }> = ({ moduleId }) => {
@@ -41,7 +42,7 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
       const modTasks = mod.tasks || [];
 
       return (
-        <tr className="bg-slate-50/90 dark:bg-slate-900/70 border-b border-border text-xs font-semibold select-none group">
+        <tr className="bg-muted/50 border-b border-border text-xs font-semibold select-none group">
           <td className="py-2.5 px-3 text-center">
             <span
               onClick={onToggle}
@@ -67,7 +68,7 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
               </span>
             </div>
           </td>
-          <td className="py-2.5 px-3 text-right font-mono text-xs text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap">
+          <td className="py-2.5 px-3 text-right font-mono text-xs text-success font-bold whitespace-nowrap">
             <ModuleHoursCell moduleId={mod.id} />
           </td>
         </tr>
@@ -77,15 +78,10 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
     // 2. FEATURE ROW (SOP-05 Hierarchy: Module -> Feature -> Task)
     if (item.kind === "FEATURE") {
       const ftr = item.data;
-      const ftrTasks = ftr.tasks || [];
-      const totalH = ftrTasks.reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
-      const doneH = ftrTasks
-        .filter((t) => t.status === "DONE")
-        .reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
-      const hoursText = `${doneH.toFixed(0)} / ${totalH.toFixed(0)} Jam`;
+      const { formattedText: hoursText } = calculateTasksProgress(ftr.tasks);
 
       return (
-        <tr className="bg-slate-100/60 dark:bg-slate-800/40 border-b border-border/70 text-xs font-medium select-none group">
+        <tr className="bg-muted/30 border-b border-border/70 text-xs font-medium select-none group">
           <td className="py-2 px-3 text-center">
             <span
               onClick={onToggle}
@@ -108,7 +104,7 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
                 {ftr.name}
               </span>
               <span className="text-[11px] text-muted-foreground font-normal">
-                ({ftrTasks.length} tugas)
+                ({ftr.tasks?.length || 0} tugas)
               </span>
             </div>
           </td>
@@ -145,43 +141,11 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
     const picInitial = getInitials(picName);
     const picBg = getAvatarBg(picInitial);
 
-    // Complexity badge
-    const getComplexityBadge = (c?: string) => {
-      switch (c) {
-        case "HIGH":
-          return "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900";
-        case "MEDIUM":
-          return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900";
-        case "LOW":
-        default:
-          return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
-      }
-    };
-
     // Dual-Approval pills from actual task.approvals relation
     const tlApproval = task.approvals?.find((a) => a.role === "TECHNICAL_LEAD");
     const pmApproval = task.approvals?.find((a) => a.role === "PROJECT_MANAGER");
     const isTlApproved = tlApproval?.status === "APPROVED" || task.status !== "DRAFT";
     const isPmApproved = pmApproval?.status === "APPROVED" || task.status !== "DRAFT";
-
-    // Status pill
-    const getStatusPill = (status: string) => {
-      switch (status) {
-        case "DONE":
-          return "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900";
-        case "TESTING":
-          return "bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900";
-        case "CODE_REVIEW":
-          return "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-900";
-        case "DEVELOPMENT":
-          return "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900";
-        case "RELEASED":
-          return "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900";
-        case "DRAFT":
-        default:
-          return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
-      }
-    };
 
     const statusLabel =
       task.status === "DEVELOPMENT"
@@ -197,7 +161,7 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
     return (
       <tr
         onClick={() => onSelectTask?.(task)}
-        className="border-b border-border/70 hover:bg-slate-50/70 dark:hover:bg-slate-900/40 transition-colors cursor-pointer text-xs group"
+        className="border-b border-border/70 hover:bg-muted/40 transition-colors cursor-pointer text-xs group"
       >
         {/* Row indicator bullet (replacing removed checkbox) */}
         <td className="py-3 px-3 text-center text-muted-foreground font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
@@ -218,14 +182,9 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
 
         {/* Bobot */}
         <td className="py-3 px-3 text-center">
-          <span
-            className={cn(
-              "px-2 py-0.5 rounded border text-[10px] font-bold font-mono uppercase inline-block",
-              getComplexityBadge(task.complexity_weight),
-            )}
-          >
+          <Badge variant={task.complexity_weight || "LOW"} size="sm">
             {task.complexity_weight || "LOW"}
-          </span>
+          </Badge>
         </td>
 
         {/* Man-Hour */}
@@ -254,38 +213,20 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
         {/* Dual-Approval */}
         <td className="py-3 px-3 text-center">
           <div className="flex items-center justify-center gap-1.5 whitespace-nowrap">
-            {isTlApproved ? (
-              <span className="px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900 text-[9px] font-bold">
-                TL APPROVED
-              </span>
-            ) : (
-              <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 text-[9px] font-bold">
-                TL PENDING
-              </span>
-            )}
-
-            {isPmApproved ? (
-              <span className="px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900 text-[9px] font-bold">
-                PM APPROVED
-              </span>
-            ) : (
-              <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 text-[9px] font-bold">
-                PM PENDING
-              </span>
-            )}
+            <Badge variant={isTlApproved ? "APPROVED" : "PENDING"} size="sm">
+              {isTlApproved ? "TL APPROVED" : "TL PENDING"}
+            </Badge>
+            <Badge variant={isPmApproved ? "APPROVED" : "PENDING"} size="sm">
+              {isPmApproved ? "PM APPROVED" : "PM PENDING"}
+            </Badge>
           </div>
         </td>
 
         {/* Tahapan */}
         <td className="py-3 px-3 text-center">
-          <span
-            className={cn(
-              "px-2 py-0.5 rounded border text-[9px] font-bold uppercase inline-block whitespace-nowrap",
-              getStatusPill(task.status),
-            )}
-          >
+          <Badge variant={task.status} size="sm">
             {statusLabel}
-          </span>
+          </Badge>
         </td>
 
         {/* Aksi */}

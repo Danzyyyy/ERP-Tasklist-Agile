@@ -242,3 +242,18 @@ export function canRoleSubmitReview(
   }
   return role === "TESTER" || role === "TECHNICAL_LEAD" || role === "PROJECT_MANAGER";
 }
+
+/**
+ * Menghitung man-hours progress (total vs selesai) untuk kumpulan task (fitur/modul).
+ */
+export function calculateTasksProgress(tasks: Task[] = []): { totalHours: number; doneHours: number; formattedText: string } {
+  const totalHours = tasks.reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
+  const doneHours = tasks
+    .filter((t) => t.status === "DONE")
+    .reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
+  return {
+    totalHours,
+    doneHours,
+    formattedText: `${doneHours.toFixed(0)} / ${totalHours.toFixed(0)} Jam`,
+  };
+}
