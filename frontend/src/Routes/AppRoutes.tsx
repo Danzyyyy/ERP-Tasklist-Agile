@@ -16,6 +16,7 @@ const KanbanPage = lazy(() => import("@/Features/Kanban/Pages/KanbanPage"));
 const ReviewsPage = lazy(() => import("@/Features/Reviews/Pages/ReviewsPage"));
 const ReportsPage = lazy(() => import("@/Features/Reports/Pages/ReportsPage"));
 const ModulesPage = lazy(() => import("@/Features/Modules/Pages/ModulesPage"));
+const ProjectsPage = lazy(() => import("@/Features/Projects/Pages/ProjectsPage"));
 
 export const routes: RouteObject[] = [
   {
@@ -69,16 +70,16 @@ export const routes: RouteObject[] = [
         ),
       },
       {
-        path: "modules",
+        path: "projects",
         element: (
           <Suspense fallback={<LoadingApp />}>
-            <ModulesPage />
+            <ProjectsPage />
           </Suspense>
         ),
       },
       {
-        path: "projects",
-        element: <Navigate to="/dashboard/modules" replace />,
+        path: "modules",
+        element: <Navigate to="/dashboard/projects" replace />,
       },
       {
         path: "tasks",

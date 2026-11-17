@@ -478,7 +478,7 @@ export const DashboardPage: React.FC = () => {
             {filteredModules.map((m) => (
               <div
                 key={m.id}
-                onClick={() => navigate(ROUTE_PATHS.MODULES)}
+                onClick={() => navigate(ROUTE_PATHS.PROJECTS)}
                 className="rounded-xl border border-border bg-card p-4 space-y-3 hover:border-primary/50 transition-all cursor-pointer shadow-2xs flex flex-col justify-between"
               >
                 <div className="space-y-3">

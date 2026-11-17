@@ -11,7 +11,7 @@ import { ChevronRight } from "lucide-react";
 
 const getBreadcrumbTitle = (pathname: string): string => {
   if (pathname === ROUTE_PATHS.DASHBOARD || pathname === `${ROUTE_PATHS.DASHBOARD}/`) return "Dashboard";
-  if (pathname.startsWith(ROUTE_PATHS.MODULES)) return "Proyek";
+  if (pathname.startsWith(ROUTE_PATHS.PROJECTS) || pathname.startsWith(ROUTE_PATHS.MODULES)) return "Proyek";
   if (pathname.startsWith(ROUTE_PATHS.TASKS)) return "Tasklist";
   if (pathname.startsWith(ROUTE_PATHS.KANBAN)) return "Agile Board";
   if (pathname.startsWith(ROUTE_PATHS.REVIEWS)) return "Review & Testing";

@@ -17,7 +17,7 @@ export function useSidebarNavigation() {
         icon: LayoutGrid,
       },
       {
-        to: ROUTE_PATHS.MODULES,
+        to: ROUTE_PATHS.PROJECTS,
         label: "Proyek",
         icon: Folder,
       },
