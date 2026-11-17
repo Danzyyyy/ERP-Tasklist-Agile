@@ -232,7 +232,7 @@ export const ProjectsPage: React.FC = () => {
                             <Layers className="size-3" />
                             Modul
                           </span>
-                          <p className="text-xs font-bold text-foreground font-mono">{proj.moduleCount ?? 0} Modul</p>
+                          <p className="text-xs font-bold text-foreground font-mono">{proj.moduleCount} Modul</p>
                         </div>
 
                         <div className="p-2.5 rounded-xl border border-border/70 bg-muted/30 space-y-0.5">
@@ -240,7 +240,7 @@ export const ProjectsPage: React.FC = () => {
                             <ListTodo className="size-3" />
                             Tugas
                           </span>
-                          <p className="text-xs font-bold text-foreground font-mono">{proj.taskCount ?? 0} Task</p>
+                          <p className="text-xs font-bold text-foreground font-mono">{proj.taskCount} Task</p>
                         </div>
 
                         <div className="p-2.5 rounded-xl border border-border/70 bg-muted/30 space-y-0.5">

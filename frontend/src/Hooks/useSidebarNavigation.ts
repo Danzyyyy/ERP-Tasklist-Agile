@@ -1,7 +1,6 @@
 // src/Hooks/useSidebarNavigation.ts
 import { useMemo } from "react";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
-import useGetDeliverableProgress from "@/Hooks/useGetDeliverableProgress";
 import { useSidebar } from "@/Components/Layouts/SidebarContext";
 import { LayoutGrid, Folder, ListChecks, Columns3, ClipboardCheck, BarChart2 } from "lucide-react";
 
@@ -14,7 +13,6 @@ export interface NavItem {
 
 export function useSidebarNavigation() {
   const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
-  const { data: metrics } = useGetDeliverableProgress();
 
   const navItems = useMemo<NavItem[]>(
     () => [
@@ -62,7 +60,6 @@ export function useSidebarNavigation() {
     open,
     openMobile,
     setOpenMobile,
-    metrics,
     navItems,
     handleNavClick,
     isMobile,

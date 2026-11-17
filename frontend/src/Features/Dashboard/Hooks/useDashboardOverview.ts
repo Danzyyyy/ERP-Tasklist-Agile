@@ -1,35 +1,21 @@
 // src/Features/Dashboard/Hooks/useDashboardOverview.ts
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import useGetDeliverableProgress from "@/Hooks/useGetDeliverableProgress";
+import useGetDeliverableProgress, { DEFAULT_DELIVERABLE_METRICS } from "@/Hooks/useGetDeliverableProgress";
 import { useGetTaskList } from "@/Hooks/useGetTaskList";
 import useSeedDemoData from "@/Hooks/useSeedDemoData";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
-import type { DeliverableProgress, Task } from "@/Types/task";
+import type { Task } from "@/Types/task";
 
 export function useDashboardOverview() {
   const navigate = useNavigate();
-  const { data: metrics, isLoading: isMetricsLoading } = useGetDeliverableProgress();
+  // Konsumsi data kalkulasi resmi Formula Q-03 dari Backend API: GET /projects/{projectId}/deliverable-progress
+  const { data: effectiveMetrics = DEFAULT_DELIVERABLE_METRICS, isLoading: isMetricsLoading } =
+    useGetDeliverableProgress();
   const { data: tasks = [], isLoading: isTasksLoading } = useGetTaskList();
   const { seed, seeding } = useSeedDemoData();
 
   const isLoading = isMetricsLoading || isTasksLoading;
-
-  // Konsumsi data kalkulasi resmi Formula Q-03 dari Backend API: GET /projects/{projectId}/deliverable-progress
-  const effectiveMetrics: DeliverableProgress = useMemo(() => {
-    if (metrics) return metrics;
-
-    return {
-      totalTasks: 0,
-      completedTasks: 0,
-      totalEstimatedManHours: 0,
-      completedManHours: 0,
-      actualManHoursSpent: 0,
-      progressPercentage: 0.0,
-      tasksAtRiskOrOverdue: 0,
-      calculatedAt: new Date().toISOString(),
-    };
-  }, [metrics]);
 
   const stageCounts = useMemo(
     () => ({

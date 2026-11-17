@@ -4,7 +4,7 @@ import ProgressService from "@/Services/ProgressService";
 import { PROGRESS_QUERY_KEYS } from "@/Constants/ProgressConstant";
 import type { DeliverableProgress } from "@/Types/task";
 
-const DEFAULT_MODULE_METRICS: DeliverableProgress = {
+export const DEFAULT_MODULE_METRICS: DeliverableProgress = {
   totalTasks: 0,
   completedTasks: 0,
   totalEstimatedManHours: 0,
@@ -27,6 +27,7 @@ export const useGetModuleProgress = (moduleId: string) => {
         return DEFAULT_MODULE_METRICS;
       }
     },
+    placeholderData: DEFAULT_MODULE_METRICS,
     enabled: Boolean(moduleId),
     staleTime: 1000 * 30, // 30 seconds
   });

@@ -105,7 +105,7 @@ export const PriorityTasksCard = memo<PriorityTasksCardProps>(
                       {t.complexity_weight || "MEDIUM"}
                     </Badge>
                     <span className="text-xs font-mono text-muted-foreground">
-                      {Number(t.estimated_man_hours) || 0} Jam
+                      {t.estimated_man_hours} Jam
                     </span>
                   </div>
                 </div>

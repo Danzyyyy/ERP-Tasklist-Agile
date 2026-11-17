@@ -92,7 +92,7 @@ export const ProjectSwitcherDropdown = memo(() => {
                       {proj.projectName}
                     </p>
                     <p className="text-[10px] text-muted-foreground truncate">
-                      {proj.clientName} · {proj.moduleCount ?? 0} Modul · {proj.taskCount ?? 0} Task
+                      {proj.clientName} · {proj.moduleCount} Modul · {proj.taskCount} Task
                     </p>
                   </div>
 

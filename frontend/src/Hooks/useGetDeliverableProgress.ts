@@ -5,7 +5,7 @@ import { PROGRESS_QUERY_KEYS } from "@/Constants/ProgressConstant";
 import { useProject } from "@/Contexts/ProjectContext";
 import type { DeliverableProgress } from "@/Types/task";
 
-const DEFAULT_METRICS: DeliverableProgress = {
+export const DEFAULT_DELIVERABLE_METRICS: DeliverableProgress = {
   totalTasks: 0,
   completedTasks: 0,
   totalEstimatedManHours: 0,
@@ -25,11 +25,12 @@ export const useGetDeliverableProgress = (projectId?: string) => {
     queryFn: async (): Promise<DeliverableProgress> => {
       try {
         const res = await ProgressService.getDeliverableProgress(effectiveProjectId);
-        return res.data || DEFAULT_METRICS;
+        return res.data || DEFAULT_DELIVERABLE_METRICS;
       } catch {
-        return DEFAULT_METRICS;
+        return DEFAULT_DELIVERABLE_METRICS;
       }
     },
+    placeholderData: DEFAULT_DELIVERABLE_METRICS,
   });
 };
 

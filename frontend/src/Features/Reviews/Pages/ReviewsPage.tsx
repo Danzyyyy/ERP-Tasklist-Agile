@@ -12,6 +12,7 @@ import { Badge } from "@/Components/Elements/Badge";
 import { Label } from "@/Components/Elements/Label";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { cn } from "@/Utils/cn";
+import { getTaskAssigneeName } from "@/Utils/taskUtils";
 import { toast } from "sonner";
 import type { Task } from "@/Types/task";
 
@@ -210,7 +211,7 @@ export const ReviewsPage: React.FC = () => {
           <div className="space-y-3">
             {relevantTasks.map((t) => {
               const isSelected = currentTask?.id === t.id;
-              const picName = typeof t.pic === "string" ? t.pic : t.pic?.name || t.assignee_name || "Belum Ditugaskan";
+              const picName = getTaskAssigneeName(t);
               const modCode = t.module?.code || "MOD";
               const taskCode = t.task_code || "#TSK";
 
@@ -227,7 +228,7 @@ export const ReviewsPage: React.FC = () => {
                     <span>
                       {taskCode} · {modCode}
                     </span>
-                    <span className="font-sans font-bold">{Number(t.estimated_man_hours) || 0} Jam</span>
+                    <span className="font-sans font-bold">{t.estimated_man_hours} Jam</span>
                   </div>
                   <h4 className="text-sm font-bold text-foreground line-clamp-1">{t.title}</h4>
                   <p className="text-xs text-muted-foreground">{picName}</p>
@@ -288,8 +289,8 @@ export const ReviewsPage: React.FC = () => {
 
               <h3 className="text-xl font-bold text-foreground">{currentTask.title}</h3>
               <p className="text-xs text-muted-foreground">
-                PIC: {typeof currentTask.pic === "string" ? currentTask.pic : currentTask.pic?.name || currentTask.assignee_name || "Belum Ditugaskan"} ·{" "}
-                {Number(currentTask.estimated_man_hours) || 0} Jam · Tenggat: {currentTask.target_deadline ? currentTask.target_deadline.split("T")[0] : "-"}
+                PIC: {getTaskAssigneeName(currentTask)} ·{" "}
+                {currentTask.estimated_man_hours} Jam · Tenggat: {currentTask.target_deadline ? currentTask.target_deadline.split("T")[0] : "-"}
               </p>
             </div>
 

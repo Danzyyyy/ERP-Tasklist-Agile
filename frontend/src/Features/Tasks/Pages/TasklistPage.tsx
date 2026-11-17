@@ -73,8 +73,8 @@ export const TasklistPage: React.FC = () => {
         doneHours={deliverableStats.doneHours}
         totalEstimatedHours={deliverableStats.totalEstimatedHours}
         progressPercentage={deliverableStats.progressPercentage}
-        completedTasks={1}
-        totalTasks={8}
+        completedTasks={deliverableStats.doneTasksCount}
+        totalTasks={deliverableStats.totalTasksCount}
         onRefresh={() => refetch()}
       />
 

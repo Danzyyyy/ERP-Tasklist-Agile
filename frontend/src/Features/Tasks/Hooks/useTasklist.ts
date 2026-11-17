@@ -1,7 +1,7 @@
 // src/Features/Tasks/Hooks/useTasklist.ts
 import { useState, useMemo } from "react";
 import useGetTaskHierarchy from "@/Hooks/useGetTaskHierarchy";
-import useGetDeliverableProgress from "@/Hooks/useGetDeliverableProgress";
+import useGetDeliverableProgress, { DEFAULT_DELIVERABLE_METRICS } from "@/Hooks/useGetDeliverableProgress";
 import useSeedDemoData from "@/Hooks/useSeedDemoData";
 import { useFilterParams } from "@/Hooks/useFilterParams";
 import { useAuth } from "@/Hooks/useAuth";
@@ -12,7 +12,7 @@ import type { Task } from "@/Types/task";
 export function useTasklist() {
   const { role } = useAuth();
   const { data: hierarchy = [], isLoading: isHierarchyLoading, refetch: refetchHierarchy } = useGetTaskHierarchy();
-  const { data: deliverableMetrics, isLoading: isMetricsLoading, refetch: refetchMetrics } = useGetDeliverableProgress();
+  const { data: deliverableMetrics = DEFAULT_DELIVERABLE_METRICS, isLoading: isMetricsLoading, refetch: refetchMetrics } = useGetDeliverableProgress();
   const { seed, seeding } = useSeedDemoData();
   const { filters, setFilter } = useFilterParams<{
     module_id: string;
@@ -120,11 +120,11 @@ export function useTasklist() {
   // Konsumsi data akumulasi resmi Formula Q-03 dari Backend API: GET /projects/{projectId}/deliverable-progress
   const deliverableStats = useMemo(() => {
     return {
-      totalTasksCount: deliverableMetrics?.totalTasks ?? 0,
-      doneTasksCount: deliverableMetrics?.completedTasks ?? 0,
-      totalEstimatedHours: deliverableMetrics?.totalEstimatedManHours ?? 0,
-      doneHours: deliverableMetrics?.completedManHours ?? 0,
-      progressPercentage: deliverableMetrics?.progressPercentage ?? 0.0,
+      totalTasksCount: deliverableMetrics.totalTasks,
+      doneTasksCount: deliverableMetrics.completedTasks,
+      totalEstimatedHours: deliverableMetrics.totalEstimatedManHours,
+      doneHours: deliverableMetrics.completedManHours,
+      progressPercentage: deliverableMetrics.progressPercentage,
     };
   }, [deliverableMetrics]);
 

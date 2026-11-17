@@ -1,6 +1,6 @@
 // src/Features/Reports/Components/ModuleProgressReportRow.tsx
 import React from "react";
-import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
+import useGetModuleProgress, { DEFAULT_MODULE_METRICS } from "@/Hooks/useGetModuleProgress";
 import { Progress } from "@/Components/Elements/Progress";
 
 export interface ModuleProgressReportRowProps {
@@ -15,11 +15,11 @@ export const ModuleProgressReportRow: React.FC<ModuleProgressReportRowProps> = (
   moduleName,
 }) => {
   // Konsumsi langsung kalkulasi resmi Formula Q-03 dari Backend: GET /modules/{moduleId}/progress
-  const { data: progress, isLoading } = useGetModuleProgress(moduleId);
+  const { data: progress = DEFAULT_MODULE_METRICS, isLoading } = useGetModuleProgress(moduleId);
 
-  const doneHours = progress?.completedManHours ?? 0;
-  const totalHours = progress?.totalEstimatedManHours ?? 0;
-  const percentage = progress?.progressPercentage ?? 0;
+  const doneHours = progress.completedManHours;
+  const totalHours = progress.totalEstimatedManHours;
+  const percentage = progress.progressPercentage;
 
   return (
     <div className="space-y-1.5">

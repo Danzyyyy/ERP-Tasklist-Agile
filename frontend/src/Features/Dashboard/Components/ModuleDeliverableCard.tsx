@@ -1,7 +1,7 @@
 // src/Features/Dashboard/Components/ModuleDeliverableCard.tsx
 import React, { memo } from "react";
 import { useNavigate } from "react-router-dom";
-import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
+import useGetModuleProgress, { DEFAULT_MODULE_METRICS } from "@/Hooks/useGetModuleProgress";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
 import { Progress } from "@/Components/Elements/Progress";
@@ -19,13 +19,13 @@ export const ModuleDeliverableCard = memo<ModuleDeliverableCardProps>(
   ({ moduleId, moduleCode, moduleName, featureSummary, tlName = "Fauzan" }) => {
     const navigate = useNavigate();
     // Konsumsi langsung kalkulasi resmi Formula Q-03 dari Backend: GET /modules/{moduleId}/progress
-    const { data: progress, isLoading } = useGetModuleProgress(moduleId);
+    const { data: progress = DEFAULT_MODULE_METRICS, isLoading } = useGetModuleProgress(moduleId);
 
-    const doneHours = progress?.completedManHours ?? 0;
-    const totalHours = progress?.totalEstimatedManHours ?? 0;
-    const percentage = progress?.progressPercentage ?? 0;
-    const totalTasks = progress?.totalTasks ?? 0;
-    const completedTasks = progress?.completedTasks ?? 0;
+    const doneHours = progress.completedManHours;
+    const totalHours = progress.totalEstimatedManHours;
+    const percentage = progress.progressPercentage;
+    const totalTasks = progress.totalTasks;
+    const completedTasks = progress.completedTasks;
     const activeTasks = totalTasks > completedTasks ? totalTasks - completedTasks : 0;
 
     return (

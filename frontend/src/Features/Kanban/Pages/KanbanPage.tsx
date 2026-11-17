@@ -107,7 +107,7 @@ export const KanbanPage: React.FC = () => {
           <div key={col.id} className="w-[280px] sm:w-[300px] shrink-0">
             <KanbanColumn
               column={col}
-              tasks={columnTasksMap[col.id] || []}
+              tasks={columnTasksMap[col.id]}
               userRole={userRole}
               draggedFromStatus={draggedTask?.status ?? null}
               onSelectTask={setSelectedTask}

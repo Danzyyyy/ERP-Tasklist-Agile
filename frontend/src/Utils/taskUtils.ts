@@ -57,11 +57,22 @@ export function isTaskRework(task?: Task | null): boolean {
 }
 
 /**
+ * Mengambil nama PIC / Pelaksana tugas secara aman dengan fallback terstandarisasi.
+ */
+export function getTaskAssigneeName(task?: Task | null): string {
+  if (!task) return "Belum Ditugaskan";
+  if (typeof task.pic === "string" && task.pic.trim()) return task.pic;
+  if (task.pic && typeof task.pic === "object" && task.pic.name) return task.pic.name;
+  if (task.assignee_name && task.assignee_name.trim()) return task.assignee_name;
+  return "Belum Ditugaskan";
+}
+
+/**
  * Mengambil nilai actual man-hours sesuai kontrak OpenAPI (`actual_man_hours`) dengan fallback legacy.
  */
 export function getTaskActualManHours(task?: Task | null): number {
   if (!task) return 0;
-  return Number(task.actual_man_hours ?? task.actual_man_hours_spent ?? 0) || 0;
+  return task.actual_man_hours ?? task.actual_man_hours_spent ?? 0;
 }
 
 /**

@@ -3,10 +3,11 @@ import React from "react";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import useDashboardOverview from "@/Features/Dashboard/Hooks/useDashboardOverview";
 import { useGetTaskList } from "@/Hooks/useGetTaskList";
-import { useGetDeliverableProgress } from "@/Hooks/useGetDeliverableProgress";
+import { useGetDeliverableProgress, DEFAULT_DELIVERABLE_METRICS } from "@/Hooks/useGetDeliverableProgress";
 import useGetModuleList from "@/Hooks/useGetModuleList";
 import ModuleProgressReportRow from "../Components/ModuleProgressReportRow";
 import { Button } from "@/Components/Elements/Button";
+import { getTaskAssigneeName } from "@/Utils/taskUtils";
 import { RefreshCw, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,7 +18,7 @@ export const ReportsPage: React.FC = () => {
   );
 
   const { goToTasks } = useDashboardOverview();
-  const { data: progress, refetch: refetchProgress } = useGetDeliverableProgress();
+  const { data: progress = DEFAULT_DELIVERABLE_METRICS, refetch: refetchProgress } = useGetDeliverableProgress();
   const { data: allTasks = [], refetch: refetchTasks } = useGetTaskList({});
   const { data: modules = [] } = useGetModuleList();
 
@@ -26,9 +27,9 @@ export const ReportsPage: React.FC = () => {
     toast.success("Data laporan dan kalkulasi progres deliverable berhasil diperbarui.");
   };
 
-  const doneHours = progress?.completedManHours ?? 0;
-  const totalHours = progress?.totalEstimatedManHours ?? 0;
-  const progressPercent = (progress?.progressPercentage ?? 0).toFixed(1);
+  const doneHours = progress.completedManHours;
+  const totalHours = progress.totalEstimatedManHours;
+  const progressPercent = progress.progressPercentage.toFixed(1);
 
   // Rollover candidates: active tasks that are not yet DONE
   const activeTasks = allTasks.filter((t) => t.status !== "DONE");
@@ -167,11 +168,11 @@ export const ReportsPage: React.FC = () => {
               // Aggregate by PIC
               const picMap: Record<string, { name: string; total: number; done: number }> = {};
               allTasks.forEach((t) => {
-                const picName = typeof t.pic === "string" ? t.pic : t.pic?.name || "Belum Ditugaskan";
+                const picName = getTaskAssigneeName(t);
                 if (!picMap[picName]) {
                   picMap[picName] = { name: picName, total: 0, done: 0 };
                 }
-                const hrs = Number(t.estimated_man_hours) || 0;
+                const hrs = t.estimated_man_hours;
                 picMap[picName].total += hrs;
                 if (t.status === "DONE") {
                   picMap[picName].done += hrs;
@@ -255,7 +256,7 @@ export const ReportsPage: React.FC = () => {
             </thead>
             <tbody>
               {activeTasks.map((t) => {
-                const picLabel = typeof t.pic === "string" ? t.pic : t.pic?.name || "-";
+                const picLabel = getTaskAssigneeName(t);
                 return (
                   <tr key={t.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                     <td className="py-2.5 px-3 font-medium text-foreground">
@@ -266,7 +267,7 @@ export const ReportsPage: React.FC = () => {
                       {getStageLabel(t.status)}
                     </td>
                     <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                      {Number(t.estimated_man_hours) || 0} Jam
+                      {t.estimated_man_hours} Jam
                     </td>
                     <td className="py-2.5 px-3 text-muted-foreground">
                       {picLabel}
