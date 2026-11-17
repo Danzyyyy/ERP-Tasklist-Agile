@@ -50,10 +50,11 @@ export const LoginPage: React.FC = () => {
 
         {/* Custom Token Toggle (Optional Advanced Mode) */}
         <div className="pt-1">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={toggleCustomToken}
-            className="text-[11px] text-muted-foreground hover:text-primary font-medium flex items-center gap-1 transition-colors"
+            className="text-[11px] text-muted-foreground hover:text-primary font-medium flex items-center gap-1 transition-colors h-auto p-0"
           >
             <Sliders className="size-3" />
             <span>
@@ -61,7 +62,7 @@ export const LoginPage: React.FC = () => {
                 ? "Gunakan token demo otomatis"
                 : "Atur Bearer Token manual (Opsional)"}
             </span>
-          </button>
+          </Button>
 
           {useCustomToken && (
             <div className="mt-2 p-3 rounded-xl border border-border bg-muted/40 space-y-2 animate-[fade_0.15s_ease]">

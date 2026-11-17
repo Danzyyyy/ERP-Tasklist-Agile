@@ -1,6 +1,7 @@
 // src/Components/Modals/TaskDetailModal.tsx
 import React, { memo, useState } from "react";
 import { Modal } from "@/Components/Elements/Modal";
+import { Button } from "@/Components/Elements/Button";
 import type { Task, TaskStatus } from "@/Types/task";
 import { useAuth } from "@/Hooks/useAuth";
 import { useSubmitApproval } from "@/Hooks/useSubmitApproval";
@@ -213,86 +214,93 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
       description={header.desc}
       footer={
         <div className="flex items-center justify-between gap-3 w-full pt-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-xl border border-border bg-card hover:bg-muted text-foreground transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold rounded-xl"
           >
             Tutup
-          </button>
+          </Button>
 
           {/* Dynamic Footer Actions Based on Phase */}
           <div className="flex items-center gap-2">
             {/* 1. DRAFT Actions */}
             {status === "DRAFT" && ["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
               <>
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => handleApproval("REJECTED")}
                   disabled={submitApprovalMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100"
                 >
                   Tolak Draft
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => handleApproval("APPROVED")}
                   disabled={submitApprovalMutation.isPending}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  loading={submitApprovalMutation.isPending}
+                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs"
                 >
                   <Check className="size-3.5" />
                   <span>Setujui Rilis ({userRole === "TECHNICAL_LEAD" ? "TL" : "PM"})</span>
-                </button>
+                </Button>
               </>
             )}
 
             {/* 2. RELEASED Actions */}
             {status === "RELEASED" && (
-              <button
+              <Button
                 type="button"
                 onClick={handleStartDevelopment}
                 disabled={assignTaskMutation.isPending || updateStatusMutation.isPending}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                loading={assignTaskMutation.isPending || updateStatusMutation.isPending}
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs"
               >
                 <span>Mulai Development</span>
                 <ArrowRight className="size-3.5" />
-              </button>
+              </Button>
             )}
 
             {/* 3. DEVELOPMENT Actions */}
             {status === "DEVELOPMENT" && (
-              <button
+              <Button
                 type="button"
                 onClick={handleRequestCodeReview}
                 disabled={updateStatusMutation.isPending}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                loading={updateStatusMutation.isPending}
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs"
               >
                 <span>Ajukan Code Review</span>
                 <ArrowRight className="size-3.5" />
-              </button>
+              </Button>
             )}
 
             {/* 4. CODE_REVIEW Actions */}
             {status === "CODE_REVIEW" && ["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
               <>
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => handleCodeReviewDecision("REJECTED")}
                   disabled={submitReviewMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center gap-1"
                 >
                   <RotateCcw className="size-3.5" />
                   <span>Minta Revisi (Rework)</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => handleCodeReviewDecision("PASSED")}
                   disabled={submitReviewMutation.isPending}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  loading={submitReviewMutation.isPending}
+                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs flex items-center gap-1.5"
                 >
                   <Check className="size-3.5" />
                   <span>Loloskan ke QA Testing</span>
-                </button>
+                </Button>
               </>
             )}
 
@@ -300,39 +308,42 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             {status === "TESTING" && (
               <div className="flex items-center gap-2">
                 {["TESTER", "TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => handleQaTestDecision("REJECTED")}
                     disabled={submitReviewMutation.isPending}
-                    className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100"
                   >
                     QA Reject (Rework)
-                  </button>
+                  </Button>
                 )}
 
                 {userRole === "PROJECT_MANAGER" && !isPmVerified && (
-                  <button
+                  <Button
                     type="button"
                     onClick={() => pmVerifyMutation.mutate()}
                     disabled={pmVerifyMutation.isPending}
-                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                    loading={pmVerifyMutation.isPending}
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs flex items-center gap-1.5"
                   >
                     <CheckCircle2 className="size-3.5" />
                     <span>Verifikasi Ceklis PM (Gerbang 1)</span>
-                  </button>
+                  </Button>
                 )}
 
                 {userRole === "TECHNICAL_LEAD" && (
-                  <button
+                  <Button
                     type="button"
                     onClick={() => tlSignoffMutation.mutate()}
                     disabled={tlSignoffMutation.isPending || !isPmVerified}
+                    loading={tlSignoffMutation.isPending}
                     title={!isPmVerified ? "Menunggu verifikasi ceklis PM sebelum dapat disahkan" : undefined}
-                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs flex items-center gap-1.5"
                   >
                     <Check className="size-3.5" />
                     <span>Otorisasi Sign-Off DONE (TL)</span>
-                  </button>
+                  </Button>
                 )}
               </div>
             )}

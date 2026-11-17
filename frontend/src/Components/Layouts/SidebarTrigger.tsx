@@ -1,6 +1,7 @@
 // src/Components/Layouts/SidebarTrigger.tsx
 import React, { memo } from "react";
 import { useSidebar } from "./SidebarContext";
+import { Button } from "@/Components/Elements/Button";
 import { PanelLeft } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
@@ -11,11 +12,13 @@ export const SidebarTrigger = memo<SidebarTriggerProps>(({ className, ...props }
   const isOpen = isMobile ? openMobile : open;
 
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="icon"
       onClick={toggleSidebar}
       className={cn(
-        "inline-flex items-center justify-center size-[34px] rounded-lg border border-border bg-card hover:bg-muted/70 text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring cursor-pointer shadow-2xs shrink-0",
+        "rounded-lg shadow-2xs shrink-0 text-foreground",
         className,
       )}
       aria-label={isOpen ? "Tutup Sidebar (Ctrl+B)" : "Buka Sidebar (Ctrl+B)"}
@@ -24,7 +27,7 @@ export const SidebarTrigger = memo<SidebarTriggerProps>(({ className, ...props }
     >
       <PanelLeft className="size-4.5" />
       <span className="sr-only">Toggle Sidebar</span>
-    </button>
+    </Button>
   );
 });
 

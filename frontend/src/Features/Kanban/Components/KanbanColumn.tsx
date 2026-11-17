@@ -4,6 +4,7 @@ import KanbanCard from "./KanbanCard";
 import type { Task, TaskStatus } from "@/Types/task";
 import type { UserRole } from "@/Types/auth";
 import type { KanbanColumnDef } from "../Types/KanbanType";
+import { Button } from "@/Components/Elements/Button";
 import { Plus } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
@@ -78,14 +79,15 @@ export const KanbanColumn = memo<KanbanColumnProps>(
         </div>
 
         {/* Column Footer: + Tambah tugas */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={onOpenCreateTask}
-          className="mt-3 w-full py-2 px-2 text-xs text-muted-foreground hover:text-foreground font-medium flex items-center gap-1.5 transition-colors cursor-pointer rounded-lg hover:bg-card"
+          className="mt-3 w-full py-2 px-2 text-xs text-muted-foreground hover:text-foreground font-medium flex items-center justify-start gap-1.5 rounded-lg hover:bg-card h-auto"
         >
           <Plus className="size-3.5" />
           <span>Tambah tugas</span>
-        </button>
+        </Button>
       </div>
     );
   },

@@ -13,6 +13,7 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/Utils/cn";
+import { Button } from "./Button";
 import { ChevronDown, Check } from "lucide-react";
 
 // ============================================================================
@@ -169,15 +170,16 @@ export const SelectTrigger = memo<SelectTriggerProps>(
     const isDisabled = disabled || ctx.disabled;
 
     return (
-      <button
+      <Button
         ref={ctx.triggerRef}
         type="button"
         role="combobox"
+        variant="outline"
         aria-expanded={ctx.open}
         disabled={isDisabled}
         onClick={() => ctx.setOpen((prev) => !prev)}
         className={cn(
-          "flex h-[34px] w-full items-center justify-between rounded-md border border-input bg-card px-3 py-1.5 text-[13px] text-foreground shadow-2xs transition-colors",
+          "flex h-[34px] w-full items-center justify-between rounded-md border border-input bg-card px-3 py-1.5 text-[13px] text-foreground shadow-2xs transition-colors font-normal hover:bg-card hover:text-foreground",
           "hover:border-[#cbd5e1] focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
           error && "border-destructive focus-visible:border-destructive focus-visible:ring-destructive bg-[#fef2f2]/20 text-destructive",
           isDisabled && "cursor-not-allowed bg-muted opacity-60",
@@ -192,7 +194,7 @@ export const SelectTrigger = memo<SelectTriggerProps>(
             ctx.open && "rotate-180 text-primary",
           )}
         />
-      </button>
+      </Button>
     );
   },
 );
@@ -526,15 +528,16 @@ export const Select: React.FC<SelectProps> = ({
       </select>
 
       {/* Custom Shadcn Styled Trigger */}
-      <button
+      <Button
         ref={triggerRef}
         type="button"
         role="combobox"
+        variant="outline"
         aria-expanded={open}
         disabled={disabled}
         onClick={() => !disabled && setOpen((prev) => !prev)}
         className={cn(
-          "flex h-[34px] w-full items-center justify-between rounded-md border border-input bg-card px-3 py-1.5 text-[13px] text-foreground shadow-2xs transition-colors cursor-pointer",
+          "flex h-[34px] w-full items-center justify-between rounded-md border border-input bg-card px-3 py-1.5 text-[13px] text-foreground shadow-2xs transition-colors font-normal hover:bg-card hover:text-foreground",
           "hover:border-[#cbd5e1] focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
           error && "border-destructive focus-visible:border-destructive focus-visible:ring-destructive bg-[#fef2f2]/20 text-destructive",
           disabled && "cursor-not-allowed bg-muted opacity-60",
@@ -550,7 +553,7 @@ export const Select: React.FC<SelectProps> = ({
             open && "rotate-180 text-primary",
           )}
         />
-      </button>
+      </Button>
 
       {/* Truly Floating Dropdown Content via React Portal to document.body */}
       {open &&

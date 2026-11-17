@@ -6,6 +6,7 @@ import { useGetTaskList } from "@/Hooks/useGetTaskList";
 import { useGetDeliverableProgress } from "@/Hooks/useGetDeliverableProgress";
 import useGetModuleList from "@/Hooks/useGetModuleList";
 import ModuleProgressReportRow from "../Components/ModuleProgressReportRow";
+import { Button } from "@/Components/Elements/Button";
 import { RefreshCw, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -84,22 +85,23 @@ export const ReportsPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={handleRefresh}
-            className="h-9 px-3.5 rounded-lg border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            className="h-9 px-3.5 rounded-lg text-foreground text-xs font-semibold gap-1.5 shadow-2xs"
           >
             <RefreshCw className="size-3.5" />
             <span>Segarkan Data</span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={goToTasks}
-            className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+            className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs gap-1.5"
           >
             <span>Kelola Tasklist</span>
             <ArrowRight className="size-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -221,20 +223,21 @@ export const ReportsPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => toast.info("Fitur MoM / Change Log dijadwalkan pada rilis Sprint 2 (FTR-K04-10).")}
-              className="px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-xl text-foreground text-xs font-semibold"
             >
               Prioritaskan Ulang / MoM
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => toast.success("Siklus sprint aktif telah disinkronkan dengan backlog tugas.")}
-              className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-semibold shadow-xs"
             >
               Lanjutkan ke Sprint Berikutnya →
-            </button>
+            </Button>
           </div>
         </div>
 

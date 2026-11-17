@@ -5,6 +5,7 @@ import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { Select } from "@/Components/Elements/Select";
+import { cn } from "@/Utils/cn";
 import type { ReviewResult, ReviewType, Task } from "@/Types/task";
 import { FileCode2, CheckCircle2, XCircle, RotateCcw, Sparkles, Lock } from "lucide-react";
 
@@ -108,31 +109,35 @@ export const ReviewModal = memo<ReviewModalProps>(
             Keputusan Pemeriksaan <span className="text-destructive">*</span>
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setResult("PASSED")}
-              className={`p-3 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all ${
+              className={cn(
+                "h-auto p-3 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all",
                 result === "PASSED"
                   ? "border-success bg-success-subtle text-success-subtle-foreground ring-2 ring-success/20"
-                  : "border-border bg-card text-muted-foreground hover:bg-muted"
-              }`}
+                  : "border-border bg-card text-muted-foreground hover:bg-muted",
+              )}
             >
               <CheckCircle2 className="size-4 text-success" />
               <span>PASSED (Lolos)</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setResult("REJECTED")}
-              className={`p-3 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all ${
+              className={cn(
+                "h-auto p-3 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all",
                 result === "REJECTED"
                   ? "border-destructive bg-destructive-subtle text-destructive-subtle-foreground ring-2 ring-destructive/20"
-                  : "border-border bg-card text-muted-foreground hover:bg-muted"
-              }`}
+                  : "border-border bg-card text-muted-foreground hover:bg-muted",
+              )}
             >
               <XCircle className="size-4 text-destructive" />
               <span>REJECTED (Tolak / Bug)</span>
-            </button>
+            </Button>
           </div>
         </div>
 

@@ -8,6 +8,7 @@ import { useProject } from "@/Contexts/ProjectContext";
 import { Progress } from "@/Components/Elements/Progress";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
 import { cn } from "@/Utils/cn";
+import { Button } from "@/Components/Elements/Button";
 import { Sparkles, X, Plus, LogOut } from "lucide-react";
 
 export interface SidebarProps {
@@ -76,14 +77,16 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
 
           {/* Close button for Mobile Sheet */}
           {isMobile && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="iconSm"
               onClick={() => setOpenMobile(false)}
-              className="size-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted grid place-items-center cursor-pointer shrink-0 transition-colors"
+              className="text-muted-foreground hover:text-foreground"
               aria-label="Tutup Sidebar"
             >
               <X className="size-4" />
-            </button>
+            </Button>
           )}
         </div>
 
@@ -145,14 +148,14 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
         {/* Sidebar Footer (FigCraft 1:1: + Tambah Modul / Task, Divider & Account Row) */}
         <div className="px-3 pb-3 pt-1 border-t border-border shrink-0 space-y-2">
           {/* + Tambah Modul / Task Button */}
-          <button
+          <Button
             type="button"
             onClick={onOpenTaskModal}
-            className="w-full h-9 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+            className="w-full h-9 rounded-lg text-xs font-semibold gap-1.5 shadow-xs"
           >
             <Plus className="size-4" />
             <span>Tambah Modul / Task</span>
-          </button>
+          </Button>
 
           {/* Footer Divider */}
           <div className="h-px bg-border my-1" />
@@ -173,14 +176,16 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
               </div>
             </div>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="iconSm"
               onClick={handleLogout}
-              className="size-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors cursor-pointer"
+              className="text-muted-foreground hover:text-foreground"
               title="Keluar (Logout)"
             >
               <LogOut className="size-4" />
-            </button>
+            </Button>
           </div>
         </div>
       </aside>

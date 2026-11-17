@@ -1,6 +1,7 @@
 // src/Features/Kanban/Components/KanbanCard.tsx
 import React, { memo } from "react";
 import { cn } from "@/Utils/cn";
+import { Button } from "@/Components/Elements/Button";
 import { canRoleDragKanbanCard } from "@/Utils/taskUtils";
 import type { Task, TaskStatus } from "@/Types/task";
 import type { UserRole } from "@/Types/auth";
@@ -69,16 +70,18 @@ export const KanbanCard = memo<KanbanCardProps>(
         {/* Header Row: Task Code & Menu dots */}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="font-mono text-xs">{task.task_code || "#TSK-01"}</span>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="iconSm"
             onClick={(e) => {
               e.stopPropagation();
               onSelect(task);
             }}
-            className="text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded cursor-pointer"
+            className="size-6 text-muted-foreground hover:text-foreground"
           >
             <MoreHorizontal className="size-4" />
-          </button>
+          </Button>
         </div>
 
         {/* Title & Module */}

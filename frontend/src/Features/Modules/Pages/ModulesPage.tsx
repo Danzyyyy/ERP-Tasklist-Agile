@@ -4,6 +4,7 @@ import useModulesOverview from "../Hooks/useModulesOverview";
 import CreateModuleModal from "@/Components/Modals/CreateModuleModal";
 import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
+import { Button } from "@/Components/Elements/Button";
 import { ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
@@ -37,42 +38,44 @@ export const ModulesPage: React.FC = () => {
             Implementasi Core Banking · PT. Anaheim Nimbus Universal
           </p>
         </div>
-        <button
+        <Button
           type="button"
           onClick={() => setIsModuleModalOpen(true)}
-          className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+          className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5"
         >
           <Plus className="size-3.5" />
           <span>Tambah Modul Baru</span>
-        </button>
+        </Button>
       </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border text-xs font-semibold">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setActiveTab("SCHEDULE")}
           className={cn(
-            "pb-2.5 transition-all cursor-pointer relative",
+            "pb-2.5 transition-all relative h-auto rounded-none p-0 hover:bg-transparent",
             activeTab === "SCHEDULE"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground",
           )}
         >
           Jadwal & Kalender Sprint
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setActiveTab("DELIVERABLES")}
           className={cn(
-            "pb-2.5 transition-all cursor-pointer relative",
+            "pb-2.5 transition-all relative h-auto rounded-none p-0 hover:bg-transparent",
             activeTab === "DELIVERABLES"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground",
           )}
         >
           Proyek & Deliverable
-        </button>
+        </Button>
       </div>
 
       {/* Sprint Calendar Card */}
@@ -87,27 +90,31 @@ export const ModulesPage: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
-              <button
+              <Button
                 type="button"
-                className="size-7 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                variant="ghost"
+                size="iconSm"
+                className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
               >
                 <ChevronLeft className="size-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="size-7 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                variant="ghost"
+                size="iconSm"
+                className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
               >
                 <ChevronRight className="size-4" />
-              </button>
+              </Button>
             </div>
 
-            <button
+            <Button
               type="button"
-              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs"
             >
               <Plus className="size-3.5" />
               <span>Jadwal Baru</span>
-            </button>
+            </Button>
           </div>
         </div>
 

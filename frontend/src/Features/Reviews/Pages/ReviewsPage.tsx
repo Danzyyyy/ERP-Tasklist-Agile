@@ -19,6 +19,7 @@ import {
   ArrowRight,
   UserCheck,
 } from "lucide-react";
+import { Button } from "@/Components/Elements/Button";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 import type { Task } from "@/Types/task";
@@ -168,15 +169,16 @@ export const ReviewsPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
             onClick={handleRefresh}
             disabled={isLoading}
-            className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-xs"
+            loading={isLoading}
+            className="h-9 px-4 rounded-lg text-xs font-semibold gap-1.5 shrink-0 shadow-xs"
           >
             <RefreshCw className={cn("size-3.5", isLoading && "animate-spin")} />
             <span>Segarkan Antrean</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -189,19 +191,20 @@ export const ReviewsPage: React.FC = () => {
             { id: "TESTING", label: `QA Testing (${tabCounts.testing})` },
             { id: "SIGNOFF", label: `Siap Sign-off Done (${tabCounts.signoff})` },
           ].map((t) => (
-            <button
+            <Button
               key={t.id}
               type="button"
+              variant="ghost"
               onClick={() => setTab(t.id as any)}
               className={cn(
-                "pb-2.5 transition-all cursor-pointer whitespace-nowrap",
+                "pb-2.5 transition-all rounded-none h-auto px-0 whitespace-nowrap",
                 tab === t.id
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "text-primary border-b-2 border-primary font-bold"
+                  : "text-muted-foreground hover:text-foreground font-semibold",
               )}
             >
               {t.label}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -486,43 +489,34 @@ export const ReviewsPage: React.FC = () => {
                     {/* Actions for current phase */}
                     <div className="pt-1">
                       {currentTask.status === "CODE_REVIEW" && (
-                        <button
+                        <Button
                           type="button"
+                          variant={reviewDecision === "PASS" ? "default" : "destructive"}
                           onClick={reviewDecision === "PASS" ? handlePassCodeReview : handleRejectToDevelopment}
-                          disabled={submitReviewMutation.isPending}
-                          className={cn(
-                            "w-full h-9 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-2xs",
-                            reviewDecision === "PASS"
-                              ? "bg-primary hover:bg-primary-hover text-white"
-                              : "bg-rose-600 hover:bg-rose-700 text-white",
-                          )}
+                          loading={submitReviewMutation.isPending}
+                          className="w-full h-9 rounded-xl text-xs font-semibold shadow-2xs"
                         >
-                          {submitReviewMutation.isPending
-                            ? "Memproses..."
-                            : reviewDecision === "PASS"
+                          {reviewDecision === "PASS"
                             ? "Loloskan Code Review (Maju ke Testing)"
                             : "Tolak & Kembalikan ke Development (Rework)"}
-                        </button>
+                        </Button>
                       )}
 
                       {currentTask.status === "TESTING" && (
-                        <button
+                        <Button
                           type="button"
+                          variant={reviewDecision === "PASS" ? "secondary" : "destructive"}
                           onClick={reviewDecision === "PASS" ? handlePassTesting : handleRejectToDevelopment}
-                          disabled={submitReviewMutation.isPending}
+                          loading={submitReviewMutation.isPending}
                           className={cn(
-                            "w-full h-9 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-2xs",
-                            reviewDecision === "PASS"
-                              ? "bg-cyan-600 hover:bg-cyan-700 text-white"
-                              : "bg-rose-600 hover:bg-rose-700 text-white",
+                            "w-full h-9 rounded-xl text-xs font-semibold shadow-2xs",
+                            reviewDecision === "PASS" && "bg-cyan-600 hover:bg-cyan-700 text-white",
                           )}
                         >
-                          {submitReviewMutation.isPending
-                            ? "Memproses..."
-                            : reviewDecision === "PASS"
+                          {reviewDecision === "PASS"
                             ? "Catat Lolos QA Testing"
                             : "Tolak & Kembalikan ke Development (Rework)"}
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -563,30 +557,26 @@ export const ReviewsPage: React.FC = () => {
                         : "Project Manager memvalidasi kelayakan penyelesaian tugas sesuai standar SOP-08 sebelum pintu otorisasi TL terbuka."}
                     </p>
 
-                    <button
+                    <Button
                       type="button"
+                      variant={isPmVerified ? "outline" : canPmVerify ? "default" : "secondary"}
                       onClick={handleSavePmVerification}
-                      disabled={pmVerifyMutation.isPending || isPmVerified || !canPmVerify}
+                      loading={pmVerifyMutation.isPending}
+                      disabled={isPmVerified || !canPmVerify}
                       className={cn(
-                        "w-full h-8.5 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-2xs",
-                        isPmVerified
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 cursor-default"
-                          : canPmVerify
-                          ? "bg-primary hover:bg-primary-hover text-white cursor-pointer"
-                          : "bg-muted text-muted-foreground cursor-not-allowed",
+                        "w-full h-8.5 rounded-lg text-xs font-semibold shadow-2xs",
+                        isPmVerified && "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 cursor-default",
                       )}
                     >
                       <Check className="size-3.5" />
                       <span>
-                        {pmVerifyMutation.isPending
-                          ? "Memvalidasi..."
-                          : isPmVerified
+                        {isPmVerified
                           ? "Kelayakan PM Telah Disahkan ✓"
                           : canPmVerify
                           ? "Validasi Verifikasi Kelayakan (PM)"
                           : "Hanya PM yang Berwenang Memvalidasi"}
                       </span>
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Gerbang 2: TL Final Sign-off Card */}
@@ -622,12 +612,14 @@ export const ReviewsPage: React.FC = () => {
                         : "Gerbang 2 terkunci. Memerlukan verifikasi kelayakan PM (Gerbang 1) terlebih dahulu."}
                     </p>
 
-                    <button
+                    <Button
                       type="button"
+                      variant={isTlSigned ? "secondary" : isPmVerified && canTlSignoff ? "default" : "secondary"}
                       onClick={handleTlFinalSignoff}
-                      disabled={tlSignoffMutation.isPending || !isPmVerified || isTlSigned || !canTlSignoff}
+                      loading={tlSignoffMutation.isPending}
+                      disabled={!isPmVerified || isTlSigned || !canTlSignoff}
                       className={cn(
-                        "w-full h-8.5 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-2xs",
+                        "w-full h-8.5 rounded-lg text-xs font-semibold shadow-2xs",
                         isTlSigned
                           ? "bg-emerald-600 text-white cursor-default"
                           : !isPmVerified
@@ -639,9 +631,7 @@ export const ReviewsPage: React.FC = () => {
                     >
                       <CheckCircle2 className="size-3.5" />
                       <span>
-                        {tlSignoffMutation.isPending
-                          ? "Mengesahkan..."
-                          : isTlSigned
+                        {isTlSigned
                           ? "Tugas Telah Di-Sign-off (DONE)"
                           : !isPmVerified
                           ? "Terkunci (Menunggu Gerbang 1 PM)"
@@ -649,7 +639,7 @@ export const ReviewsPage: React.FC = () => {
                           ? "Otorisasi Sign-Off & Sahkan ke DONE"
                           : "Hanya TL yang Berwenang Melakukan Sign-off"}
                       </span>
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -658,50 +648,56 @@ export const ReviewsPage: React.FC = () => {
             {/* Bottom Footer Actions (Only for Non-DONE tasks) */}
             {currentTask.status !== "DONE" && (
               <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={handleRejectToDevelopment}
-                  disabled={submitReviewMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors cursor-pointer w-full sm:w-auto disabled:opacity-50 flex items-center gap-1.5"
+                  loading={submitReviewMutation.isPending}
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors w-full sm:w-auto"
                 >
                   <span>← Tolak & Kembalikan ke Development (Rework)</span>
-                </button>
+                </Button>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                   {currentTask.status === "CODE_REVIEW" && (
-                    <button
+                    <Button
                       type="button"
+                      variant="default"
                       onClick={handlePassCodeReview}
-                      disabled={submitReviewMutation.isPending}
-                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto"
+                      loading={submitReviewMutation.isPending}
+                      className="px-5 py-2 text-xs font-semibold rounded-xl w-full sm:w-auto"
                     >
                       <span>Loloskan Code Review</span>
                       <ArrowRight className="size-3.5" />
-                    </button>
+                    </Button>
                   )}
 
                   {currentTask.status === "TESTING" && !isPmVerified && (
-                    <button
+                    <Button
                       type="button"
+                      variant="default"
                       onClick={handleSavePmVerification}
-                      disabled={pmVerifyMutation.isPending || !canPmVerify}
-                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto disabled:opacity-50"
+                      loading={pmVerifyMutation.isPending}
+                      disabled={!canPmVerify}
+                      className="px-5 py-2 text-xs font-semibold rounded-xl w-full sm:w-auto"
                     >
                       <Check className="size-3.5" />
                       <span>Validasi Verifikasi PM (Gerbang 1)</span>
-                    </button>
+                    </Button>
                   )}
 
                   {currentTask.status === "TESTING" && isPmVerified && !isTlSigned && (
-                    <button
+                    <Button
                       type="button"
+                      variant="default"
                       onClick={handleTlFinalSignoff}
-                      disabled={tlSignoffMutation.isPending || !canTlSignoff}
-                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto disabled:opacity-50"
+                      loading={tlSignoffMutation.isPending}
+                      disabled={!canTlSignoff}
+                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
                     >
                       <CheckCircle2 className="size-3.5" />
                       <span>Otorisasi Sign-Off Done (TL)</span>
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>

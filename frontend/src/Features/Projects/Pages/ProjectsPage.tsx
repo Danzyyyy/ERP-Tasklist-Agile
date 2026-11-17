@@ -8,6 +8,7 @@ import CreateModuleModal from "@/Components/Modals/CreateModuleModal";
 import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
+import { Button } from "@/Components/Elements/Button";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 import {
@@ -109,24 +110,25 @@ export const ProjectsPage: React.FC = () => {
         </div>
 
         {activeTab === "MODULES" && (
-          <button
+          <Button
             type="button"
             onClick={() => setIsModuleModalOpen(true)}
-            className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+            className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5"
           >
             <Plus className="size-3.5" />
             <span>Tambah Modul Baru</span>
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-border text-xs font-semibold">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setActiveTab("PROJECTS")}
           className={cn(
-            "pb-2.5 transition-all cursor-pointer relative flex items-center gap-2",
+            "pb-2.5 transition-all relative flex items-center gap-2 rounded-none h-auto px-0",
             activeTab === "PROJECTS"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground",
@@ -136,13 +138,14 @@ export const ProjectsPage: React.FC = () => {
           <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">
             {projects.length}
           </span>
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setActiveTab("MODULES")}
           className={cn(
-            "pb-2.5 transition-all cursor-pointer relative flex items-center gap-2",
+            "pb-2.5 transition-all relative flex items-center gap-2 rounded-none h-auto px-0",
             activeTab === "MODULES"
               ? "text-primary border-b-2 border-primary"
               : "text-muted-foreground hover:text-foreground",
@@ -152,7 +155,7 @@ export const ProjectsPage: React.FC = () => {
           <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">
             {projectModules.length}
           </span>
-        </button>
+        </Button>
       </div>
 
       {/* TAB 1: PROJECTS LIST */}
@@ -173,21 +176,23 @@ export const ProjectsPage: React.FC = () => {
 
             <div className="flex items-center gap-1.5 w-full sm:w-auto">
               {(["ALL", "REGISTERED", "UNDER_REVIEW"] as const).map((st) => (
-                <button
+                <Button
                   key={st}
                   type="button"
+                  variant={statusFilter === st ? "default" : "ghost"}
+                  size="sm"
                   onClick={() => setStatusFilter(st)}
                   className={cn(
-                    "px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer",
+                    "px-2.5 py-1 rounded-md text-xs font-medium h-auto",
                     statusFilter === st
-                      ? "bg-primary text-white font-semibold shadow-2xs"
+                      ? "shadow-2xs"
                       : "bg-muted/50 text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {st === "ALL" && "Semua"}
                   {st === "REGISTERED" && "Registered (Siap)"}
                   {st === "UNDER_REVIEW" && "Under Review"}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -334,30 +339,31 @@ export const ProjectsPage: React.FC = () => {
                             <CheckCircle2 className="size-4 text-emerald-600" />
                             <span>Proyek Aktif Saat Ini</span>
                           </div>
-                          <button
+                          <Button
                             type="button"
+                            variant="link"
                             onClick={() => navigate(ROUTE_PATHS.DASHBOARD)}
-                            className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                            className="text-xs font-semibold text-primary p-0 h-auto gap-1"
                           >
                             <span>Buka Dashboard</span>
                             <ArrowRight className="size-3.5" />
-                          </button>
+                          </Button>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between gap-2">
-                          <button
+                          <Button
                             type="button"
+                            variant={isRegistered ? "default" : "outline"}
                             onClick={() => handleSelectProject(proj.projectId, proj.projectName)}
                             className={cn(
-                              "w-full h-8.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs",
-                              isRegistered
-                                ? "bg-primary hover:bg-primary-hover text-white"
-                                : "border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100",
+                              "w-full h-8.5 rounded-lg text-xs font-semibold gap-1.5 shadow-2xs",
+                              !isRegistered &&
+                                "border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100",
                             )}
                           >
                             <span>Pilih & Alihkan ke Proyek Ini</span>
                             <ArrowRight className="size-3.5" />
-                          </button>
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -381,14 +387,15 @@ export const ProjectsPage: React.FC = () => {
                 Modul-modul ini terikat dengan proyek aktif. Penambahan modul baru otomatis terdaftar ke proyek ini.
               </p>
             </div>
-            <button
+            <Button
               type="button"
+              size="sm"
               onClick={() => setIsModuleModalOpen(true)}
-              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer shrink-0 shadow-xs"
+              className="h-8 px-3 rounded-lg text-xs font-semibold gap-1 shadow-xs"
             >
               <Plus className="size-3" />
               <span>Tambah Modul</span>
-            </button>
+            </Button>
           </div>
 
           {isLoadingModules ? (
@@ -402,14 +409,15 @@ export const ProjectsPage: React.FC = () => {
               <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">
                 Proyek ini belum memiliki modul deliverable. Klik tombol di atas untuk membuat modul pertama.
               </p>
-              <button
+              <Button
                 type="button"
+                size="sm"
                 onClick={() => setIsModuleModalOpen(true)}
-                className="mt-2 h-8 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                className="mt-2 h-8 px-4 rounded-lg text-xs font-semibold gap-1.5"
               >
                 <Plus className="size-3.5" />
                 <span>Buat Modul Sekarang</span>
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -462,23 +470,25 @@ export const ProjectsPage: React.FC = () => {
                     </div>
 
                     <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs">
-                      <button
+                      <Button
                         type="button"
+                        variant="link"
                         onClick={() => handleOpenAddFeature(m.id)}
-                        className="text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                        className="text-primary font-semibold gap-1 p-0 h-auto text-xs"
                       >
                         <Plus className="size-3" />
                         <span>Tambah Fitur</span>
-                      </button>
+                      </Button>
 
-                      <button
+                      <Button
                         type="button"
+                        variant="link"
                         onClick={() => navigate(ROUTE_PATHS.TASKS)}
-                        className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 cursor-pointer"
+                        className="text-muted-foreground hover:text-foreground font-medium gap-1 p-0 h-auto text-xs"
                       >
                         <span>Lihat di Tasklist</span>
                         <ExternalLink className="size-3" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 );

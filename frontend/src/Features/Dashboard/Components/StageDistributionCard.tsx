@@ -1,6 +1,7 @@
 // src/Features/Dashboard/Components/StageDistributionCard.tsx
 import React, { memo } from "react";
 import { Card } from "@/Components/Elements/Card";
+import { Button } from "@/Components/Elements/Button";
 import { Skeleton } from "@/Components/Elements/Skeleton";
 import type { TaskStatus } from "@/Types/task";
 import { Kanban } from "lucide-react";
@@ -52,13 +53,14 @@ export const StageDistributionCard = memo<StageDistributionCardProps>(
             <Kanban className="size-4 text-primary" />
             <span>Distribusi Tahapan Sprint (SOP-08)</span>
           </h3>
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={onGoToKanban}
-            className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+            className="text-[11px] font-semibold text-primary p-0 h-auto"
           >
             Lihat Papan &rarr;
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-2">

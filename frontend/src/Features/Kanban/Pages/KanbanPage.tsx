@@ -9,6 +9,7 @@ import TaskModal from "@/Components/Modals/TaskModal";
 import TaskDetailModal from "@/Components/Modals/TaskDetailModal";
 import ReviewModal from "@/Components/Modals/ReviewModal";
 import SignOffModal from "@/Components/Modals/SignOffModal";
+import { Button } from "@/Components/Elements/Button";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Plus, RefreshCw } from "lucide-react";
 import type { Task, TaskStatus } from "@/Types/task";
@@ -79,24 +80,25 @@ export const KanbanPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => refetch()}
-            className="h-9 px-3 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            className="h-9 px-3 rounded-lg text-muted-foreground hover:text-foreground text-xs font-semibold gap-1.5 shadow-2xs"
           >
             <RefreshCw className="size-3.5" />
             <span>Segarkan</span>
-          </button>
+          </Button>
 
           {canCreateTask && (
-            <button
+            <Button
               type="button"
               onClick={() => setIsTaskModalOpen(true)}
-              className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-xs"
+              className="h-9 px-4 rounded-lg text-xs font-semibold gap-1.5 shrink-0 shadow-xs"
             >
               <Plus className="size-3.5" />
               <span>Buat Tugas Baru</span>
-            </button>
+            </Button>
           )}
         </div>
       </div>

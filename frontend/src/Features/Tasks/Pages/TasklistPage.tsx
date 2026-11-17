@@ -9,6 +9,7 @@ import TaskDetailModal from "@/Components/Modals/TaskDetailModal";
 import CreateModuleModal from "@/Components/Modals/CreateModuleModal";
 import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import ApprovalModal from "@/Components/Modals/ApprovalModal";
+import { Button } from "@/Components/Elements/Button";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Plus } from "lucide-react";
 
@@ -57,14 +58,14 @@ export const TasklistPage: React.FC = () => {
             Implementasi Core Banking · PT. Anaheim Nimbus Universal
           </p>
         </div>
-        <button
+        <Button
           type="button"
           onClick={() => handleOpenTaskModal()}
-          className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+          className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs gap-1.5"
         >
           <Plus className="size-3.5" />
           <span>Buat Tugas Baru</span>
-        </button>
+        </Button>
       </div>
 
       {/* Sprint Deliverable Ratio Banner (FigCraft 1:1) */}

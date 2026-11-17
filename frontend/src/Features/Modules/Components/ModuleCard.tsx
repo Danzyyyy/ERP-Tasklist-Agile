@@ -95,13 +95,15 @@ export const ModuleCard = memo<ModuleCardProps>(({ module: mod, tasks, canManage
               </span>
             </div>
             {canManage && (
-              <button
+              <Button
                 type="button"
+                variant="link"
+                size="sm"
                 onClick={() => onAddFeature(mod.id)}
-                className="text-xs font-semibold text-primary hover:underline shrink-0 cursor-pointer"
+                className="text-xs font-semibold text-primary hover:underline shrink-0"
               >
                 + Tambah Fitur
-              </button>
+              </Button>
             )}
           </div>
         ) : (
@@ -143,18 +145,20 @@ export const ModuleCard = memo<ModuleCardProps>(({ module: mod, tasks, canManage
                     <span className="text-[10px] text-muted-foreground font-mono">
                       ID: {ftr.id.slice(0, 8)}...
                     </span>
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
+                      size="sm"
                       onClick={() =>
                         navigate(
                           `${ROUTE_PATHS.TASKS}?module_id=${mod.id}&feature_id=${ftr.id}`,
                         )
                       }
-                      className="text-[11px] font-semibold text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] font-semibold text-primary hover:text-primary-hover flex items-center gap-1"
                     >
                       <span>Filter Tasklist</span>
                       <ArrowRight className="size-3" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );

@@ -9,6 +9,7 @@ import { useAuth } from "@/Hooks/useAuth";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import ModuleDeliverableCard from "../Components/ModuleDeliverableCard";
+import { Button } from "@/Components/Elements/Button";
 import { cn } from "@/Utils/cn";
 import {
   AlertTriangle,
@@ -257,13 +258,13 @@ export const DashboardPage: React.FC = () => {
               Semua progres, prioritas, dan keputusan tim. Dalam satu workspace.
             </p>
           </div>
-          <button
+          <Button
             type="button"
             onClick={goToTasks}
-            className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+            className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5"
           >
             <span>Kelola Tasklist</span>
-          </button>
+          </Button>
         </div>
 
         {/* Tugas Prioritas Section (Real Data from Backend) */}
@@ -275,13 +276,14 @@ export const DashboardPage: React.FC = () => {
                 {String(activeTasksCount).padStart(2, "0")}
               </span>
             </div>
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={goToTasks}
-              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
             >
               Lihat semua tugas ↗
-            </button>
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
@@ -403,13 +405,14 @@ export const DashboardPage: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground">Modul & Deliverable Proyek</h3>
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={() => navigate(ROUTE_PATHS.PROJECTS)}
-              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
             >
               Lihat portfolio proyek ↗
-            </button>
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -451,14 +454,15 @@ export const DashboardPage: React.FC = () => {
                 Rekapitulasi riil status tugas dan alokasi man-hour berdasarkan kompleksitas
               </p>
             </div>
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={goToKanban}
-              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
             >
               <span>Buka Board</span>
               <ArrowUpRight className="size-3.5" />
-            </button>
+            </Button>
           </div>
 
           {/* 6 Stage Status Pills */}
@@ -554,14 +558,15 @@ export const DashboardPage: React.FC = () => {
                 </span>
               )}
             </div>
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={goToTasks}
-              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
             >
               <span>Lihat Tasklist</span>
               <ArrowUpRight className="size-3.5" />
-            </button>
+            </Button>
           </div>
 
           <div className="divide-y divide-border/60">
@@ -764,14 +769,15 @@ export const DashboardPage: React.FC = () => {
 
           <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">5 anggota tim inti</span>
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={goToKanban}
-              className="font-semibold text-primary hover:underline cursor-pointer flex items-center gap-1"
+              className="font-semibold text-primary p-0 h-auto gap-1 text-xs"
             >
               <span>Alokasi Kanban</span>
               <ArrowUpRight className="size-3" />
-            </button>
+            </Button>
           </div>
         </div>
 

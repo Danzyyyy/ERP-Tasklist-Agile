@@ -3,6 +3,7 @@ import React, { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { TaskTreeRow, TaskTreeRowSkeleton, type TreeItem } from "./TaskTreeRow";
 import type { Task } from "@/Types/task";
+import { Button } from "@/Components/Elements/Button";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 
 export interface TaskTreeTableProps {
@@ -84,19 +85,23 @@ export const TaskTreeTable = memo<TaskTreeTableProps>(
           </span>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
-              className="px-3.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors cursor-pointer"
+              variant="outline"
+              size="sm"
+              className="rounded-lg text-xs font-semibold"
             >
               Setujui Rilis Terpilih
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => navigate(ROUTE_PATHS.KANBAN)}
-              className="px-3.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors cursor-pointer"
+              className="rounded-lg text-xs font-semibold"
             >
               Buka Agile Kanban Board →
-            </button>
+            </Button>
           </div>
         </div>
       </div>

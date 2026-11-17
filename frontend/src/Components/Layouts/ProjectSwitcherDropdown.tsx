@@ -1,6 +1,7 @@
 // src/Components/Layouts/ProjectSwitcherDropdown.tsx
 import React, { memo } from "react";
 import { useProject } from "@/Contexts/ProjectContext";
+import { Button } from "@/Components/Elements/Button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -23,9 +24,10 @@ export const ProjectSwitcherDropdown = memo(() => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
+        <Button
           type="button"
-          className="hidden lg:flex items-center justify-between gap-2 h-[34px] max-w-[240px] px-3 rounded-lg border border-border bg-card text-xs font-semibold text-foreground cursor-pointer hover:bg-muted/50 transition-colors shadow-2xs group"
+          variant="outline"
+          className="hidden lg:flex items-center justify-between gap-2 h-[34px] max-w-[240px] px-3 rounded-lg text-xs font-semibold shadow-2xs group"
           aria-label="Ganti Proyek Aktif"
         >
           <div className="flex items-center gap-1.5 truncate">
@@ -33,7 +35,7 @@ export const ProjectSwitcherDropdown = memo(() => {
             <span className="truncate">{displayName}</span>
           </div>
           <ChevronDown className="size-3 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
-        </button>
+        </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent

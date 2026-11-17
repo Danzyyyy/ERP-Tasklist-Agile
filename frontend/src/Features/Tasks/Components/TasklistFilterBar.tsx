@@ -1,6 +1,7 @@
 // src/Features/Tasks/Components/TasklistFilterBar.tsx
 import React, { memo } from "react";
 import { ChevronDown, Search, Plus } from "lucide-react";
+import { Button } from "@/Components/Elements/Button";
 import type { Module } from "@/Types/task";
 
 export interface TasklistFilterBarProps {
@@ -84,14 +85,14 @@ export const TasklistFilterBar = memo<TasklistFilterBarProps>(
         </div>
 
         {/* + Tambah Modul / Task Button */}
-        <button
+        <Button
           type="button"
           onClick={onOpenTaskModal}
-          className="h-8.5 px-3.5 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer shrink-0"
+          className="h-8.5 px-3.5 rounded-lg text-xs font-semibold gap-1.5 shadow-xs shrink-0"
         >
           <Plus className="size-3.5" />
           <span>Tambah Modul / Task</span>
-        </button>
+        </Button>
       </div>
     );
   },

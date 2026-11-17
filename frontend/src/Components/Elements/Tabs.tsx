@@ -2,6 +2,7 @@
 // Anaheim Design Kit — Specimen 10: Navigation & Tabs (FigCraft 1:1 Implementation)
 import React, { createContext, useContext, useState, memo, type ReactNode } from "react";
 import { cn } from "@/Utils/cn";
+import { Button } from "./Button";
 
 interface TabsContextType {
   value: string;
@@ -67,22 +68,23 @@ export const TabsTrigger = memo<TabsTriggerProps>(({ className, value, children,
   const isActive = context.value === value;
 
   return (
-    <button
+    <Button
       type="button"
       role="tab"
       aria-selected={isActive}
       onClick={() => context.onValueChange(value)}
+      variant="ghost"
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3.5 py-1 text-xs font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3.5 py-1 text-xs font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 h-auto",
         isActive
-          ? "bg-white text-foreground shadow-xs font-bold"
+          ? "bg-white text-foreground shadow-xs font-bold hover:bg-white hover:text-foreground"
           : "text-muted-foreground hover:text-foreground hover:bg-white/40",
         className,
       )}
       {...props}
     >
       {children}
-    </button>
+    </Button>
   );
 });
 TabsTrigger.displayName = "TabsTrigger";

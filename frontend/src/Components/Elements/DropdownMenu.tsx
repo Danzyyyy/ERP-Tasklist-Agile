@@ -10,6 +10,7 @@ import React, {
   type ReactNode,
 } from "react";
 import { cn } from "@/Utils/cn";
+import { Button } from "./Button";
 
 interface DropdownMenuContextType {
   open: boolean;
@@ -73,17 +74,18 @@ export const DropdownMenuTrigger = memo<DropdownMenuTriggerProps>(
     };
 
     return (
-      <button
+      <Button
         ref={context.triggerRef}
         type="button"
+        variant="ghost"
         aria-haspopup="true"
         aria-expanded={context.open}
         onClick={handleClick}
-        className={cn("inline-flex items-center justify-center cursor-pointer select-none", className)}
+        className={cn("inline-flex items-center justify-center cursor-pointer select-none h-auto p-0 hover:bg-transparent", className)}
         {...props}
       >
         {children}
-      </button>
+      </Button>
     );
   },
 );

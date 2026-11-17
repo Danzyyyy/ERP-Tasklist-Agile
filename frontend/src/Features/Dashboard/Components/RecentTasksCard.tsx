@@ -1,6 +1,7 @@
 // src/Features/Dashboard/Components/RecentTasksCard.tsx
 import React, { memo } from "react";
 import { Card } from "@/Components/Elements/Card";
+import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
 import { Skeleton } from "@/Components/Elements/Skeleton";
 import { formatManHours } from "@/Utils/formatters";
@@ -22,13 +23,14 @@ export const RecentTasksCard = memo<RecentTasksCardProps>(
             <History className="size-4 text-muted-foreground" />
             <span>Tugas Terbaru Dalam Siklus Eksekusi</span>
           </h3>
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={onGoToTasks}
-            className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+            className="text-[11px] font-semibold text-primary p-0 h-auto"
           >
             Kelola Semua &rarr;
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-2">

@@ -2,6 +2,7 @@
 // Anaheim Design Kit — Specimen 14: Dialog Containers (FigCraft 1:1 Implementation)
 import React, { memo, useEffect } from "react";
 import { cn } from "@/Utils/cn";
+import { Button } from "./Button";
 import { X } from "lucide-react";
 
 export interface ModalProps {
@@ -78,14 +79,17 @@ export const Modal = memo<ModalProps>(
                   </div>
                 )}
               </div>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="iconSm"
                 onClick={onClose}
-                className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1 -mt-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="text-muted-foreground hover:bg-muted hover:text-foreground -mr-1 -mt-1"
+                aria-label="Tutup"
               >
                 <X className="size-4" />
                 <span className="sr-only">Tutup</span>
-              </button>
+              </Button>
             </div>
           )}
 

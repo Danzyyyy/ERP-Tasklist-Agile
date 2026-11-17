@@ -104,18 +104,20 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             aria-label="Cari tugas, modul, fitur, atau PIC"
           />
           {searchQuery ? (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="iconSm"
               onClick={(e) => {
                 e.stopPropagation();
                 setSearchQuery("");
                 searchInputRef.current?.focus();
               }}
-              className="text-muted-foreground hover:text-foreground text-[11px] px-1 font-semibold cursor-pointer"
+              className="size-4 p-0 text-muted-foreground hover:text-foreground text-[11px] font-semibold"
               aria-label="Hapus pencarian"
             >
               ×
-            </button>
+            </Button>
           ) : (
             <kbd className="ml-auto pointer-events-none inline-flex h-4.5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground shrink-0">
               ⌘ K
@@ -139,17 +141,19 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
       <div className="flex items-center gap-2.5 shrink-0">
         {/* Notification Bell Trigger with Popover (FigCraft 1:1) */}
         <div className="relative" ref={notifRef}>
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             onClick={() => setIsNotifOpen((prev) => !prev)}
-            className="size-[34px] rounded-lg border border-border bg-card hover:bg-muted/70 flex items-center justify-center relative text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
+            className="rounded-lg relative text-muted-foreground hover:text-foreground shadow-2xs"
             aria-label="Notifikasi"
           >
             <Bell className="size-4" />
             {recentTasks.length > 0 && (
               <span className="size-2 rounded-full bg-primary ring-2 ring-card absolute top-1.5 right-1.5" />
             )}
-          </button>
+          </Button>
 
           {/* Notif Popover (Real Backend Task Feed) */}
           {isNotifOpen && (
@@ -159,13 +163,15 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
                   <h4 className="text-sm font-bold text-foreground">Aktivitas Tugas</h4>
                   <p className="text-[11px] text-muted-foreground">{recentTasks.length} tugas terdaftar</p>
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setIsNotifOpen(false)}
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                  className="text-xs text-muted-foreground hover:text-primary h-auto p-1"
                 >
                   Tutup
-                </button>
+                </Button>
               </div>
 
               <div className="space-y-2">
@@ -204,29 +210,32 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
                 )}
               </div>
 
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setIsNotifOpen(false);
                   navigate(ROUTE_PATHS.TASKS);
                 }}
-                className="w-full py-2 text-center text-xs font-semibold rounded-xl border border-border bg-card hover:bg-muted text-foreground transition-colors cursor-pointer"
+                className="w-full text-xs font-semibold rounded-xl"
               >
                 Lihat semua di Tasklist
-              </button>
+              </Button>
             </div>
           )}
         </div>
 
         {/* SlidersHorizontal / Filter Button (FigCraft 1:1) */}
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="icon"
           onClick={() => navigate(ROUTE_PATHS.KANBAN)}
-          className="size-[34px] rounded-lg border border-border bg-card hover:bg-muted/70 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
+          className="rounded-lg text-muted-foreground hover:text-foreground shadow-2xs"
           aria-label="Filter Tampilan"
         >
           <SlidersHorizontal className="size-3.5" />
-        </button>
+        </Button>
 
         {/* Actions Divider */}
         <div className="h-6 w-px bg-border shrink-0" />

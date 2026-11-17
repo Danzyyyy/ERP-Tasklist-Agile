@@ -2,6 +2,7 @@
 import React, { memo } from "react";
 import useCreateTask from "@/Hooks/useCreateTask";
 import { Modal } from "@/Components/Elements/Modal";
+import { Button } from "@/Components/Elements/Button";
 import { ChevronDown, Info, Minus, Plus, AlertCircle } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
@@ -48,22 +49,24 @@ export const TaskModal = memo<TaskModalProps>(
               </div>
             )}
             <div className="flex items-center justify-end gap-2.5 ml-auto">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={onClose}
                 disabled={isPending}
-                className="px-4 py-2 text-xs font-semibold rounded-xl border border-border bg-card hover:bg-muted text-foreground transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold rounded-xl"
               >
                 Batal
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 form="create-task-form"
                 disabled={isPending}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                loading={isPending}
+                className="px-5 py-2 text-xs font-semibold rounded-xl"
               >
-                {isPending ? "Menyimpan..." : "Simpan Draft Tugas"}
-              </button>
+                Simpan Draft Tugas
+              </Button>
             </div>
           </div>
         }
@@ -195,29 +198,33 @@ export const TaskModal = memo<TaskModalProps>(
                     Estimasi Man-Hour <span className="text-destructive">*</span>
                   </label>
                   <div className="h-9 px-2 rounded-lg border border-border bg-card flex items-center justify-between">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="iconSm"
                       onClick={() => {
                         const next = Math.max(0.25, Number((manHours - 1).toFixed(2)));
                         setValue("estimated_man_hours", next, { shouldValidate: true });
                       }}
-                      className="size-6 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                      className="size-6 text-muted-foreground hover:text-foreground"
                     >
                       <Minus className="size-3" />
-                    </button>
+                    </Button>
                     <span className="text-xs font-bold font-mono text-foreground">
                       {manHours} Jam
                     </span>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="iconSm"
                       onClick={() => {
                         const next = Number((manHours + 1).toFixed(2));
                         setValue("estimated_man_hours", next, { shouldValidate: true });
                       }}
-                      className="size-6 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                      className="size-6 text-muted-foreground hover:text-foreground"
                     >
                       <Plus className="size-3" />
-                    </button>
+                    </Button>
                   </div>
                   {errors.estimated_man_hours && (
                     <p className="text-[10px] text-destructive mt-0.5 font-medium">

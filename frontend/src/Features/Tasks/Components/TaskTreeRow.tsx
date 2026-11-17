@@ -3,6 +3,7 @@ import React, { memo } from "react";
 import { ChevronDown, ChevronRight, MoreHorizontal, Layers } from "lucide-react";
 import type { Task, Module, Feature } from "@/Types/task";
 import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
+import { Button } from "@/Components/Elements/Button";
 import { getInitials, getAvatarBg } from "@/Utils/taskUtils";
 import { cn } from "@/Utils/cn";
 
@@ -289,14 +290,16 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
 
         {/* Aksi */}
         <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="iconSm"
             onClick={() => onSelectTask?.(task)}
-            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded cursor-pointer"
+            className="size-6 text-muted-foreground hover:text-foreground"
             aria-label="Detail Tugas"
           >
             <MoreHorizontal className="size-4" />
-          </button>
+          </Button>
         </td>
       </tr>
     );
