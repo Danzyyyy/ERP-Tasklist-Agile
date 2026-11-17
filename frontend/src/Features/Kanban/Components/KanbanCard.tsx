@@ -1,131 +1,146 @@
 // src/Features/Kanban/Components/KanbanCard.tsx
 import React, { memo } from "react";
-import { Badge } from "@/Components/Elements/Badge";
-import { Button } from "@/Components/Elements/Button";
 import { cn } from "@/Utils/cn";
-import { formatManHours, formatDate } from "@/Utils/formatters";
+import { canRoleDragKanbanCard } from "@/Utils/taskUtils";
 import type { Task, TaskStatus } from "@/Types/task";
-import { Clock, User, ArrowRight, CheckCircle2 } from "lucide-react";
+import type { UserRole } from "@/Types/auth";
+import { MoreHorizontal } from "lucide-react";
 
 export interface KanbanCardProps {
   task: Task;
+  userRole?: UserRole | null;
   onSelect: (task: Task) => void;
   onAdvance: (task: Task, nextStatus: TaskStatus) => void;
+  onAssign?: (task: Task) => void;
   onDragStart?: (e: React.DragEvent, task: Task) => void;
+  onDragEnd?: () => void;
 }
 
-const nextStageMap: Record<TaskStatus, TaskStatus | null> = {
-  DRAFT: "RELEASED",
-  RELEASED: "DEVELOPMENT",
-  DEVELOPMENT: "CODE_REVIEW",
-  CODE_REVIEW: "TESTING",
-  TESTING: "DONE",
-  DONE: null,
-};
+export const KanbanCard = memo<KanbanCardProps>(
+  ({ task, userRole, onSelect, onDragStart, onDragEnd }) => {
+    const isDraggable = canRoleDragKanbanCard(userRole, task.status);
 
-const stageActionLabels: Record<TaskStatus, string> = {
-  DRAFT: "Setujui Rilis",
-  RELEASED: "Mulai Dev",
-  DEVELOPMENT: "Ajukan Review",
-  CODE_REVIEW: "Uji QA",
-  TESTING: "Sign-Off Done",
-  DONE: "Selesai",
-};
+    const getComplexityBadge = (c: string) => {
+      switch (c) {
+        case "HIGH":
+          return "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900";
+        case "MEDIUM":
+          return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900";
+        case "LOW":
+        default:
+          return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
+      }
+    };
 
-export const KanbanCard = memo<KanbanCardProps>(({ task, onSelect, onAdvance, onDragStart }) => {
-  const nextStatus = nextStageMap[task.status];
-  const actionLabel = stageActionLabels[task.status];
+    const getPicInitials = (pic?: { name: string } | string | null) => {
+      if (!pic) return "FJ";
+      const name = typeof pic === "string" ? pic : pic.name;
+      const parts = name.trim().split(" ");
+      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+      return name.slice(0, 2).toUpperCase();
+    };
 
-  // Determine if task has been reworked
-  const hasRework =
-    task.rework ||
-    Boolean(task.reviewLogs?.some((l) => l.result === "REJECTED" && task.status === "DEVELOPMENT"));
+    const picInitials = getPicInitials(task.pic);
+    const picBg = picInitials === "AR" ? "bg-purple-600" : "bg-indigo-600";
 
-  return (
-    <div
-      draggable
-      onDragStart={(e) => onDragStart && onDragStart(e, task)}
-      onClick={() => onSelect(task)}
-      className={`group relative rounded-xl border p-3 bg-card shadow-2xs hover:shadow-md transition-all cursor-pointer select-none ${
-        hasRework
-          ? "border-destructive-subtle-border ring-1 ring-destructive-subtle-border bg-destructive-subtle/20"
-          : "border-border hover:border-primary/50"
-      }`}
-    >
-      {/* Top Meta Row */}
-      <div className="flex items-center justify-between gap-1 mb-1.5">
-        <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[10px] font-bold text-primary-subtle-foreground bg-primary-subtle border border-primary-subtle-border px-1.5 py-0.2 rounded">
-            {task.task_code}
-          </span>
-          <Badge variant={task.complexity_weight as any} size="sm">
-            {task.complexity_weight}
-          </Badge>
-        </div>
+    const hours = Number(task.estimated_man_hours) || 8;
+    const moduleName = task.module?.title || "Manajemen Rekening";
+    const dateFormatted = task.target_date
+      ? new Date(task.target_date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })
+      : "18 Okt";
 
-        {hasRework && (
-          <Badge variant="REWORK" size="sm">
-            REWORK
-          </Badge>
+    return (
+      <div
+        draggable={isDraggable}
+        onDragStart={(e) => {
+          if (!isDraggable) {
+            e.preventDefault();
+            return;
+          }
+          onDragStart?.(e, task);
+        }}
+        onDragEnd={() => onDragEnd?.()}
+        onClick={() => onSelect(task)}
+        className={cn(
+          "group rounded-xl border border-border bg-card p-3 space-y-2 shadow-2xs hover:shadow-md hover:border-primary/50 transition-all select-none",
+          isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
         )}
-      </div>
-
-      {/* Task Title */}
-      <h4 className="text-xs font-bold text-foreground line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
-        {task.title}
-      </h4>
-
-      {/* Bottom Info Row */}
-      <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/70">
-        <span className="flex items-center gap-1 font-mono font-bold text-foreground">
-          <Clock className="size-3 text-muted-foreground" />
-          {formatManHours(task.estimated_man_hours)}
-        </span>
-
-        <span className="flex items-center gap-1 truncate max-w-27.5">
-          <User className="size-3 text-muted-foreground shrink-0" />
-          <span className="truncate">{task.assignee_name || "Belum Ada"}</span>
-        </span>
-      </div>
-
-      {/* Quick Advance Button on hover/display */}
-      {nextStatus && (
-        <div className="mt-2.5 pt-2 border-t border-border/70 flex items-center justify-between">
-          <span className="text-[9px] text-muted-foreground">
-            Jatuh Tempo: {formatDate(task.target_deadline)}
-          </span>
-          <Button
-            size="sm"
-            variant={task.status === "TESTING" ? "success" : "ghost"}
-            className={cn(
-              "h-6 text-[10px] px-2 font-bold transition-all",
-              task.status === "TESTING"
-                ? "text-white hover:text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs"
-                : "text-primary hover:bg-primary-subtle",
-            )}
+      >
+        {/* Header Row: Task Code & Menu dots */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="font-mono text-xs">{task.task_code || "#TSK-01"}</span>
+          <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onAdvance(task, nextStatus);
+              onSelect(task);
             }}
+            className="text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded cursor-pointer"
           >
-            <span>{actionLabel}</span>
-            <ArrowRight className="size-3 ml-1" />
-          </Button>
+            <MoreHorizontal className="size-4" />
+          </button>
         </div>
-      )}
 
-      {task.status === "DONE" && (
-        <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-emerald-700 font-medium">
-          <span className="flex items-center gap-1">
-            <CheckCircle2 className="size-3 text-emerald-600" />
-            Disahkan TL (DoD Lolos)
-          </span>
-          <span className="font-mono text-[9px] text-slate-400">100% Selesai</span>
+        {/* Title & Module */}
+        <div>
+          <h4 className="text-sm font-bold text-foreground line-clamp-1">
+            {task.title}
+          </h4>
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+            {moduleName}
+          </p>
         </div>
-      )}
-    </div>
-  );
-});
+
+        {/* Complexity, Man-hour & PIC Avatar */}
+        <div className="flex items-center justify-between pt-0.5">
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                "px-1.5 py-0.5 rounded border text-[10px] font-bold font-mono uppercase",
+                getComplexityBadge(task.complexity_weight),
+              )}
+            >
+              {task.complexity_weight || "MEDIUM"}
+            </span>
+            <span className="text-xs font-mono text-muted-foreground">
+              {hours}h
+            </span>
+          </div>
+
+          <div
+            className={cn(
+              "size-6 rounded-full text-white font-bold text-[10px] grid place-items-center shadow-2xs shrink-0",
+              picBg,
+            )}
+          >
+            {picInitials}
+          </div>
+        </div>
+
+        {/* Footer Row: Date & Status Tag / Action */}
+        <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs">
+          <span className="text-muted-foreground font-medium">
+            {dateFormatted}
+          </span>
+
+          {task.status === "DONE" ? (
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+              ✓ DISAHKAN
+            </span>
+          ) : task.status === "TESTING" ? (
+            <span className="font-bold text-amber-600 dark:text-amber-400">
+              3/4 PM CHECK
+            </span>
+          ) : (
+            <span className="font-semibold text-primary hover:underline flex items-center gap-0.5">
+              → Detail
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  },
+);
 
 KanbanCard.displayName = "KanbanCard";
 export default KanbanCard;

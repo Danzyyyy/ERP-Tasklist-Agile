@@ -1,7 +1,7 @@
 // src/Routes/ProtectedRoute.tsx
 import React, { type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/Features/Auth/Hooks/useAuth";
+import { useAuth } from "@/Hooks/useAuth";
 import type { UserRole } from "@/Types/auth";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import LoadingApp from "@/Pages/LoadingApp";

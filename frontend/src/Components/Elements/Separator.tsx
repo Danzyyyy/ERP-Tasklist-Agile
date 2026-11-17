@@ -1,4 +1,5 @@
 // src/Components/Elements/Separator.tsx
+// Anaheim Design Kit — Specimen 00: Dividers & Separators (FigCraft 1:1 Implementation)
 import React, { memo } from "react";
 import { cn } from "@/Utils/cn";
 

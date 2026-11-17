@@ -1,4 +1,5 @@
 // src/Components/Elements/Avatar.tsx
+// Anaheim Design Kit — Specimen 07: Avatar & User Presence (FigCraft 1:1 Implementation)
 import React, { memo, useState } from "react";
 import { cn } from "@/Utils/cn";
 
@@ -7,7 +8,7 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const sizeClasses = {
-  sm: "size-7 text-[10px]",
+  sm: "size-7 text-[10.5px]",
   default: "size-8 text-xs",
   lg: "size-10 text-sm",
 };
@@ -15,7 +16,7 @@ const sizeClasses = {
 export const Avatar = memo<AvatarProps>(({ className, size = "default", ...props }) => (
   <div
     className={cn(
-      "relative flex shrink-0 overflow-hidden rounded-full font-bold select-none",
+      "relative flex shrink-0 overflow-hidden rounded-full font-bold select-none border-2 border-white shadow-2xs",
       sizeClasses[size],
       className,
     )}
@@ -49,15 +50,15 @@ export interface AvatarFallbackProps extends React.HTMLAttributes<HTMLDivElement
 }
 
 const toneMap = {
-  blue: "bg-primary text-primary-foreground",
-  indigo: "bg-sidebar-primary text-sidebar-primary-foreground",
-  amber: "bg-warning text-warning-foreground",
-  emerald: "bg-success text-success-foreground",
-  slate: "bg-secondary text-secondary-foreground",
+  indigo: "bg-[#eef2ff] text-[#4338ca]",
+  blue: "bg-[#f0f9ff] text-[#0369a1]",
+  amber: "bg-[#fffbeb] text-[#b45309]",
+  emerald: "bg-[#ecfdf5] text-[#065f46]",
+  slate: "bg-[#f1f5f9] text-[#475569]",
 };
 
 export const AvatarFallback = memo<AvatarFallbackProps>(
-  ({ className, tone = "blue", children, ...props }) => (
+  ({ className, tone = "indigo", children, ...props }) => (
     <div
       className={cn(
         "flex h-full w-full items-center justify-center rounded-full font-bold uppercase",
@@ -71,3 +72,5 @@ export const AvatarFallback = memo<AvatarFallbackProps>(
   ),
 );
 AvatarFallback.displayName = "AvatarFallback";
+
+export default Avatar;

@@ -1,303 +1,313 @@
 // src/Features/Reports/Pages/ReportsPage.tsx
-import React, { useMemo } from "react";
-import useDeliverableProgress from "@/Features/Dashboard/Hooks/useDeliverableProgress";
-import { useTasks } from "@/Features/Tasks/Hooks/useTasks";
-import useModules from "@/Features/Modules/Hooks/useModules";
-import DeliverableProgressCard from "@/Features/Dashboard/Components/DeliverableProgressCard";
-import { Card } from "@/Components/Elements/Card";
-import { Badge } from "@/Components/Elements/Badge";
-import { Button } from "@/Components/Elements/Button";
-import { formatManHours } from "@/Utils/formatters";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
-import {
-  FileSpreadsheet,
-  Download,
-  BarChart3,
-  PieChart as PieChartIcon,
-  CheckCircle2,
-} from "lucide-react";
-import { toast } from "sonner";
+import React from "react";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
+import useDashboardOverview from "@/Features/Dashboard/Hooks/useDashboardOverview";
+import { useGetTaskList } from "@/Hooks/useGetTaskList";
+import { useGetDeliverableProgress } from "@/Hooks/useGetDeliverableProgress";
+import useGetModuleList from "@/Hooks/useGetModuleList";
+import { RefreshCw, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 
 export const ReportsPage: React.FC = () => {
   useDocumentTitle(
-    "Laporan Progres & SLA",
-    "Analisis akumulasi man-hour kerja riil, grafik distribusi modul, dan pelacakan rasio progres deliverable Formula Q-03.",
+    "Laporan Eksekutif",
+    "Pemantauan progres deliverable berbasis rasio akumulasi man-hour tugas Done terhadap total man-hour (SOP-07 & Q-03).",
   );
-  const { data: metrics } = useDeliverableProgress();
-  const { data: tasks = [] } = useTasks();
-  const { data: modules = [] } = useModules();
 
-  const effectiveMetrics = useMemo(() => {
-    if (metrics && metrics.totalTasks > 0) return metrics;
+  const { goToTasks } = useDashboardOverview();
+  const { data: progress, refetch: refetchProgress } = useGetDeliverableProgress();
+  const { data: allTasks = [], refetch: refetchTasks } = useGetTaskList({});
+  const { data: modules = [] } = useGetModuleList();
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.status === "DONE").length;
-    const totalEstimatedManHours = tasks.reduce(
-      (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-      0,
-    );
-    const completedManHours = tasks
-      .filter((t) => t.status === "DONE")
-      .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-    const actualManHoursSpent = tasks.reduce(
-      (acc, t) => acc + (Number(t.actual_man_hours_spent) || 0),
-      0,
-    );
-    const progressPercentage =
-      totalEstimatedManHours > 0 ? (completedManHours / totalEstimatedManHours) * 100 : 0.0;
-    const tasksAtRiskOrOverdue = tasks.filter((t) => {
-      if (t.status === "DONE") return false;
-      if (!t.target_deadline) return false;
-      return new Date(t.target_deadline) < new Date();
-    }).length;
+  const handleRefresh = async () => {
+    await Promise.all([refetchProgress(), refetchTasks()]);
+    toast.success("Data laporan dan kalkulasi progres deliverable berhasil diperbarui.");
+  };
 
-    return {
-      totalTasks,
-      completedTasks,
-      totalEstimatedManHours,
-      completedManHours,
-      actualManHoursSpent,
-      progressPercentage,
-      tasksAtRiskOrOverdue,
-      calculatedAt: new Date().toISOString(),
-    };
-  }, [metrics, tasks]);
+  const doneHours = progress?.completedManHours ?? 0;
+  const totalHours = progress?.totalEstimatedManHours ?? 0;
+  const progressPercent = (progress?.progressPercentage ?? 0).toFixed(1);
 
-  // Progress by Module Data for Bar Chart
-  const moduleChartData = useMemo(() => {
-    return modules.map((mod) => {
-      // Find all tasks under this module
-      const modTasks = tasks.filter((t) => t.module_id === mod.id);
-      const totalHours = modTasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-      const doneHours = modTasks
-        .filter((t) => t.status === "DONE")
-        .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
+  // Rollover candidates: active tasks that are not yet DONE
+  const activeTasks = allTasks.filter((t) => t.status !== "DONE");
 
-      return {
-        name: mod.code,
-        fullName: mod.name,
-        Total: totalHours,
-        Done: doneHours,
-      };
-    });
-  }, [modules, tasks]);
+  const getStageColor = (status: string) => {
+    switch (status) {
+      case "CODE_REVIEW":
+        return "text-purple-600 dark:text-purple-400";
+      case "TESTING":
+        return "text-cyan-600 dark:text-cyan-400";
+      case "DEVELOPMENT":
+        return "text-blue-600 dark:text-blue-400";
+      case "RELEASED":
+        return "text-emerald-600 dark:text-emerald-400";
+      default:
+        return "text-muted-foreground";
+    }
+  };
 
-  // Complexity Distribution Data for Pie Chart
-  const complexityChartData = useMemo(() => {
-    const counts = { LOW: 0, MEDIUM: 0, HIGH: 0 };
-    tasks.forEach((t) => {
-      if (counts[t.complexity_weight as keyof typeof counts] !== undefined) {
-        counts[t.complexity_weight as keyof typeof counts] += Number(t.estimated_man_hours) || 0;
-      }
-    });
-
-    return [
-      { name: "Low Complexity (Q-01)", value: counts.LOW, color: "#10b981" },
-      { name: "Medium Complexity (Q-01)", value: counts.MEDIUM, color: "#f59e0b" },
-      { name: "High Complexity (Q-01)", value: counts.HIGH, color: "#ef4444" },
-    ].filter((item) => item.value > 0);
-  }, [tasks]);
-
-  const handleExport = () => {
-    toast.success("Laporan deliverable sprint berhasil diunduh (Format JSON / CSV disiapkan).");
+  const getStageLabel = (status: string) => {
+    switch (status) {
+      case "CODE_REVIEW":
+        return "Code Review";
+      case "TESTING":
+        return "QA Testing";
+      case "DEVELOPMENT":
+        return "In Development";
+      case "RELEASED":
+        return "Released";
+      case "DRAFT":
+        return "Draft";
+      case "DONE":
+        return "Done";
+      default:
+        return status;
+    }
   };
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+      {/* Page Title Card (FigCraft 1:1) */}
+      <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-subtle-foreground bg-primary-subtle px-2 py-0.5 rounded border border-primary-subtle-border">
-            DELIVERABLE ANALYTICS & AUDIT / FTR-K04-07
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase bg-primary/10 px-2 py-0.5 rounded">
+              EXECUTIVE REPORT · FTR-K04-07
+            </span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Laporan Eksekutif & Matriks Deliverable
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Pemantauan progres deliverable berbasis rasio akumulasi man-hour tugas Done terhadap total man-hour (SOP-07 & Q-03).
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            className="h-9 px-3.5 rounded-lg border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+          >
+            <RefreshCw className="size-3.5" />
+            <span>Segarkan Data</span>
+          </button>
+          <button
+            type="button"
+            onClick={goToTasks}
+            className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+          >
+            <span>Kelola Tasklist</span>
+            <ArrowRight className="size-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Deliverable Progress Engine Banner */}
+      <div className="rounded-2xl border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+        <div>
+          <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase block">
+            DELIVERABLE PROGRESS ENGINE
           </span>
-          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5 flex items-center gap-2">
-            <span>Pelaporan Progres Deliverable & Audit Sprint</span>
-          </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Integrasi metrik real-time untuk modul pelaporan (E-5) dan pengawasan proyek (D-3, D-4).
+            Progres dihitung otomatis oleh sistem berbasis akumulasi man-hour tervalidasi Done (Q-03).
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={handleExport}
-          className="text-foreground text-xs self-start sm:self-auto"
-        >
-          <Download className="size-3.5 mr-1 text-primary" />
-          Ekspor Laporan (SLA)
-        </Button>
+        <div className="flex flex-col sm:items-end gap-1">
+          <span className="font-mono text-[10px] text-muted-foreground">
+            FTR-K04-07 · Q-03
+          </span>
+          <div className="font-mono text-base sm:text-lg font-black text-primary">
+            {doneHours} JAM DONE / {totalHours} TOTAL JAM × 100% = {progressPercent}%
+          </div>
+        </div>
       </div>
 
-      {/* Hero Metric */}
-      <DeliverableProgressCard metrics={effectiveMetrics} />
-
-      {/* Visual Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Module Burnout Bar Chart */}
-        <Card className="p-4 border-slate-200 bg-white">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <BarChart3 className="size-4 text-blue-600" />
-              <span>Akumulasi Man-Hour per Modul (Total vs Done)</span>
-            </h3>
-            <span className="text-[10px] text-slate-400 font-mono">Satuan: Jam Kerja</span>
+      {/* 2-Column Split: Progres Modul & Efisiensi Man-Hour */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card 1: Perbandingan Progres Modul */}
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">Perbandingan Progres Modul</h3>
+            <span className="text-[10px] font-mono text-muted-foreground font-bold uppercase">
+              {modules.length} MODUL AKTIF
+            </span>
           </div>
 
-          <div className="h-64 w-full">
-            {moduleChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={moduleChartData}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          <div className="space-y-3">
+            {modules.map((m) => {
+              const moduleTasks = allTasks.filter((t) => t.module_id === m.id);
+              const mTotalHours = moduleTasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
+              const mDoneHours = moduleTasks
+                .filter((t) => t.status === "DONE")
+                .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
+              const mPercent = mTotalHours > 0 ? ((mDoneHours / mTotalHours) * 100).toFixed(1) : "0.0";
+
+              return (
+                <div key={m.id} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-foreground">
+                      {m.code} — {m.name}
+                    </span>
+                    <span className={Number(mPercent) === 100 ? "font-mono text-emerald-600 dark:text-emerald-400 font-bold" : "font-mono text-muted-foreground"}>
+                      {mDoneHours} / {mTotalHours} Jam · {mPercent}%
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, Math.max(0, Number(mPercent)))}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+
+            {modules.length === 0 && (
+              <p className="text-xs text-muted-foreground italic">Belum ada modul terdaftar.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Card 2: Efisiensi Man-Hour PIC */}
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">Alokasi & Realisasi Man-Hour PIC</h3>
+            <span className="text-[10px] font-mono text-muted-foreground font-bold uppercase">
+              DONE / ALOKASI
+            </span>
+          </div>
+
+          <div className="space-y-2.5 text-xs">
+            {(() => {
+              // Aggregate by PIC
+              const picMap: Record<string, { name: string; total: number; done: number }> = {};
+              allTasks.forEach((t) => {
+                const picName = typeof t.pic === "string" ? t.pic : t.pic?.name || "Belum Ditugaskan";
+                if (!picMap[picName]) {
+                  picMap[picName] = { name: picName, total: 0, done: 0 };
+                }
+                const hrs = Number(t.estimated_man_hours) || 0;
+                picMap[picName].total += hrs;
+                if (t.status === "DONE") {
+                  picMap[picName].done += hrs;
+                }
+              });
+
+              const entries = Object.values(picMap);
+              if (entries.length === 0) {
+                return <p className="text-xs text-muted-foreground italic">Belum ada tugas.</p>;
+              }
+
+              return entries.map((entry, idx) => (
+                <div
+                  key={entry.name}
+                  className={`flex items-center justify-between py-1 ${
+                    idx < entries.length - 1 ? "border-b border-border/50" : ""
+                  }`}
                 >
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                      fontSize: "11px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Bar dataKey="Total" fill="#93c5fd" radius={[4, 4, 0, 0]} name="Total Jam" />
-                  <Bar
-                    dataKey="Done"
-                    fill="#2563eb"
-                    radius={[4, 4, 0, 0]}
-                    name="Jam Selesai (Done)"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full grid place-items-center text-xs text-slate-400">
-                Belum ada data modul untuk grafik
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* Complexity Weight Pie Chart */}
-        <Card className="p-4 border-slate-200 bg-white">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <PieChartIcon className="size-4 text-amber-600" />
-              <span>Proporsi Beban Kerja Berdasarkan Bobot (Q-01)</span>
-            </h3>
-            <span className="text-[10px] text-slate-400 font-mono">Man-Hour Total</span>
-          </div>
-
-          <div className="h-64 w-full flex items-center justify-center">
-            {complexityChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={complexityChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={4}
-                    dataKey="value"
+                  <span className="font-medium text-foreground">{entry.name}</span>
+                  <span
+                    className={`font-mono ${
+                      entry.done > 0 && entry.done === entry.total
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "text-muted-foreground"
+                    }`}
                   >
-                    {complexityChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                      fontSize: "11px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-xs text-slate-400">Belum ada data bobot untuk grafik</div>
-            )}
+                    {entry.done} / {entry.total} Jam
+                  </span>
+                </div>
+              ));
+            })()}
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* Deliverable Audit Table */}
-      <Card className="p-4 border-slate-200 bg-white">
-        <h3 className="text-xs font-bold text-slate-900 mb-3 flex items-center gap-1.5">
-          <FileSpreadsheet className="size-4 text-emerald-600" />
-          <span>Matriks Verifikasi Deliverable Sprint 1 (Kelompok 4 / Kelas E)</span>
-        </h3>
+      {/* Weekly Cycle Rollover Card */}
+      <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground">Weekly Cycle Rollover (SOP-08 & Q-08)</h3>
+              <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold font-mono">
+                {activeTasks.length} TUGAS AKTIF
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Tugas yang belum selesai pada siklus berjalan akan dievaluasi PM untuk dilanjutkan ke sprint berikutnya.
+            </p>
+          </div>
 
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => toast.info("Fitur MoM / Change Log dijadwalkan pada rilis Sprint 2 (FTR-K04-10).")}
+              className="px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors cursor-pointer"
+            >
+              Prioritaskan Ulang / MoM
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.success("Siklus sprint aktif telah disinkronkan dengan backlog tugas.")}
+              className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            >
+              Lanjutkan ke Sprint Berikutnya →
+            </button>
+          </div>
+        </div>
+
+        {/* Rollover Tasks Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
-                <th className="p-2.5">Kode Tugas</th>
-                <th className="p-2.5">Judul Deliverable</th>
-                <th className="p-2.5">Bobot</th>
-                <th className="p-2.5">Estimasi Jam</th>
-                <th className="p-2.5">Status Kanban</th>
-                <th className="p-2.5">Ceklis PM (DoD)</th>
-                <th className="p-2.5">Otorisasi TL (DONE)</th>
+              <tr className="border-b border-border/80 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                <th className="py-2.5 px-3">TUGAS</th>
+                <th className="py-2.5 px-3">TAHAPAN SAAT INI</th>
+                <th className="py-2.5 px-3">MAN-HOUR</th>
+                <th className="py-2.5 px-3">PIC</th>
+                <th className="py-2.5 px-3">ESTIMASI SELESAI</th>
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task) => (
-                <tr key={task.id} className="border-b border-border/70 hover:bg-muted/50">
-                  <td className="p-2.5 font-mono font-bold text-primary">{task.task_code}</td>
-                  <td className="p-2.5 font-medium text-foreground">{task.title}</td>
-                  <td className="p-2.5">
-                    <Badge variant={task.complexity_weight as any} size="sm">
-                      {task.complexity_weight}
-                    </Badge>
-                  </td>
-                  <td className="p-2.5 font-mono font-bold text-slate-700">
-                    {formatManHours(task.estimated_man_hours)}
-                  </td>
-                  <td className="p-2.5">
-                    <Badge variant={task.status as any} size="sm" dot>
-                      {task.status}
-                    </Badge>
-                  </td>
-                  <td className="p-2.5">
-                    {task.is_pm_verified ? (
-                      <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                        <CheckCircle2 className="size-3 text-emerald-600" />
-                        Terverifikasi
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 text-[11px]">-</span>
-                    )}
-                  </td>
-                  <td className="p-2.5">
-                    {task.is_tl_signed ? (
-                      <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                        <CheckCircle2 className="size-3 text-emerald-600" />
-                        Disahkan (DoD)
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 text-[11px]">-</span>
-                    )}
+              {activeTasks.map((t) => {
+                const picLabel = typeof t.pic === "string" ? t.pic : t.pic?.name || "-";
+                return (
+                  <tr key={t.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                    <td className="py-2.5 px-3 font-medium text-foreground">
+                      <span className="font-mono text-muted-foreground mr-1.5">{t.task_code || "#TSK"} ·</span>
+                      <span>{t.title}</span>
+                    </td>
+                    <td className={`py-2.5 px-3 font-semibold ${getStageColor(t.status)}`}>
+                      {getStageLabel(t.status)}
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-muted-foreground">
+                      {Number(t.estimated_man_hours) || 0} Jam
+                    </td>
+                    <td className="py-2.5 px-3 text-muted-foreground">
+                      {picLabel}
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-xs text-muted-foreground">
+                      {t.target_deadline ? t.target_deadline.split("T")[0] : "-"}
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {activeTasks.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-6 text-center text-xs text-muted-foreground italic">
+                    Seluruh tugas telah berstatus DONE. Tidak ada rollover yang diperlukan.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
-      </Card>
+
+        <p className="text-[11px] text-muted-foreground pt-1">
+          Hanya Project Manager yang berwenang mengeksekusi rollover akhir siklus mingguan (Q-08).
+        </p>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,9 @@
 // src/Features/Dashboard/Components/KPICards.tsx
 import React, { memo } from "react";
 import { Card } from "@/Components/Elements/Card";
+import { Skeleton } from "@/Components/Elements/Skeleton";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
+import { isTaskRework } from "@/Utils/taskUtils";
 import type { DeliverableProgress, Task } from "@/Types/task";
 import { TrendingUp, Clock, ShieldAlert, RotateCcw } from "lucide-react";
 
@@ -91,7 +93,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
         </div>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black text-destructive-subtle-foreground font-mono">
-            {tasks.filter((t) => t.rework).length}
+            {tasks.filter((t) => isTaskRework(t)).length}
           </span>
           <span className="text-xs text-muted-foreground font-medium">Tugas</span>
         </div>
@@ -104,4 +106,23 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
 });
 
 KPICards.displayName = "KPICards";
+
+// SKELETON COMPANION: Dimensi & Grid Identik (CLS = 0)
+export const KPICardsSkeleton: React.FC = () => {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {Array.from({ length: 4 }).map((_, idx) => (
+        <Card key={idx} className="p-4 border-border">
+          <div className="flex items-center justify-between mb-2">
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="size-8 rounded-lg" />
+          </div>
+          <Skeleton className="h-8 w-20 my-1" />
+          <Skeleton className="h-3 w-36 mt-1" />
+        </Card>
+      ))}
+    </div>
+  );
+};
+
 export default KPICards;

@@ -18,6 +18,7 @@ export interface TaskApproval {
   approver_id?: string | null;
   approver_name?: string | null;
   notes?: string | null;
+  actioned_at?: string | null;
   approved_at?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -31,6 +32,7 @@ export interface TaskReviewLog {
   reviewer_id?: string | null;
   reviewer_name?: string | null;
   notes?: string | null;
+  reviewed_at?: string;
   created_at: string;
 }
 
@@ -66,6 +68,7 @@ export interface Task {
   description?: string | null;
   complexity_weight: ComplexityWeight;
   estimated_man_hours: number;
+  actual_man_hours?: number;
   actual_man_hours_spent?: number;
   target_deadline: string;
   status: TaskStatus;
@@ -86,7 +89,8 @@ export interface Task {
   feature?: Feature;
   approvals?: TaskApproval[];
   reviewLogs?: TaskReviewLog[];
-  dependencies?: any[];
+  review_logs?: TaskReviewLog[];
+  dependencies?: Task[] | string[];
   rework?: boolean;
 }
 
@@ -99,4 +103,47 @@ export interface DeliverableProgress {
   progressPercentage: number;
   tasksAtRiskOrOverdue: number;
   calculatedAt: string;
+}
+
+export interface TaskQueryParams {
+  status?: string;
+  module_id?: string;
+  feature_id?: string;
+  search?: string;
+}
+
+export interface ModuleQueryParams {
+  project_id?: string;
+}
+
+export interface ApprovalPayload {
+  status: "APPROVED" | "REJECTED";
+  notes?: string;
+}
+
+export interface TaskApprovalResponse {
+  task_id: string;
+  task_title: string;
+  task_status: string;
+  approvals: TaskApproval[];
+}
+
+export interface SubmitReviewPayload {
+  review_type: "CODE_REVIEW" | "TESTING";
+  result: "PASSED" | "REJECTED";
+  notes?: string;
+}
+
+export interface ProjectDeliverableResponse {
+  status: string;
+  projectId: string;
+  data: DeliverableProgress;
+}
+
+export interface ModuleProgressResponse {
+  status: string;
+  moduleId: string;
+  moduleName: string;
+  moduleCode: string;
+  data: DeliverableProgress;
 }

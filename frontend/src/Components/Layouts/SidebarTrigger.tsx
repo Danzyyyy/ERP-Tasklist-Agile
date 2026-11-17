@@ -15,7 +15,7 @@ export const SidebarTrigger = memo<SidebarTriggerProps>(({ className, ...props }
       type="button"
       onClick={toggleSidebar}
       className={cn(
-        "inline-flex items-center justify-center size-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+        "inline-flex items-center justify-center size-[34px] rounded-lg border border-border bg-card hover:bg-muted/70 text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring cursor-pointer shadow-2xs shrink-0",
         className,
       )}
       aria-label={isOpen ? "Tutup Sidebar (Ctrl+B)" : "Buka Sidebar (Ctrl+B)"}

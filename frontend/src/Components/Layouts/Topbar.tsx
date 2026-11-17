@@ -1,22 +1,16 @@
 // src/Components/Layouts/Topbar.tsx
-import React, { memo } from "react";
+import React, { memo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/Features/Auth/Hooks/useAuth";
-import { ROLE_DETAILS } from "@/Features/Auth/Constants/AuthConstant";
+import { useAuth } from "@/Hooks/useAuth";
+import { ROLE_DETAILS } from "@/Constants/AuthConstant";
 import SidebarTrigger from "./SidebarTrigger";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/Components/Elements/DropdownMenu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/Components/Elements/DropdownMenu";
 import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
 import { Badge } from "@/Components/Elements/Badge";
 import { Button } from "@/Components/Elements/Button";
-import { ROUTES } from "@/Constants/RouteConstant";
-import { Plus, ChevronDown, LogOut, FileText } from "lucide-react";
+import { ROUTE_PATHS } from "@/Constants/RouteConstant";
+import { canCreateTaskRole } from "@/Utils/taskUtils";
+import { Plus, ChevronDown, LogOut, FileText, Search, Bell, SlidersHorizontal, Check } from "lucide-react";
 
 export interface TopbarProps {
   onOpenTaskModal: () => void;
@@ -26,10 +20,39 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
   const navigate = useNavigate();
   const { user, role, logout } = useAuth();
   const roleMeta = role ? ROLE_DETAILS[role] : null;
+  const canCreateTask = canCreateTaskRole(role);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    };
+    if (isNotifOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isNotifOpen]);
 
   const handleLogout = () => {
     logout();
-    navigate(ROUTES.LOGIN);
+    navigate(ROUTE_PATHS.LOGIN);
   };
 
   const getRoleTone = (r?: string | null): "blue" | "indigo" | "amber" | "emerald" | "slate" => {
@@ -48,59 +71,165 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
   };
 
   return (
-    <header className="h-16 bg-card border-b border-border px-3 sm:px-6 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
-      {/* Left Info with Shadcn SidebarTrigger */}
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+    <header className="h-[72px] bg-card border-b border-border px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
+      {/* Left Info & Search with Shadcn SidebarTrigger */}
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <SidebarTrigger />
 
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="font-extrabold text-xs text-foreground truncate">
-              PT. Anaheim Nimbus Universal
-            </span>
-            <span className="text-[10px] text-muted-foreground font-mono shrink-0">
-              / Modul E-4
-            </span>
+        {/* Global Command Search Bar (FigCraft 1:1: 320x34) - Real Interactive Input */}
+        <div
+          onClick={() => searchInputRef.current?.focus()}
+          className="hidden md:flex items-center gap-2 h-[34px] w-64 lg:w-[320px] rounded-lg border border-border bg-card px-2.5 text-xs shadow-2xs transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 cursor-text group"
+        >
+          <Search className="size-3.5 text-muted-foreground group-focus-within:text-primary shrink-0 transition-colors" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari tugas, modul, fitur, atau PIC..."
+            className="w-full bg-transparent border-0 p-0 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0 leading-none"
+            aria-label="Cari tugas, modul, fitur, atau PIC"
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSearchQuery("");
+                searchInputRef.current?.focus();
+              }}
+              className="text-muted-foreground hover:text-foreground text-[11px] px-1 font-semibold cursor-pointer"
+              aria-label="Hapus pencarian"
+            >
+              ×
+            </button>
+          ) : (
+            <kbd className="ml-auto pointer-events-none inline-flex h-4.5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground shrink-0">
+              ⌘ K
+            </kbd>
+          )}
+        </div>
+
+        {/* Project Selector Dropdown Pill (FigCraft 1:1) */}
+        <div className="hidden lg:flex items-center justify-between gap-2 h-[34px] px-3 rounded-lg border border-border bg-card text-xs font-semibold text-foreground cursor-pointer hover:bg-muted/50 transition-colors">
+          <span>Core Banking - Sprint 1</span>
+          <ChevronDown className="size-3 text-muted-foreground shrink-0" />
+        </div>
+
+        {/* Mobile / Compact brand title */}
+        <div className="md:hidden min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-xs text-foreground truncate">Anaheim ERP</span>
+            <span className="text-[10px] text-muted-foreground font-mono shrink-0">/ E-4</span>
           </div>
-          <span className="text-[11px] text-muted-foreground hidden md:block truncate">
-            Sistem Manajemen Eksekusi Agile, Dual-Approval Gate & Pelacakan Man-Hour
-          </span>
         </div>
       </div>
 
-      {/* Right Controls */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Quick Add Task */}
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onOpenTaskModal}
-          className="h-8 text-xs px-2.5 sm:px-3"
-        >
-          <Plus className="size-3.5 sm:mr-1 text-primary" />
-          <span className="hidden sm:inline">Buat Tugas</span>
-          <span className="sm:hidden text-[11px]">Tugas</span>
-        </Button>
+      {/* Right Utility Actions */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        {/* Notification Bell Trigger with Popover (FigCraft 1:1) */}
+        <div className="relative" ref={notifRef}>
+          <button
+            type="button"
+            onClick={() => setIsNotifOpen((prev) => !prev)}
+            className="size-[34px] rounded-lg border border-border bg-card hover:bg-muted/70 flex items-center justify-center relative text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
+            aria-label="Notifikasi"
+          >
+            <Bell className="size-4" />
+            <span className="size-2 rounded-full bg-destructive ring-2 ring-card absolute top-1.5 right-1.5" />
+          </button>
 
-        {/* User Profile & Menu */}
+          {/* Notif Popover (FigCraft Node 13254) */}
+          {isNotifOpen && (
+            <div className="absolute right-0 top-11 w-80 sm:w-96 rounded-2xl border border-border bg-card shadow-2xl p-4 z-50 space-y-3 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between pb-1 border-b border-border/60">
+                <div>
+                  <h4 className="text-sm font-bold text-foreground">Notifikasi</h4>
+                  <p className="text-[11px] text-muted-foreground">3 belum dibaca</p>
+                </div>
+                <button type="button" onClick={() => setIsNotifOpen(false)} className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+                  Tandai semua dibaca
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs">
+                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">FZ</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-xs leading-tight">Fauzan menyetujui rilis tugas</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-04 · 10 menit lalu</p>
+                  </div>
+                  <span className="size-2 rounded-full bg-primary shrink-0 mt-1" />
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs">
+                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">FJ</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-xs leading-tight">Fajri memindahkan tugas ke Testing</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-05 · 25 menit lalu</p>
+                  </div>
+                  <span className="size-2 rounded-full bg-primary shrink-0 mt-1" />
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs">
+                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">TW</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-xs leading-tight">Tubagus memverifikasi checklist PM</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-05 · 48 menit lalu</p>
+                  </div>
+                  <span className="size-2 rounded-full bg-primary shrink-0 mt-1" />
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-card border border-border/80 flex items-start gap-2.5 text-xs">
+                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">FZ</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-xs leading-tight">Fauzan menyelesaikan final sign-off</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-08 · 1 jam lalu</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsNotifOpen(false)}
+                className="w-full py-2 text-center text-xs font-semibold rounded-xl border border-border bg-card hover:bg-muted text-foreground transition-colors cursor-pointer"
+              >
+                Lihat semua notifikasi
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* SlidersHorizontal / Filter Button (FigCraft 1:1) */}
+        <button
+          type="button"
+          className="size-[34px] rounded-lg border border-border bg-card hover:bg-muted/70 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
+          aria-label="Filter Tampilan"
+        >
+          <SlidersHorizontal className="size-3.5" />
+        </button>
+
+        {/* Actions Divider */}
+        <div className="h-6 w-px bg-border shrink-0" />
+
+        {/* User Profile & Menu (FigCraft 1:1: TW Alex Morgan / Workspace Owner) */}
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="flex items-center gap-2 sm:gap-2.5 px-2 sm:px-2.5 py-1.5 rounded-xl border border-border bg-secondary/80 hover:bg-secondary hover:border-border transition-all text-left group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+            className="flex items-center gap-2 sm:gap-2.5 px-2.5 h-[42px] rounded-lg border border-border bg-card hover:bg-muted/70 transition-all text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer shadow-2xs"
             aria-label="Menu Pengguna"
           >
-            <Avatar size="sm">
-              <AvatarFallback tone={getRoleTone(role)}>{roleMeta?.short || "USER"}</AvatarFallback>
-            </Avatar>
+            <div className="size-[34px] rounded-full bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">TW</div>
 
             <div className="hidden sm:block text-left">
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                  {user?.name || "Pengguna"}
+                  {user?.name ? user.name.replace(/\s*\([^)]*\)/g, "") : "Alex Morgan"}
                 </span>
-                <ChevronDown className="size-3 text-muted-foreground group-hover:text-foreground" />
+                <ChevronDown className="size-3 text-muted-foreground group-hover:text-foreground shrink-0" />
               </div>
-              <span className="text-[10px] text-muted-foreground block mt-0.5 leading-none">
-                {roleMeta?.label || role || "Pengguna Aktif"}
+              <span className="text-[10px] text-muted-foreground block mt-1 leading-none font-medium">
+                {role === "PROJECT_MANAGER" ? "Workspace Owner" : roleMeta?.label || "Workspace Owner"}
               </span>
             </div>
           </DropdownMenuTrigger>
@@ -110,12 +239,8 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             <DropdownMenuLabel className="pb-1.5">
               <div className="flex items-center gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate">
-                    {user?.name || "Pengguna Aktif"}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate font-mono">
-                    {user?.email || "user@anaheim.id"}
-                  </p>
+                  <p className="text-xs font-bold text-foreground truncate">{user?.name || "Pengguna Aktif"}</p>
+                  <p className="text-[10px] text-muted-foreground truncate font-mono">{user?.email || "user@anaheim.id"}</p>
                 </div>
                 <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 uppercase">
                   {roleMeta?.short || "ROLE"}
@@ -126,30 +251,26 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             <DropdownMenuSeparator />
 
             {/* Quick Action: Buat Tugas */}
-            <DropdownMenuItem onClick={onOpenTaskModal} className="gap-2.5 py-2">
-              <FileText className="size-4 text-emerald-600 shrink-0" />
-              <div className="flex-1 text-left">
-                <div className="font-semibold text-xs text-foreground">Buat Tugas Baru</div>
-                <div className="text-[10px] text-muted-foreground">
-                  Daftarkan backlog agile sprint
-                </div>
-              </div>
-            </DropdownMenuItem>
+            {canCreateTask && (
+              <>
+                <DropdownMenuItem onClick={onOpenTaskModal} className="gap-2.5 py-2">
+                  <FileText className="size-4 text-success shrink-0" />
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold text-xs text-foreground">Buat Tugas Baru</div>
+                    <div className="text-[10px] text-muted-foreground">Daftarkan backlog agile sprint</div>
+                  </div>
+                </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
+              </>
+            )}
 
             {/* Logout Action (Wajib lewat Login Page untuk ganti akun) */}
-            <DropdownMenuItem
-              destructive
-              onClick={handleLogout}
-              className="gap-2.5 py-2 text-red-600 hover:bg-red-50 hover:text-red-700"
-            >
+            <DropdownMenuItem destructive onClick={handleLogout} className="gap-2.5 py-2 text-destructive hover:bg-destructive-subtle hover:text-destructive-subtle-foreground">
               <LogOut className="size-4 shrink-0" />
               <div className="flex-1 text-left">
                 <div className="font-semibold text-xs">Keluar (Logout)</div>
-                <div className="text-[10px] text-red-400">
-                  Keluar ke Login Page untuk ganti akun
-                </div>
+                <div className="text-[10px] text-destructive/80">Keluar ke Login Page untuk ganti akun</div>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>

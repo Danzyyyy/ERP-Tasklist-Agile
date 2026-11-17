@@ -1,8 +1,9 @@
 // src/Features/Tasks/Hooks/useAssignTask.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import TaskService from "../Services/TaskService";
-import { TASK_QUERY_KEYS } from "../Constants/TaskConstant";
+import TaskService from "@/Services/TaskService";
+import { TASK_QUERY_KEYS } from "@/Constants/TaskConstant";
+import { PROGRESS_QUERY_KEYS } from "@/Constants/ProgressConstant";
 import { getErrorMessage } from "@/Utils/errorHandler";
 
 export const useAssignTask = (onSuccess?: () => void) => {
@@ -27,6 +28,7 @@ export const useAssignTask = (onSuccess?: () => void) => {
     onSuccess: async (response) => {
       toast.success(response.message || "Pengembang PIC berhasil ditugaskan!");
       await queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.all });
+      await queryClient.invalidateQueries({ queryKey: PROGRESS_QUERY_KEYS.all });
       if (onSuccess) onSuccess();
     },
     onError: (error) => {

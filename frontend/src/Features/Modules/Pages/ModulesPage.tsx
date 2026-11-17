@@ -1,341 +1,296 @@
 // src/Features/Modules/Pages/ModulesPage.tsx
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import useModules from "../Hooks/useModules";
-import { useTasks } from "@/Features/Tasks/Hooks/useTasks";
-import { useAuth } from "@/Features/Auth/Hooks/useAuth";
-import CreateModuleModal from "../Components/CreateModuleModal";
-import CreateFeatureModal from "../Components/CreateFeatureModal";
-import { Card } from "@/Components/Elements/Card";
-import { Button } from "@/Components/Elements/Button";
-import { Badge } from "@/Components/Elements/Badge";
-import { ROUTE_PATHS } from "@/Constants/RouteConstant";
-import { formatManHours } from "@/Utils/formatters";
+import React, { useState } from "react";
+import useModulesOverview from "../Hooks/useModulesOverview";
+import CreateModuleModal from "@/Components/Modals/CreateModuleModal";
+import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import { FolderKanban, FolderTree, Plus, Layers, ArrowRight, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react";
+import { cn } from "@/Utils/cn";
 
 export const ModulesPage: React.FC = () => {
   useDocumentTitle(
-    "Struktur Proyek & Modul",
-    "Manajemen hierarki 3 tingkat Modul, Fitur, dan Tugas Proyek PT. Anaheim Nimbus Universal sesuai SOP-05.",
+    "Proyek",
+    "Implementasi Core Banking · PT. Anaheim Nimbus Universal",
   );
-  const navigate = useNavigate();
-  const { role } = useAuth();
-  const { data: modules = [] } = useModules();
-  const { data: tasks = [] } = useTasks();
 
-  const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
-  const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
-  const [selectedModuleId, setSelectedModuleId] = useState<string | undefined>(undefined);
+  const {
+    isModuleModalOpen,
+    setIsModuleModalOpen,
+    isFeatureModalOpen,
+    setIsFeatureModalOpen,
+    selectedModuleId,
+    handleOpenAddFeature,
+    handleCloseFeatureModal,
+  } = useModulesOverview();
 
-  const canManage = role === "TECHNICAL_LEAD" || role === "PROJECT_MANAGER";
-
-  // Calculate project summary metrics
-  const projectMetrics = useMemo(() => {
-    const totalModules = modules.length;
-    const totalFeatures = modules.reduce((acc, m) => acc + (m.features?.length || 0), 0);
-    const totalTasks = tasks.length;
-    const totalManHours = tasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-
-    return {
-      totalModules,
-      totalFeatures,
-      totalTasks,
-      totalManHours,
-    };
-  }, [modules, tasks]);
-
-  const handleOpenAddFeature = (moduleId?: string) => {
-    setSelectedModuleId(moduleId);
-    setIsFeatureModalOpen(true);
-  };
+  const [activeTab, setActiveTab] = useState<"SCHEDULE" | "DELIVERABLES">("SCHEDULE");
 
   return (
-    <div className="space-y-5">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <div className="space-y-4">
+      {/* Page Title Card (FigCraft 1:1) */}
+      <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-subtle-foreground bg-primary-subtle px-2 py-0.5 rounded border border-primary-subtle-border">
-            STRUKTUR PROYEK & HIERARKI KERJA / FTR-K04-01
-          </span>
-          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5 flex items-center gap-2">
-            <FolderKanban className="size-6 text-primary" />
-            <span>Manajemen Modul & Fitur Proyek</span>
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Hierarki terstruktur sesuai SOP-05: Proyek &rarr; Modul Proyek &rarr; Fitur (Opsional /
-            Q-13) &rarr; Tugas Sprint.
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Proyek & Deliverable
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Implementasi Core Banking · PT. Anaheim Nimbus Universal
           </p>
         </div>
-
-        {canManage && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => handleOpenAddFeature()}
-              className="text-xs h-9"
-              disabled={modules.length === 0}
-            >
-              <Plus className="size-3.5 mr-1 text-indigo-600" />
-              <span>Tambah Fitur</span>
-            </Button>
-
-            <Button
-              variant="primary"
-              onClick={() => setIsModuleModalOpen(true)}
-              className="text-xs h-9"
-            >
-              <Plus className="size-3.5 mr-1" />
-              <span>Tambah Modul</span>
-            </Button>
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={() => setIsModuleModalOpen(true)}
+          className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+        >
+          <Plus className="size-3.5" />
+          <span>Tambah Modul Baru</span>
+        </button>
       </div>
 
-      {/* Project Overview Card */}
-      <Card className="p-5 bg-linear-to-r from-slate-900 via-slate-900 to-blue-950 text-white border-slate-800 shadow-md">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      {/* Tabs */}
+      <div className="flex items-center gap-6 border-b border-border text-xs font-semibold">
+        <button
+          type="button"
+          onClick={() => setActiveTab("SCHEDULE")}
+          className={cn(
+            "pb-2.5 transition-all cursor-pointer relative",
+            activeTab === "SCHEDULE"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          Jadwal & Kalender Sprint
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("DELIVERABLES")}
+          className={cn(
+            "pb-2.5 transition-all cursor-pointer relative",
+            activeTab === "DELIVERABLES"
+              ? "text-primary border-b-2 border-primary"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          Proyek & Deliverable
+        </button>
+      </div>
+
+      {/* Sprint Calendar Card */}
+      <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 text-xs text-blue-400 font-mono font-semibold">
-              <span>PROYEK ID: PROJ-ERP-01</span>
-              <span>·</span>
-              <span>KELOMPOK 4 / KELAS E</span>
-            </div>
-            <h2 className="text-lg font-bold text-white tracking-tight mt-1">
-              PT. Anaheim Nimbus Universal — Modul E-4
-            </h2>
-            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Sistem Tasklist dan Eksekusi Agile, Dual-Approval Task Release Gate, serta Pelacakan
-              Progres Man-Hour Riil.
+            <h3 className="text-sm font-bold text-foreground">12 – 18 Oktober 2026</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              UTC+7 · Sprint 1 Workspace
             </p>
           </div>
 
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/5 p-3 rounded-xl border border-white/10 shrink-0">
-            <div className="text-center px-3 py-1">
-              <span className="block text-lg font-black font-mono text-white">
-                {projectMetrics.totalModules}
-              </span>
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider">Modul</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
+              <button
+                type="button"
+                className="size-7 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              <button
+                type="button"
+                className="size-7 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <ChevronRight className="size-4" />
+              </button>
             </div>
 
-            <div className="text-center px-3 py-1 border-l border-white/10">
-              <span className="block text-lg font-black font-mono text-indigo-400">
-                {projectMetrics.totalFeatures}
-              </span>
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider">Fitur</span>
-            </div>
+            <button
+              type="button"
+              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            >
+              <Plus className="size-3.5" />
+              <span>Jadwal Baru</span>
+            </button>
+          </div>
+        </div>
 
-            <div className="text-center px-3 py-1 border-l border-white/10">
-              <span className="block text-lg font-black font-mono text-emerald-400">
-                {projectMetrics.totalTasks}
-              </span>
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider">Tugas</span>
+        {/* 6 Days Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+          {/* Senin 12 */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              SENIN
             </div>
+            <div className="text-lg font-black text-foreground">12</div>
+            <div className="p-3 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/40 space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-blue-700 dark:text-blue-300">
+                <Clock className="size-3" />
+                <span>09:00</span>
+              </div>
+              <div>
+                <h5 className="text-xs font-bold text-foreground">Daily Standup Meeting</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">AGILE · Tubagus</p>
+              </div>
+            </div>
+          </div>
 
-            <div className="text-center px-3 py-1 border-l border-white/10">
-              <span className="block text-lg font-black font-mono text-amber-400">
-                {formatManHours(projectMetrics.totalManHours)}
-              </span>
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider">Man-Hour</span>
+          {/* Selasa 13 */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              SELASA
+            </div>
+            <div className="text-lg font-black text-foreground">13</div>
+            <div className="p-3 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/40 space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300">
+                <Clock className="size-3" />
+                <span>10:00</span>
+              </div>
+              <div>
+                <h5 className="text-xs font-bold text-foreground">DDL & Skema DB · H-1</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">BACKEND · Fajri</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Rabu 14 */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              RABU
+            </div>
+            <div className="text-lg font-black text-foreground">14</div>
+            <div className="p-3 rounded-xl border border-purple-200 dark:border-purple-900 bg-purple-50/60 dark:bg-purple-950/40 space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-purple-700 dark:text-purple-300">
+                <Clock className="size-3" />
+                <span>13:00</span>
+              </div>
+              <div>
+                <h5 className="text-xs font-bold text-foreground">Code Review</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">API Validasi KTP · Fauzan</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Kamis 15 */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              KAMIS
+            </div>
+            <div className="text-lg font-black text-foreground">15</div>
+            <div className="p-3 rounded-xl border border-dashed border-border text-center py-6">
+              <span className="text-xs text-muted-foreground">Tidak ada jadwal</span>
+            </div>
+          </div>
+
+          {/* Jumat 16 */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              JUMAT
+            </div>
+            <div className="text-lg font-black text-foreground">16</div>
+            <div className="p-3 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/40 space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-rose-700 dark:text-rose-300">
+                <Clock className="size-3" />
+                <span>15:00</span>
+              </div>
+              <div>
+                <h5 className="text-xs font-bold text-foreground">Verifikasi PM & Sign-off TL</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">APPROVAL · Tubagus</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sabtu 17 */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              SABTU
+            </div>
+            <div className="text-lg font-black text-foreground">17</div>
+            <div className="p-3 rounded-xl border border-dashed border-border text-center py-6">
+              <span className="text-xs text-muted-foreground">Tidak ada jadwal</span>
             </div>
           </div>
         </div>
-      </Card>
-
-      {/* Modules List */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-            <Layers className="size-4 text-blue-600" />
-            <span>Daftar Modul & Fitur Terdaftar</span>
-          </h3>
-          <span className="text-[11px] text-slate-400">{modules.length} Modul Terkonfigurasi</span>
-        </div>
-
-        {modules.length === 0 ? (
-          <Card className="p-8 text-center bg-white border-dashed border-2 border-slate-200">
-            <FolderTree className="size-10 text-slate-300 mx-auto mb-2" />
-            <h4 className="font-bold text-sm text-slate-800">Belum Ada Modul Proyek</h4>
-            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-              Modul merupakan tingkat teratas pengelompokan deliverable dalam SOP-05. Silakan
-              tambahkan modul pertama untuk mulai mendaftarkan fitur dan tugas.
-            </p>
-            {canManage && (
-              <Button
-                variant="primary"
-                onClick={() => setIsModuleModalOpen(true)}
-                className="mt-4 text-xs"
-              >
-                <Plus className="size-3.5 mr-1" />
-                Tambah Modul Pertama
-              </Button>
-            )}
-          </Card>
-        ) : (
-          modules.map((mod) => {
-            const moduleTasks = tasks.filter((t) => t.module_id === mod.id);
-            const moduleHours = moduleTasks.reduce(
-              (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-              0,
-            );
-            const features = mod.features || [];
-
-            return (
-              <Card
-                key={mod.id}
-                className="p-5 border-border bg-card shadow-2xs hover:border-border transition-all"
-              >
-                {/* Module Header Row */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-border/70">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-xs font-bold bg-primary-subtle text-primary-subtle-foreground px-2 py-0.5 rounded border border-primary-subtle-border">
-                        {mod.code}
-                      </span>
-                      <h4 className="text-sm font-bold text-foreground truncate">{mod.name}</h4>
-                      <Badge variant="outline" className="text-[10px]">
-                        {features.length} Fitur
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {moduleTasks.length} Tugas ({formatManHours(moduleHours)})
-                      </Badge>
-                    </div>
-
-                    {mod.description && (
-                      <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                        {mod.description}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    {canManage && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleOpenAddFeature(mod.id)}
-                        className="text-xs h-8"
-                      >
-                        <Plus className="size-3 mr-1 text-primary" />
-                        Tambah Fitur
-                      </Button>
-                    )}
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => navigate(`${ROUTE_PATHS.TASKS}?module_id=${mod.id}`)}
-                      className="text-xs h-8 text-primary hover:text-primary-hover hover:bg-primary-subtle"
-                    >
-                      <span>Lihat Tugas</span>
-                      <ArrowRight className="size-3 ml-1" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Features Sub-List */}
-                <div className="pt-4">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center justify-between">
-                    <span>Fitur di dalam Modul Ini (SOP-05 / WI-04)</span>
-                    <span className="font-normal lowercase text-slate-400">
-                      Level fitur bersifat opsional (Q-13)
-                    </span>
-                  </div>
-
-                  {features.length === 0 ? (
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-500 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Info className="size-4 text-slate-400 shrink-0" />
-                        <span>
-                          Modul ini belum memiliki fitur terdaftar. Tugas dapat langsung bernaung di
-                          bawah modul.
-                        </span>
-                      </div>
-                      {canManage && (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenAddFeature(mod.id)}
-                          className="text-xs font-semibold text-blue-600 hover:underline shrink-0"
-                        >
-                          + Tambah Fitur
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {features.map((ftr) => {
-                        const ftrTasks = tasks.filter((t) => t.feature_id === ftr.id);
-                        const ftrHours = ftrTasks.reduce(
-                          (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-                          0,
-                        );
-
-                        return (
-                          <div
-                            key={ftr.id}
-                            className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-slate-50 hover:border-blue-200 transition-all flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="font-mono text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 truncate">
-                                  {ftr.code}
-                                </span>
-                                <span className="text-[10px] text-slate-500 font-mono">
-                                  {ftrTasks.length} Tugas · {formatManHours(ftrHours)}
-                                </span>
-                              </div>
-
-                              <h5 className="font-bold text-xs text-slate-900 mt-2 leading-snug">
-                                {ftr.name}
-                              </h5>
-
-                              {ftr.description && (
-                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                                  {ftr.description}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="pt-3 mt-3 border-t border-slate-200/80 flex items-center justify-between">
-                              <span className="text-[10px] text-slate-400 font-mono">
-                                ID: {ftr.id.slice(0, 8)}...
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  navigate(
-                                    `${ROUTE_PATHS.TASKS}?module_id=${mod.id}&feature_id=${ftr.id}`,
-                                  )
-                                }
-                                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
-                              >
-                                <span>Filter Tasklist</span>
-                                <ArrowRight className="size-3" />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })
-        )}
       </div>
 
-      {/* Modals */}
-      <CreateModuleModal isOpen={isModuleModalOpen} onClose={() => setIsModuleModalOpen(false)} />
+      {/* Section: Module Deliverables */}
+      <div className="space-y-3 pt-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-foreground">Module Deliverables</h3>
+          <span className="text-xs text-muted-foreground font-mono">
+            2 modul aktif · 8 tugas · 96 Jam
+          </span>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Card 1: MOD-01 */}
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">
+            <div className="flex items-center justify-between text-xs">
+              <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 text-[10px] font-bold font-mono">
+                MOD-01
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                Sprint 1 · 25 Okt 2026
+              </span>
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-foreground">
+                Manajemen Rekening
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Fitur 1.1 Buka Tabungan / Fitur 1.2 Monitoring Saldo
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full" style={{ width: "0%" }} />
+              </div>
+              <div className="text-right text-xs font-mono text-muted-foreground">
+                0.0%
+              </div>
+            </div>
+            <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">
+              0 / 72 Jam selesai
+            </div>
+          </div>
+
+          {/* Card 2: MOD-02 */}
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">
+            <div className="flex items-center justify-between text-xs">
+              <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 text-[10px] font-bold font-mono">
+                MOD-02
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                Sprint 1 · 28 Okt 2026
+              </span>
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-foreground">
+                Autentikasi & Keamanan
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                JWT & Otorisasi Peran
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full" style={{ width: "100%" }} />
+              </div>
+              <div className="text-right text-xs font-mono text-primary font-bold">
+                100.0%
+              </div>
+            </div>
+            <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">
+              24 / 24 Jam selesai
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <CreateModuleModal
+        isOpen={isModuleModalOpen}
+        onClose={() => setIsModuleModalOpen(false)}
+      />
       <CreateFeatureModal
         isOpen={isFeatureModalOpen}
-        onClose={() => {
-          setIsFeatureModalOpen(false);
-          setSelectedModuleId(undefined);
-        }}
-        defaultModuleId={selectedModuleId}
+        onClose={handleCloseFeatureModal}
+        moduleId={selectedModuleId}
       />
     </div>
   );

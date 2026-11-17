@@ -1,4 +1,5 @@
 // src/Components/Elements/Tabs.tsx
+// Anaheim Design Kit — Specimen 10: Navigation & Tabs (FigCraft 1:1 Implementation)
 import React, { createContext, useContext, useState, memo, type ReactNode } from "react";
 import { cn } from "@/Utils/cn";
 
@@ -47,7 +48,7 @@ export const Tabs: React.FC<TabsProps> = ({
 export const TabsList = memo<React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }) => (
   <div
     className={cn(
-      "inline-flex h-9 items-center justify-center rounded-lg bg-slate-100 p-1 text-slate-500",
+      "inline-flex h-9 items-center justify-center rounded-md bg-[#f1f5f9] p-1 text-muted-foreground border border-border/60",
       className,
     )}
     {...props}
@@ -72,10 +73,10 @@ export const TabsTrigger = memo<TabsTriggerProps>(({ className, value, children,
       aria-selected={isActive}
       onClick={() => context.onValueChange(value)}
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-xs font-semibold ring-offset-white transition-all focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3.5 py-1 text-xs font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
         isActive
-          ? "bg-white text-slate-900 shadow-xs"
-          : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50",
+          ? "bg-white text-foreground shadow-xs font-bold"
+          : "text-muted-foreground hover:text-foreground hover:bg-white/40",
         className,
       )}
       {...props}
@@ -99,7 +100,7 @@ export const TabsContent = memo<TabsContentProps>(({ className, value, children,
   return (
     <div
       role="tabpanel"
-      className={cn("mt-2 ring-offset-white focus-visible:outline-hidden", className)}
+      className={cn("mt-3 outline-none animate-fade", className)}
       {...props}
     >
       {children}
@@ -107,3 +108,4 @@ export const TabsContent = memo<TabsContentProps>(({ className, value, children,
   );
 });
 TabsContent.displayName = "TabsContent";
+export default Tabs;
