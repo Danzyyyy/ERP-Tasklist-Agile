@@ -52,6 +52,7 @@ export interface Module {
   project_id: string;
   code: string;
   name: string;
+  title?: string;
   description?: string | null;
   features?: Feature[];
   tasks?: Task[];
@@ -74,6 +75,8 @@ export interface Task {
   status: TaskStatus;
   assignee_id?: string | null;
   assignee_name?: string | null;
+  pic?: string | { id?: string; name: string } | null;
+  target_date?: string | null;
   is_pm_verified?: boolean;
   pm_verified_by?: string | null;
   pm_verified_at?: string | null;

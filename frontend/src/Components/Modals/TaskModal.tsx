@@ -7,7 +7,7 @@ import { Input } from "@/Components/Elements/Input";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { Select } from "@/Components/Elements/Select";
 import { Label } from "@/Components/Elements/Label";
-import { ChevronDown, Info, Minus, Plus, AlertCircle } from "lucide-react";
+import { Info, Minus, Plus, AlertCircle } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
 export interface TaskModalProps {

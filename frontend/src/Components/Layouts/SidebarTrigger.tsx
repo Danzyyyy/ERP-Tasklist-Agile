@@ -14,15 +14,12 @@ export const SidebarTrigger = memo<SidebarTriggerProps>(({ className, ...props }
   return (
     <Button
       type="button"
-      variant="outline"
+      variant="ghost"
       size="icon"
       onClick={toggleSidebar}
-      className={cn(
-        "rounded-lg shadow-2xs shrink-0 text-foreground",
-        className,
-      )}
       aria-label={isOpen ? "Tutup Sidebar (Ctrl+B)" : "Buka Sidebar (Ctrl+B)"}
       title={isOpen ? "Tutup Sidebar (Ctrl+B)" : "Buka Sidebar (Ctrl+B)"}
+      className={cn(className)}
       {...props}
     >
       <PanelLeft className="size-4.5" />

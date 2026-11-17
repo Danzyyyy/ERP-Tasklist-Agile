@@ -14,7 +14,7 @@ export interface TasklistFilterBarProps {
     status?: string;
     search?: string;
   };
-  onFilterChange: (key: string, value: string) => void;
+  onFilterChange: (key: any, value?: any) => void;
   onOpenTaskModal: () => void;
 }
 

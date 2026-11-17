@@ -12,10 +12,10 @@ export interface TaskRatioBannerProps {
 }
 
 export const TaskRatioBanner = memo<TaskRatioBannerProps>(
-  ({ doneHours, totalEstimatedHours, progressPercentage, completedTasks = 1, totalTasks = 8 }) => {
-    const percent = progressPercentage ? progressPercentage.toFixed(1) : "25.0";
-    const doneH = doneHours ? doneHours.toFixed(1) : "24.0";
-    const totalH = totalEstimatedHours ? totalEstimatedHours.toFixed(1) : "96.0";
+  ({ doneHours, totalEstimatedHours, progressPercentage, completedTasks = 0, totalTasks = 0 }) => {
+    const percent = formatPercent(progressPercentage);
+    const doneH = formatManHours(doneHours);
+    const totalH = formatManHours(totalEstimatedHours);
 
     return (
       <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">

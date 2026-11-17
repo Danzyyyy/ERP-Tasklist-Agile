@@ -12,7 +12,7 @@ import SignOffModal from "@/Components/Modals/SignOffModal";
 import { Button } from "@/Components/Elements/Button";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Plus, RefreshCw } from "lucide-react";
-import type { Task, TaskStatus } from "@/Types/task";
+import type { Task } from "@/Types/task";
 
 export const KanbanPage: React.FC = () => {
   useDocumentTitle(

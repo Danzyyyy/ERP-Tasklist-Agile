@@ -4,22 +4,21 @@ import { useSignOffForm } from "@/Hooks/useSignOffForm";
 import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
-import { PM_VERIFICATION_CHECKLIST } from "@/Constants/ReviewConstant";
 import type { Task } from "@/Types/task";
 import {
   FileCheck2,
   CheckCircle2,
   AlertCircle,
   ShieldCheck,
-  CheckSquare2,
-  Square,
   Lock,
+  UserCheck,
 } from "lucide-react";
 
 export interface SignOffModalProps {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) => {
@@ -27,9 +26,6 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
     activeTask,
     isPm,
     isTl,
-    checkedItems,
-    toggleCheck,
-    allChecklistCompleted,
     isPmVerified,
     isTlSigned,
     handlePmVerify,
@@ -89,7 +85,7 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
                 1
               </span>
               <h4 className="font-bold text-foreground text-xs">
-                Gerbang 1: Ceklis Verifikasi Kelayakan (Project Manager)
+                Gerbang 1: Verifikasi Kelayakan (Project Manager)
               </h4>
             </div>
             <Badge variant={isPmVerified ? "APPROVED" : "PENDING"} dot>
@@ -98,56 +94,25 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
           </div>
 
           <p className="text-[11px] text-muted-foreground mb-3">
-            PM wajib memvalidasi bukti penyelesaian fungsional dan kelengkapan dokumen sesuai Q-06.
+            Project Manager memvalidasi kelayakan penyelesaian tugas dan keselarasan deliverable (SOP-08) sebelum pintu otorisasi TL terbuka.
           </p>
-
-          <div className="space-y-2 bg-muted/40 p-3 rounded-lg border border-border mb-3">
-            {PM_VERIFICATION_CHECKLIST.map((item) => {
-              const checked = checkedItems[item.id] || false;
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => isPm && !isPmVerified && toggleCheck(item.id)}
-                  className={`flex items-start gap-2.5 p-1.5 rounded transition-colors ${
-                    isPm && !isPmVerified ? "cursor-pointer hover:bg-muted" : ""
-                  }`}
-                >
-                  <span className="text-primary mt-0.5">
-                    {checked || isPmVerified ? (
-                      <CheckSquare2 className="size-4 text-primary" />
-                    ) : (
-                      <Square className="size-4 text-muted-foreground" />
-                    )}
-                  </span>
-                  <span
-                    className={`text-xs ${
-                      checked || isPmVerified ? "text-foreground font-medium" : "text-muted-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
 
           {!isPmVerified ? (
             <div className="flex items-center justify-between pt-1">
               <span className="text-[10px] text-muted-foreground">
                 {isPm
-                  ? "Tandai seluruh ceklis di atas untuk memvalidasi kelayakan."
-                  : "Hanya peran Project Manager yang berwenang memvalidasi ceklis ini."}
+                  ? "Klik tombol di samping untuk mengesahkan verifikasi kelayakan."
+                  : "Hanya peran Project Manager yang berwenang memvalidasi kelayakan tugas ini."}
               </span>
               {isPm ? (
                 <Button
                   variant="primary"
                   size="sm"
                   loading={isPmPending}
-                  disabled={!allChecklistCompleted}
                   onClick={handlePmVerify}
                 >
-                  <CheckCircle2 className="size-3.5 mr-1" />
-                  Validasi Ceklis PM
+                  <UserCheck className="size-3.5 mr-1" />
+                  Validasi Kelayakan PM
                 </Button>
               ) : (
                 <span className="text-[10px] font-semibold text-warning-subtle-foreground flex items-center gap-1">
@@ -160,8 +125,9 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
             <div className="text-[11px] text-success-subtle-foreground flex items-center gap-1.5 font-medium">
               <CheckCircle2 className="size-4 text-success" />
               <span>
-                Ceklis verifikasi berhasil divalidasi oleh{" "}
-                {displayTask.pm_verified_by || "Project Manager"}. Gerbang 2 kini aktif!
+                Verifikasi kelayakan berhasil divalidasi oleh{" "}
+                {displayTask.pm_verified_by || "Project Manager"}
+                {displayTask.pm_verified_at ? ` (${displayTask.pm_verified_at.split("T")[0]})` : ""}. Gerbang 2 kini aktif!
               </span>
             </div>
           )}
@@ -192,14 +158,14 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
           </div>
 
           <p className="text-[11px] text-muted-foreground mb-3">
-            Otoritas tunggal penutupan tugas resmi berada di tangan Technical Lead (Q-07).
+            Otoritas tunggal penutupan tugas resmi berada di tangan Technical Lead (SOP-08).
           </p>
 
           {!isPmVerified ? (
             <div className="p-2.5 rounded-lg bg-warning-subtle border border-warning-subtle-border text-warning-subtle-foreground text-[11px] flex items-center gap-2">
               <AlertCircle className="size-4 text-warning-subtle-foreground shrink-0" />
               <span>
-                <b>Tombol Terkunci:</b> Verifikasi ceklis PM (Gerbang 1) wajib dipenuhi sebelum TL
+                <b>Tombol Terkunci:</b> Verifikasi kelayakan PM (Gerbang 1) wajib dipenuhi sebelum TL
                 dapat mengesahkan tugas menjadi Done (aturan 422 backend).
               </span>
             </div>
@@ -227,7 +193,8 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
               <CheckCircle2 className="size-4 text-success" />
               <span>
                 Tugas resmi disahkan berstatus DONE oleh{" "}
-                {displayTask.tl_signed_by || "Technical Lead"}! Progres deliverable telah
+                {displayTask.tl_signed_by || "Technical Lead"}
+                {displayTask.tl_signed_at ? ` (${displayTask.tl_signed_at.split("T")[0]})` : ""}! Progres deliverable telah
                 diperbarui otomatis.
               </span>
             </div>
@@ -240,4 +207,3 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
 
 SignOffModal.displayName = "SignOffModal";
 export default SignOffModal;
-

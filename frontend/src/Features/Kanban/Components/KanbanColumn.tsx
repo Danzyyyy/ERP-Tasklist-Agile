@@ -23,7 +23,7 @@ export interface KanbanColumnProps {
 }
 
 export const KanbanColumn = memo<KanbanColumnProps>(
-  ({ column, tasks, userRole, draggedFromStatus, onSelectTask, onAdvanceTask, onAssignTask, onDropTask, onDragStartTask, onDragEndTask, onOpenCreateTask }) => {
+  ({ column, tasks, userRole, draggedFromStatus: _draggedFromStatus, onSelectTask, onAdvanceTask, onAssignTask, onDropTask, onDragStartTask, onDragEndTask, onOpenCreateTask }) => {
     const [isOver, setIsOver] = useState(false);
 
     const handleDragOver = (e: React.DragEvent) => {

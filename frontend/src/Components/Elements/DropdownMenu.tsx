@@ -92,7 +92,7 @@ export const DropdownMenuTrigger = memo<DropdownMenuTriggerProps>(
 DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 
 export interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  align?: "left" | "right" | "center";
+  align?: "left" | "right" | "center" | "start" | "end";
   sideOffset?: number;
 }
 
@@ -138,6 +138,7 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
 
     if (!context.open) return null;
 
+    const normalizedAlign = align === "start" ? "left" : align === "end" ? "right" : align;
     const alignmentClasses = {
       left: "left-0 origin-top-left",
       right: "right-0 origin-top-right",
@@ -151,7 +152,7 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
         aria-orientation="vertical"
         className={cn(
           "absolute z-50 mt-1.5 min-w-[180px] rounded-lg border border-border bg-card p-1 text-card-foreground shadow-xl transition-all animate-pop",
-          alignmentClasses[align],
+          alignmentClasses[normalizedAlign],
           className,
         )}
         {...props}

@@ -14,6 +14,7 @@ export interface ReviewModalProps {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   initialReviewType?: ReviewType;
   initialResult?: ReviewResult;
 }

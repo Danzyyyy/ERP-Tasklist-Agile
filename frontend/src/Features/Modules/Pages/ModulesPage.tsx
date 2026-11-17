@@ -12,7 +12,7 @@ import { cn } from "@/Utils/cn";
 export const ModulesPage: React.FC = () => {
   useDocumentTitle("Proyek", "Implementasi Core Banking · PT. Anaheim Nimbus Universal");
 
-  const { isModuleModalOpen, setIsModuleModalOpen, isFeatureModalOpen, setIsFeatureModalOpen, selectedModuleId, handleOpenAddFeature, handleCloseFeatureModal } =
+  const { isModuleModalOpen, setIsModuleModalOpen, isFeatureModalOpen, selectedModuleId, handleCloseFeatureModal } =
     useModulesOverview();
 
   const [activeTab, setActiveTab] = useState<"SCHEDULE" | "DELIVERABLES">("SCHEDULE");

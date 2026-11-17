@@ -6,13 +6,12 @@ import { useGetTaskList } from "@/Hooks/useGetTaskList";
 import { ROLE_DETAILS } from "@/Constants/AuthConstant";
 import SidebarTrigger from "./SidebarTrigger";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/Components/Elements/DropdownMenu";
-import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
 import { Badge } from "@/Components/Elements/Badge";
 import { Button } from "@/Components/Elements/Button";
 import { Input } from "@/Components/Elements/Input";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { canCreateTaskRole } from "@/Utils/taskUtils";
-import { Plus, ChevronDown, LogOut, FileText, Search, Bell, SlidersHorizontal, Check } from "lucide-react";
+import { ChevronDown, LogOut, FileText, Search, Bell, SlidersHorizontal } from "lucide-react";
 import ProjectSwitcherDropdown from "./ProjectSwitcherDropdown";
 
 export interface TopbarProps {
@@ -66,21 +65,6 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
   const handleLogout = () => {
     logout();
     navigate(ROUTE_PATHS.LOGIN);
-  };
-
-  const getRoleTone = (r?: string | null): "blue" | "indigo" | "amber" | "emerald" | "slate" => {
-    switch (r) {
-      case "TECHNICAL_LEAD":
-        return "blue";
-      case "PROJECT_MANAGER":
-        return "indigo";
-      case "DEVELOPER":
-        return "amber";
-      case "TESTER":
-        return "emerald";
-      default:
-        return "slate";
-    }
   };
 
   return (

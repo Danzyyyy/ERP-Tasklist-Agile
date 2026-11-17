@@ -12,7 +12,7 @@ export interface KanbanFilterBarProps {
     complexity?: string;
     search?: string;
   };
-  setFilter: (key: string, value: string) => void;
+  setFilter: (key: any, value?: any) => void;
   totalActiveCount: number;
 }
 

@@ -1,5 +1,5 @@
 // src/Features/Reviews/Pages/ReviewsPage.tsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useReviewsOverview } from "../Hooks/useReviewsOverview";
 import { useAuth } from "@/Hooks/useAuth";
 import { useSubmitReview } from "@/Hooks/useSubmitReview";
@@ -27,6 +27,21 @@ export const ReviewsPage: React.FC = () => {
   const [reviewDecision, setReviewDecision] = useState<"PASS" | "REVISE">("PASS");
   const [reviewNotes, setReviewNotes] = useState("");
 
+  // Keep selected task in sync with relevant tasks
+  useEffect(() => {
+    if (selectedTaskId && !relevantTasks.some((t) => t.id === selectedTaskId)) {
+      setSelectedTaskId(relevantTasks[0]?.id || null);
+      setReviewNotes("");
+      setReviewDecision("PASS");
+    }
+  }, [relevantTasks, selectedTaskId]);
+
+  const handleSelectTask = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setReviewDecision("PASS");
+    setReviewNotes("");
+  };
+
   // Effective selected task
   const currentTask: Task | undefined = useMemo(() => {
     if (selectedTaskId) {
@@ -40,6 +55,7 @@ export const ReviewsPage: React.FC = () => {
   const submitReviewMutation = useSubmitReview(currentTask?.id, () => {
     refetch();
     setReviewNotes("");
+    setReviewDecision("PASS");
   });
 
   const pmVerifyMutation = usePmVerify(currentTask?.id, () => {
@@ -70,6 +86,7 @@ export const ReviewsPage: React.FC = () => {
       return;
     }
     if (!reviewNotes.trim()) {
+      setReviewDecision("REVISE");
       toast.error("Wajib menyertakan catatan / alasan penolakan sebelum mengembalikan tugas ke development.");
       return;
     }
@@ -83,7 +100,7 @@ export const ReviewsPage: React.FC = () => {
 
   const handlePassCodeReview = async () => {
     if (!currentTask) return;
-    if (!["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole)) {
+    if (!["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole as any)) {
       toast.error("Hanya Technical Lead atau Project Manager yang berwenang meloloskan Code Review.");
       return;
     }
@@ -97,7 +114,7 @@ export const ReviewsPage: React.FC = () => {
 
   const handlePassTesting = async () => {
     if (!currentTask) return;
-    if (!["TESTER", "TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole)) {
+    if (!["TESTER", "TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole as any)) {
       toast.error("Hanya Tester, Technical Lead, atau Project Manager yang berwenang mencatat hasil QA Testing.");
       return;
     }
@@ -200,7 +217,7 @@ export const ReviewsPage: React.FC = () => {
               return (
                 <div
                   key={t.id}
-                  onClick={() => setSelectedTaskId(t.id)}
+                  onClick={() => handleSelectTask(t.id)}
                   className={cn(
                     "p-4 rounded-2xl border transition-all cursor-pointer space-y-2 shadow-2xs",
                     isSelected ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card hover:border-primary/40",
@@ -452,10 +469,10 @@ export const ReviewsPage: React.FC = () => {
                       {currentTask.status === "TESTING" && (
                         <Button
                           type="button"
-                          variant={reviewDecision === "PASS" ? "secondary" : "destructive"}
+                          variant={reviewDecision === "PASS" ? "success" : "destructive"}
                           onClick={reviewDecision === "PASS" ? handlePassTesting : handleRejectToDevelopment}
                           loading={submitReviewMutation.isPending}
-                          className={cn("w-full h-9 rounded-xl text-xs font-semibold shadow-2xs", reviewDecision === "PASS" && "bg-cyan-600 hover:bg-cyan-700 text-white")}
+                          className="w-full"
                         >
                           {reviewDecision === "PASS" ? "Catat Lolos QA Testing" : "Tolak & Kembalikan ke Development (Rework)"}
                         </Button>

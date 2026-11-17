@@ -5,11 +5,18 @@ import useGetDeliverableProgress from "@/Hooks/useGetDeliverableProgress";
 import { useSidebar } from "@/Components/Layouts/SidebarContext";
 import { LayoutGrid, Folder, ListChecks, Columns3, ClipboardCheck, BarChart2 } from "lucide-react";
 
+export interface NavItem {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string | number;
+}
+
 export function useSidebarNavigation() {
   const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
   const { data: metrics } = useGetDeliverableProgress();
 
-  const navItems = useMemo(
+  const navItems = useMemo<NavItem[]>(
     () => [
       {
         to: ROUTE_PATHS.DASHBOARD,
