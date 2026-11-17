@@ -14,6 +14,24 @@ class ExternalProjectController extends Controller
     ) {}
 
     /**
+     * Get list of projects for project switcher (Modul D-1 & Internal E-4).
+     * Endpoint: GET /api/v1/projects
+     */
+    public function projectsIndex(Request $request): JsonResponse
+    {
+        $token = $request->bearerToken();
+        $params = $request->only(['status', 'q', 'page', 'limit']);
+        $result = $this->integrationService->getD1Projects($params, $token);
+
+        return response()->json([
+            'status' => $result['success'] ? 'success' : 'error',
+            'data' => $result['data'] ?? [],
+            'meta' => $result['meta'] ?? null,
+            'message' => $result['message'] ?? null,
+        ], $result['status'] ?? 200);
+    }
+
+    /**
      * Get project execution readiness from Modul E-3 (Prioritas Utama P6).
      * Endpoint: GET /api/v1/projects/{projectId}/execution-readiness
      */
@@ -31,7 +49,7 @@ class ExternalProjectController extends Controller
     }
 
     /**
-     * Get project intake information from Modul D-1.
+     * Get project intake / details information from Modul D-1 / Internal E-4.
      * Endpoint: GET /api/v1/projects/{projectId}
      */
     public function projectIntake(Request $request, string $projectId): JsonResponse
@@ -45,6 +63,15 @@ class ExternalProjectController extends Controller
             'data' => $result['data'] ?? null,
             'message' => $result['message'] ?? null,
         ], $result['status'] ?? 200);
+    }
+
+    /**
+     * Alias for project details.
+     * Endpoint: GET /api/v1/projects/{projectId}
+     */
+    public function projectDetail(Request $request, string $projectId): JsonResponse
+    {
+        return $this->projectIntake($request, $projectId);
     }
 
     /**
