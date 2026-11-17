@@ -6,7 +6,19 @@ import { useSubmitReview } from "@/Hooks/useSubmitReview";
 import { usePmVerify } from "@/Hooks/usePmVerify";
 import { useTlSignoff } from "@/Hooks/useTlSignoff";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import { Check, Clock, RefreshCw, AlertCircle, ShieldAlert, CheckCircle2 } from "lucide-react";
+import {
+  Check,
+  Clock,
+  RefreshCw,
+  AlertCircle,
+  ShieldAlert,
+  CheckCircle2,
+  Lock,
+  Unlock,
+  ShieldCheck,
+  ArrowRight,
+  UserCheck,
+} from "lucide-react";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 import type { Task } from "@/Types/task";
@@ -14,7 +26,7 @@ import type { Task } from "@/Types/task";
 export const ReviewsPage: React.FC = () => {
   useDocumentTitle(
     "Pemeriksaan & Pengujian",
-    "Pemeriksaan kualitas kode, verifikasi ceklis PM, dan otorisasi pengesahan akhir TL (Definition of Done).",
+    "Pemeriksaan kualitas kode, verifikasi kelayakan PM, dan otorisasi pengesahan akhir TL (Definition of Done).",
   );
 
   const { user } = useAuth();
@@ -33,13 +45,6 @@ export const ReviewsPage: React.FC = () => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [reviewDecision, setReviewDecision] = useState<"PASS" | "REVISE">("PASS");
   const [reviewNotes, setReviewNotes] = useState("");
-
-  const [checklist, setChecklist] = useState({
-    c1: true,
-    c2: true,
-    c3: true,
-    c4: false,
-  });
 
   // Effective selected task
   const currentTask: Task | undefined = useMemo(() => {
@@ -64,12 +69,10 @@ export const ReviewsPage: React.FC = () => {
     refetch();
   });
 
-  const checkedCount = Object.values(checklist).filter(Boolean).length;
   const isPmVerified = Boolean(currentTask?.is_pm_verified);
   const isTlSigned = Boolean(currentTask?.is_tl_signed);
 
   // Role permissions
-  const canReview = userRole === "TECHNICAL_LEAD" || userRole === "PROJECT_MANAGER" || userRole === "TESTER";
   const canPmVerify = userRole === "PROJECT_MANAGER";
   const canTlSignoff = userRole === "TECHNICAL_LEAD";
 
@@ -78,18 +81,22 @@ export const ReviewsPage: React.FC = () => {
     toast.success("Antrean pemeriksaan berhasil diperbarui.");
   };
 
+  // Rejection with mandatory notes
   const handleRejectToDevelopment = async () => {
     if (!currentTask) return;
     if (userRole === "DEVELOPER") {
       toast.error("Akses ditolak. Pengembang tidak dapat menolak pemeriksaan.");
       return;
     }
-    const notes = reviewNotes.trim() || "Pemeriksaan ditolak. Terdapat temuan bug/revisi yang perlu diperbaiki.";
+    if (!reviewNotes.trim()) {
+      toast.error("Wajib menyertakan catatan / alasan penolakan sebelum mengembalikan tugas ke development.");
+      return;
+    }
     const revType = currentTask.status === "CODE_REVIEW" ? "CODE_REVIEW" : "TESTING";
     await submitReviewMutation.mutateAsync({
       review_type: revType,
       result: "REJECTED",
-      notes,
+      notes: reviewNotes.trim(),
     });
   };
 
@@ -124,7 +131,7 @@ export const ReviewsPage: React.FC = () => {
   const handleSavePmVerification = async () => {
     if (!currentTask) return;
     if (!canPmVerify) {
-      toast.error("Akses ditolak. Hanya peran Project Manager yang berwenang mengisi verifikasi kelayakan.");
+      toast.error("Akses ditolak. Hanya peran Project Manager yang berwenang melakukan verifikasi kelayakan.");
       return;
     }
     await pmVerifyMutation.mutateAsync();
@@ -136,8 +143,8 @@ export const ReviewsPage: React.FC = () => {
       toast.error("Hanya Technical Lead yang berwenang melakukan final sign-off penutupan tugas.");
       return;
     }
-    if (!isPmVerified && checkedCount < 4) {
-      toast.error("Verifikasi ceklis PM wajib dipenuhi sebelum TL dapat mengesahkan tugas menjadi Done.");
+    if (!isPmVerified) {
+      toast.error("Verifikasi kelayakan PM (Gerbang 1) wajib dipenuhi sebelum TL dapat mengesahkan tugas menjadi Done.");
       return;
     }
     await tlSignoffMutation.mutateAsync();
@@ -157,7 +164,7 @@ export const ReviewsPage: React.FC = () => {
             Pemeriksaan Kualitas & Otorisasi DoD
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Pencatatan review kode, pengujian QA, ceklis verifikasi PM, dan otorisasi pengesahan akhir TL (Definition of Done).
+            Pencatatan review kode, pengujian QA, verifikasi kelayakan PM, dan otorisasi pengesahan akhir TL (Definition of Done).
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -217,7 +224,7 @@ export const ReviewsPage: React.FC = () => {
           <div className="space-y-3">
             {relevantTasks.map((t) => {
               const isSelected = currentTask?.id === t.id;
-              const picName = typeof t.pic === "string" ? t.pic : t.pic?.name || "Belum Ditugaskan";
+              const picName = typeof t.pic === "string" ? t.pic : t.pic?.name || t.assignee_name || "Belum Ditugaskan";
               const modCode = t.module?.code || "MOD";
               const taskCode = t.task_code || "#TSK";
 
@@ -268,16 +275,16 @@ export const ReviewsPage: React.FC = () => {
               </div>
             )}
 
-            {/* Verified Delivery Dark Card */}
+            {/* Verified Delivery Info Card */}
             <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-2 shadow-xl">
               <span className="font-mono text-[10px] font-bold text-indigo-400 tracking-wider uppercase block">
-                VERIFIED DELIVERY
+                TWO-GATE QUALITY ASSURANCE
               </span>
               <h4 className="text-sm font-bold leading-snug">
                 Dua tahap otorisasi. Satu standar kualitas.
               </h4>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Checklist PM dan pengesahan TL wajib lengkap sebelum tugas dinyatakan Done (FTR-K04-06).
+                Gerbang 1 (Verifikasi kelayakan PM) dan Gerbang 2 (Otorisasi penutupan TL) wajib lengkap sebelum tugas resmi berstatus DONE.
               </p>
             </div>
           </div>
@@ -301,7 +308,7 @@ export const ReviewsPage: React.FC = () => {
 
               <h3 className="text-xl font-bold text-foreground">{currentTask.title}</h3>
               <p className="text-xs text-muted-foreground">
-                PIC: {typeof currentTask.pic === "string" ? currentTask.pic : currentTask.pic?.name || "Belum Ditugaskan"} · {Number(currentTask.estimated_man_hours) || 0} Jam · Tenggat: {currentTask.target_deadline ? currentTask.target_deadline.split("T")[0] : "-"}
+                PIC: {typeof currentTask.pic === "string" ? currentTask.pic : currentTask.pic?.name || currentTask.assignee_name || "Belum Ditugaskan"} · {Number(currentTask.estimated_man_hours) || 0} Jam · Tenggat: {currentTask.target_deadline ? currentTask.target_deadline.split("T")[0] : "-"}
               </p>
             </div>
 
@@ -372,244 +379,333 @@ export const ReviewsPage: React.FC = () => {
                 <div>
                   <h5 className="text-xs font-bold text-foreground">3. Pengesahan Selesai</h5>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
-                    {currentTask.status === "DONE" ? "Tugas resmi DONE" : isPmVerified ? "Menunggu sign-off TL" : "Menunggu ceklis PM"}
+                    {currentTask.status === "DONE" ? "Tugas resmi DONE" : isPmVerified ? "Menunggu sign-off TL" : "Menunggu verifikasi PM"}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* 2-Column QA Form & PM Checklist */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-              {/* Left Sub: Review Form & Decision */}
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-foreground">
-                    Pemeriksaan {currentTask.status === "CODE_REVIEW" ? "Code Review" : "QA Testing"}
-                  </h4>
-
-                  <div className="flex items-center gap-4 text-xs">
-                    <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
-                      <input
-                        type="radio"
-                        name="qa_decision"
-                        checked={reviewDecision === "PASS"}
-                        onChange={() => setReviewDecision("PASS")}
-                        className="text-primary focus:ring-primary size-3.5"
-                      />
-                      <span>Disetujui (Pass)</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
-                      <input
-                        type="radio"
-                        name="qa_decision"
-                        checked={reviewDecision === "REVISE"}
-                        onChange={() => setReviewDecision("REVISE")}
-                        className="text-primary focus:ring-primary size-3.5"
-                      />
-                      <span>Perlu Revisi (Rework)</span>
-                    </label>
+            {/* CASE A: TASK IS DONE -> SHOW SEALED DoD CERTIFICATE */}
+            {currentTask.status === "DONE" ? (
+              <div className="p-6 rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-full bg-emerald-600 text-white grid place-items-center shrink-0 shadow-md">
+                    <ShieldCheck className="size-5" />
                   </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-foreground">Catatan / Temuan Bug</label>
-                    <textarea
-                      rows={3}
-                      placeholder="Tambahkan hasil pengujian atau catatan teknis..."
-                      value={reviewNotes}
-                      onChange={(e) => setReviewNotes(e.target.value)}
-                      className="w-full text-xs rounded-lg border border-border bg-card p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-
-                  {/* Actions for current phase */}
-                  <div className="pt-1">
-                    {currentTask.status === "CODE_REVIEW" && (
-                      <button
-                        type="button"
-                        onClick={reviewDecision === "PASS" ? handlePassCodeReview : handleRejectToDevelopment}
-                        disabled={submitReviewMutation.isPending}
-                        className="w-full h-9 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
-                      >
-                        {submitReviewMutation.isPending
-                          ? "Memproses..."
-                          : reviewDecision === "PASS"
-                          ? "Loloskan Code Review (Maju ke Testing)"
-                          : "Tolak & Kembalikan ke Development"}
-                      </button>
-                    )}
-
-                    {currentTask.status === "TESTING" && (
-                      <button
-                        type="button"
-                        onClick={reviewDecision === "PASS" ? handlePassTesting : handleRejectToDevelopment}
-                        disabled={submitReviewMutation.isPending}
-                        className="w-full h-9 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
-                      >
-                        {submitReviewMutation.isPending
-                          ? "Memproses..."
-                          : reviewDecision === "PASS"
-                          ? "Catat Lolos QA Testing"
-                          : "Tolak & Kembalikan ke Development (Rework)"}
-                      </button>
-                    )}
+                  <div>
+                    <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                      Definition of Done Telah Terpenuhi (Terminal State)
+                    </h4>
+                    <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+                      Tugas ini telah disahkan dan terkunci permanen. Seluruh kriteria penerimaan dan uji kualitas telah dipenuhi.
+                    </p>
                   </div>
                 </div>
 
-                {/* Otorisasi Akhir TL */}
-                <div className="rounded-xl border border-border bg-card p-4 space-y-2.5 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <h5 className="text-xs font-bold text-foreground">Otorisasi Akhir TL (FTR-K04-06)</h5>
-                    <span
-                      className={cn(
-                        "px-2 py-0.5 rounded-full text-[10px] font-bold font-mono",
-                        isTlSigned
-                          ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300"
-                          : "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300",
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                  <div className="p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 bg-card space-y-1">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                      <UserCheck className="size-3 text-emerald-600" />
+                      Gerbang 1: Verifikasi Kelayakan PM
+                    </span>
+                    <p className="font-bold text-foreground">{currentTask.pm_verified_by || "Project Manager"}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">
+                      {currentTask.pm_verified_at ? currentTask.pm_verified_at.split("T")[0] : "Terverifikasi"}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 bg-card space-y-1">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                      <CheckCircle2 className="size-3 text-emerald-600" />
+                      Gerbang 2: Otorisasi Akhir TL
+                    </span>
+                    <p className="font-bold text-foreground">{currentTask.tl_signed_by || "Technical Lead"}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">
+                      {currentTask.tl_signed_at ? currentTask.tl_signed_at.split("T")[0] : "Disahkan"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* CASE B: ACTIVE REVIEW / TESTING / DOD WORKFLOW */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                {/* Left Sub: Review Form & Decision */}
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-bold text-foreground">
+                      Pemeriksaan {currentTask.status === "CODE_REVIEW" ? "Code Review" : "QA Testing"}
+                    </h4>
+
+                    <div className="flex items-center gap-4 text-xs">
+                      <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
+                        <input
+                          type="radio"
+                          name="qa_decision"
+                          checked={reviewDecision === "PASS"}
+                          onChange={() => setReviewDecision("PASS")}
+                          className="text-primary focus:ring-primary size-3.5"
+                        />
+                        <span>Disetujui (Pass)</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
+                        <input
+                          type="radio"
+                          name="qa_decision"
+                          checked={reviewDecision === "REVISE"}
+                          onChange={() => setReviewDecision("REVISE")}
+                          className="text-primary focus:ring-primary size-3.5"
+                        />
+                        <span className="text-rose-600 dark:text-rose-400 font-semibold">Perlu Revisi (Rework)</span>
+                      </label>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <label className={cn("font-bold", reviewDecision === "REVISE" ? "text-rose-600 dark:text-rose-400" : "text-foreground")}>
+                          {reviewDecision === "REVISE" ? "Alasan Penolakan / Catatan Revisi (Wajib Diisi)*" : "Catatan Hasil Pengujian (Opsional)"}
+                        </label>
+                      </div>
+                      <textarea
+                        rows={3}
+                        placeholder={
+                          reviewDecision === "REVISE"
+                            ? "Jelaskan alasan penolakan, bug yang ditemukan, atau bagian kode yang harus direvisi pengembang..."
+                            : "Tambahkan catatan pengujian atau keselarasan arsitektur..."
+                        }
+                        value={reviewNotes}
+                        onChange={(e) => setReviewNotes(e.target.value)}
+                        className={cn(
+                          "w-full text-xs rounded-lg border bg-card p-2 text-foreground focus:outline-none focus:ring-1",
+                          reviewDecision === "REVISE" && !reviewNotes.trim()
+                            ? "border-rose-400 focus:ring-rose-500"
+                            : "border-border focus:ring-primary",
+                        )}
+                      />
+                    </div>
+
+                    {/* Actions for current phase */}
+                    <div className="pt-1">
+                      {currentTask.status === "CODE_REVIEW" && (
+                        <button
+                          type="button"
+                          onClick={reviewDecision === "PASS" ? handlePassCodeReview : handleRejectToDevelopment}
+                          disabled={submitReviewMutation.isPending}
+                          className={cn(
+                            "w-full h-9 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-2xs",
+                            reviewDecision === "PASS"
+                              ? "bg-primary hover:bg-primary-hover text-white"
+                              : "bg-rose-600 hover:bg-rose-700 text-white",
+                          )}
+                        >
+                          {submitReviewMutation.isPending
+                            ? "Memproses..."
+                            : reviewDecision === "PASS"
+                            ? "Loloskan Code Review (Maju ke Testing)"
+                            : "Tolak & Kembalikan ke Development (Rework)"}
+                        </button>
                       )}
-                    >
-                      {isTlSigned ? "SELESAI (DONE)" : "MENUNGGU OTORISASI"}
+
+                      {currentTask.status === "TESTING" && (
+                        <button
+                          type="button"
+                          onClick={reviewDecision === "PASS" ? handlePassTesting : handleRejectToDevelopment}
+                          disabled={submitReviewMutation.isPending}
+                          className={cn(
+                            "w-full h-9 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-2xs",
+                            reviewDecision === "PASS"
+                              ? "bg-cyan-600 hover:bg-cyan-700 text-white"
+                              : "bg-rose-600 hover:bg-rose-700 text-white",
+                          )}
+                        >
+                          {submitReviewMutation.isPending
+                            ? "Memproses..."
+                            : reviewDecision === "PASS"
+                            ? "Catat Lolos QA Testing"
+                            : "Tolak & Kembalikan ke Development (Rework)"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Sub: Two-Gate DoD Verification System (Zero Dummy Checkboxes) */}
+                <div className="space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-foreground">Verifikasi & Otorisasi DoD</h4>
+                    <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[9px] font-bold font-mono">
+                      FTR-K04-06
                     </span>
                   </div>
-                  <p className="text-xs font-semibold text-foreground">Technical Lead (Otoritas Final)</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {isPmVerified
-                      ? "Ceklis PM telah divalidasi. TL dapat melakukan final sign-off."
-                      : "Checklist PM wajib lengkap sebelum final sign-off TL."}
-                  </p>
 
-                  <div className="pt-2">
+                  {/* Gerbang 1: PM Verification Card */}
+                  <div className="p-3.5 rounded-xl border border-border bg-card space-y-2.5 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                        <UserCheck className="size-3" />
+                        Gerbang 1: Verifikasi Kelayakan PM
+                      </span>
+                      {isPmVerified ? (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                          <Check className="size-2.5" />
+                          TERVERIFIKASI
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+                          <Clock className="size-2.5" />
+                          MENUNGGU PM
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      {isPmVerified
+                        ? `Diverifikasi oleh: ${currentTask.pm_verified_by || "Project Manager"} (${currentTask.pm_verified_at ? currentTask.pm_verified_at.split("T")[0] : "Lengkap"}).`
+                        : "Project Manager memvalidasi kelayakan penyelesaian tugas sesuai standar SOP-08 sebelum pintu otorisasi TL terbuka."}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={handleSavePmVerification}
+                      disabled={pmVerifyMutation.isPending || isPmVerified || !canPmVerify}
+                      className={cn(
+                        "w-full h-8.5 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-2xs",
+                        isPmVerified
+                          ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 cursor-default"
+                          : canPmVerify
+                          ? "bg-primary hover:bg-primary-hover text-white cursor-pointer"
+                          : "bg-muted text-muted-foreground cursor-not-allowed",
+                      )}
+                    >
+                      <Check className="size-3.5" />
+                      <span>
+                        {pmVerifyMutation.isPending
+                          ? "Memvalidasi..."
+                          : isPmVerified
+                          ? "Kelayakan PM Telah Disahkan ✓"
+                          : canPmVerify
+                          ? "Validasi Verifikasi Kelayakan (PM)"
+                          : "Hanya PM yang Berwenang Memvalidasi"}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Gerbang 2: TL Final Sign-off Card */}
+                  <div className="p-3.5 rounded-xl border border-border bg-card space-y-2.5 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                        {isTlSigned ? <CheckCircle2 className="size-3 text-emerald-600" /> : isPmVerified ? <Unlock className="size-3 text-purple-600" /> : <Lock className="size-3 text-muted-foreground" />}
+                        Gerbang 2: Otorisasi Sign-Off TL
+                      </span>
+                      {isTlSigned ? (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                          <Check className="size-2.5" />
+                          DONE
+                        </span>
+                      ) : isPmVerified ? (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 flex items-center gap-1">
+                          <Unlock className="size-2.5" />
+                          SIAP DISAHKAN
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                          <Lock className="size-2.5" />
+                          TERKUNCI
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      {isTlSigned
+                        ? `Disahkan oleh: ${currentTask.tl_signed_by || "Technical Lead"}. Tugas resmi berstatus DONE.`
+                        : isPmVerified
+                        ? "Gerbang 1 telah diverifikasi PM. Technical Lead dapat melakukan otorisasi penutupan tiket."
+                        : "Gerbang 2 terkunci. Memerlukan verifikasi kelayakan PM (Gerbang 1) terlebih dahulu."}
+                    </p>
+
                     <button
                       type="button"
                       onClick={handleTlFinalSignoff}
-                      disabled={tlSignoffMutation.isPending || (!isPmVerified && checkedCount < 4) || isTlSigned}
+                      disabled={tlSignoffMutation.isPending || !isPmVerified || isTlSigned || !canTlSignoff}
                       className={cn(
-                        "w-full h-9 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5",
+                        "w-full h-8.5 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-2xs",
                         isTlSigned
                           ? "bg-emerald-600 text-white cursor-default"
-                          : !isPmVerified && checkedCount < 4
+                          : !isPmVerified
                           ? "bg-muted text-muted-foreground cursor-not-allowed"
-                          : "bg-purple-600 hover:bg-purple-700 text-white cursor-pointer shadow-xs",
+                          : canTlSignoff
+                          ? "bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+                          : "bg-muted text-muted-foreground cursor-not-allowed",
                       )}
                     >
                       <CheckCircle2 className="size-3.5" />
-                      <span>{tlSignoffMutation.isPending ? "Mengesahkan..." : isTlSigned ? "Tugas Telah Di-Sign-off" : "Sahkan & Tutup Tiket (Done)"}</span>
+                      <span>
+                        {tlSignoffMutation.isPending
+                          ? "Mengesahkan..."
+                          : isTlSigned
+                          ? "Tugas Telah Di-Sign-off (DONE)"
+                          : !isPmVerified
+                          ? "Terkunci (Menunggu Gerbang 1 PM)"
+                          : canTlSignoff
+                          ? "Otorisasi Sign-Off & Sahkan ke DONE"
+                          : "Hanya TL yang Berwenang Melakukan Sign-off"}
+                      </span>
                     </button>
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* Right Sub: Ceklis Verifikasi PM */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-foreground">Ceklis Verifikasi PM</h4>
-                  <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[9px] font-bold font-mono">
-                    PM ONLY (SOP-08)
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="p-2.5 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-center gap-2.5 cursor-pointer transition-colors block">
-                    <input
-                      type="checkbox"
-                      checked={checklist.c1}
-                      onChange={(e) => setChecklist((prev) => ({ ...prev, c1: e.target.checked }))}
-                      className="size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                    />
-                    <span className="text-xs text-foreground font-medium">
-                      Dokumentasi API diperbarui di Swagger/Postman
-                    </span>
-                  </label>
-
-                  <label className="p-2.5 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-center gap-2.5 cursor-pointer transition-colors block">
-                    <input
-                      type="checkbox"
-                      checked={checklist.c2}
-                      onChange={(e) => setChecklist((prev) => ({ ...prev, c2: e.target.checked }))}
-                      className="size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                    />
-                    <span className="text-xs text-foreground font-medium">
-                      Tidak ada isu regresi pada modul terkait
-                    </span>
-                  </label>
-
-                  <label className="p-2.5 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-center gap-2.5 cursor-pointer transition-colors block">
-                    <input
-                      type="checkbox"
-                      checked={checklist.c3}
-                      onChange={(e) => setChecklist((prev) => ({ ...prev, c3: e.target.checked }))}
-                      className="size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                    />
-                    <span className="text-xs text-foreground font-medium">
-                      Implementasi fungsi caching & query stabil
-                    </span>
-                  </label>
-
-                  <label className="p-2.5 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-center gap-2.5 cursor-pointer transition-colors block">
-                    <input
-                      type="checkbox"
-                      checked={checklist.c4}
-                      onChange={(e) => setChecklist((prev) => ({ ...prev, c4: e.target.checked }))}
-                      className="size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                    />
-                    <span className="text-xs text-foreground font-medium">
-                      Seluruh kriteria penerimaan terpenuhi
-                    </span>
-                  </label>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={handleSavePmVerification}
-                    disabled={pmVerifyMutation.isPending || isPmVerified}
-                    className={cn(
-                      "w-full h-9 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5",
-                      isPmVerified
-                        ? "border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 cursor-default"
-                        : "bg-primary hover:bg-primary-hover text-white cursor-pointer shadow-xs",
-                    )}
-                  >
-                    <Check className="size-3.5" />
-                    <span>
-                      {pmVerifyMutation.isPending
-                        ? "Menyimpan Verifikasi..."
-                        : isPmVerified
-                        ? "Ceklis PM Terverifikasi ✓"
-                        : "Simpan Ceklis Verifikasi PM"}
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Inspection Footer Actions */}
-            <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={handleRejectToDevelopment}
-                disabled={submitReviewMutation.isPending || currentTask.status === "DONE"}
-                className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors cursor-pointer w-full sm:w-auto disabled:opacity-50"
-              >
-                ← Tolak & Kembalikan ke Development (Rework)
-              </button>
-
-              {currentTask.status !== "DONE" && (
+            {/* Bottom Footer Actions (Only for Non-DONE tasks) */}
+            {currentTask.status !== "DONE" && (
+              <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   type="button"
-                  onClick={currentTask.status === "CODE_REVIEW" ? handlePassCodeReview : isPmVerified ? handleTlFinalSignoff : handleSavePmVerification}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto"
+                  onClick={handleRejectToDevelopment}
+                  disabled={submitReviewMutation.isPending}
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors cursor-pointer w-full sm:w-auto disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  <Check className="size-4" />
-                  <span>
-                    {currentTask.status === "CODE_REVIEW"
-                      ? "Loloskan Code Review"
-                      : isPmVerified
-                      ? "Otorisasi Sign-Off Done (TL)"
-                      : "Verifikasi Kelayakan (PM)"}
-                  </span>
+                  <span>← Tolak & Kembalikan ke Development (Rework)</span>
                 </button>
-              )}
-            </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  {currentTask.status === "CODE_REVIEW" && (
+                    <button
+                      type="button"
+                      onClick={handlePassCodeReview}
+                      disabled={submitReviewMutation.isPending}
+                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto"
+                    >
+                      <span>Loloskan Code Review</span>
+                      <ArrowRight className="size-3.5" />
+                    </button>
+                  )}
+
+                  {currentTask.status === "TESTING" && !isPmVerified && (
+                    <button
+                      type="button"
+                      onClick={handleSavePmVerification}
+                      disabled={pmVerifyMutation.isPending || !canPmVerify}
+                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto disabled:opacity-50"
+                    >
+                      <Check className="size-3.5" />
+                      <span>Validasi Verifikasi PM (Gerbang 1)</span>
+                    </button>
+                  )}
+
+                  {currentTask.status === "TESTING" && isPmVerified && !isTlSigned && (
+                    <button
+                      type="button"
+                      onClick={handleTlFinalSignoff}
+                      disabled={tlSignoffMutation.isPending || !canTlSignoff}
+                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="size-3.5" />
+                      <span>Otorisasi Sign-Off Done (TL)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="lg:col-span-8 rounded-2xl border border-dashed border-border bg-card p-12 text-center space-y-3">

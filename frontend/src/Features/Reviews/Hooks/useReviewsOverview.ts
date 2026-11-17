@@ -3,40 +3,53 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import TaskService from "@/Services/TaskService";
 import { TASK_QUERY_KEYS } from "@/Constants/TaskConstant";
-import { isTaskRework } from "@/Utils/taskUtils";
+import { useProject } from "@/Contexts/ProjectContext";
 import type { Task } from "@/Types/task";
 
 export type ReviewTabType = "ALL" | "CODE_REVIEW" | "TESTING" | "SIGNOFF";
 
 export function useReviewsOverview() {
+  const { activeProjectId } = useProject();
   const [tab, setTab] = useState<ReviewTabType>("ALL");
 
   const [activeReviewTask, setActiveReviewTask] = useState<Task | null>(null);
   const [activeSignOffTask, setActiveSignOffTask] = useState<Task | null>(null);
   const [activeDetailTask, setActiveDetailTask] = useState<Task | null>(null);
 
-  // Single query: Sedari awal langsung di-filter fokus pada tugas tahap CODE_REVIEW & TESTING
+  // Single query: Terikat ke activeProjectId dan disaring HANYA untuk tahap Review & Testing riil
   const {
     data: allReviewTasks = [],
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: [...TASK_QUERY_KEYS.all, "reviews"],
+    queryKey: [...TASK_QUERY_KEYS.all, "reviews", activeProjectId],
     queryFn: async () => {
       const res = await TaskService.getAll();
       const rawTasks = res.data || [];
-      // Saring langsung: fokus pada Code Review, Testing, Done, dan Rework aktif
-      return rawTasks.filter(
+
+      // Saring berdasarkan proyek aktif
+      const projectTasks = rawTasks.filter((t) => {
+        if (t.module?.project_id) {
+          return t.module.project_id === activeProjectId;
+        }
+        return activeProjectId === "PROJ-ERP-01";
+      });
+
+      // Saring HANYA status yang berada dalam tahap Review & Testing:
+      // 1. CODE_REVIEW
+      // 2. TESTING
+      // 3. DONE (telah disahkan)
+      // Tugas DRAFT, RELEASED, dan DEVELOPMENT tidak boleh masuk antrean review!
+      return projectTasks.filter(
         (t) =>
           t.status === "CODE_REVIEW" ||
           t.status === "TESTING" ||
-          t.status === "DONE" ||
-          isTaskRework(t),
+          t.status === "DONE",
       );
     },
   });
 
-  // Hitung jumlah antrean berdasarkan data tugas review aktual
+  // Hitung jumlah antrean per tab berdasarkan tugas riil yang relevan
   const tabCounts = useMemo(() => {
     let codeReview = 0;
     let testing = 0;
@@ -78,7 +91,7 @@ export function useReviewsOverview() {
       case "TESTING":
         return "Tidak Ada Tugas Dalam Antrean QA Testing. Pindahkan tugas ke kolom Testing untuk memulai validasi pengujian dan skenario alur rework.";
       case "SIGNOFF":
-        return "Tidak Ada Tugas Dalam Gerbang Sign-Off. Tugas dalam tahap Testing yang siap diverifikasi PM dan disign-off TL akan muncul di sini.";
+        return "Tidak Ada Tugas Dalam Gerbang Sign-Off. Tugas dalam tahap Testing yang siap diverifikasi PM dan disahkan TL akan muncul di sini.";
       default:
         return "Tidak Ada Tugas Dalam Antrean Pemeriksaan. Tarik kartu tugas ke kolom Code Review atau Testing pada Papan Kanban untuk memulai pengujian dan alur rework.";
     }
