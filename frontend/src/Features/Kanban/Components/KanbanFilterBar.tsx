@@ -1,6 +1,6 @@
 // src/Features/Kanban/Components/KanbanFilterBar.tsx
 import React, { memo } from "react";
-import { ChevronDown } from "lucide-react";
+import { Select } from "@/Components/Elements/Select";
 import { useProject } from "@/Contexts/ProjectContext";
 import type { Module } from "@/Types/task";
 
@@ -24,11 +24,11 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
       <div className="bg-card border border-border rounded-xl p-2.5 px-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Semua Modul Dropdown */}
-          <div className="relative">
-            <select
+          <div className="w-40">
+            <Select
               value={filters.module_id || "ALL"}
               onChange={(e) => setFilter("module_id", e.target.value)}
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-8 text-xs font-medium"
             >
               <option value="ALL">Semua Modul</option>
               {modules.map((m) => (
@@ -36,16 +36,15 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
                   {m.code || m.name}
                 </option>
               ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+            </Select>
           </div>
 
           {/* Semua PIC Dropdown */}
-          <div className="relative">
-            <select
+          <div className="w-40">
+            <Select
               value={filters.assignee_id || "ALL"}
               onChange={(e) => setFilter("assignee_id", e.target.value)}
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-8 text-xs font-medium"
             >
               <option value="ALL">Semua PIC</option>
               <option value="Ariel">Ariel (Frontend Dev)</option>
@@ -53,23 +52,21 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
               <option value="Fauzan">Fauzan (Technical Lead)</option>
               <option value="Tubagus">Tubagus M. Wildan (PM)</option>
               <option value="Valdric">Valdric (QA Tester)</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+            </Select>
           </div>
 
           {/* Semua Bobot Dropdown */}
-          <div className="relative">
-            <select
+          <div className="w-36">
+            <Select
               value={filters.complexity || "ALL"}
               onChange={(e) => setFilter("complexity", e.target.value)}
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-8 text-xs font-medium"
             >
               <option value="ALL">Semua Bobot</option>
               <option value="LOW">LOW</option>
               <option value="MEDIUM">MEDIUM</option>
               <option value="HIGH">HIGH</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+            </Select>
           </div>
 
           {/* Count Text (Dynamic Backend Count) */}

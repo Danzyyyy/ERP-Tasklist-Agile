@@ -5,6 +5,7 @@ import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { Select } from "@/Components/Elements/Select";
+import { Label } from "@/Components/Elements/Label";
 import { cn } from "@/Utils/cn";
 import type { ReviewResult, ReviewType, Task } from "@/Types/task";
 import { FileCode2, CheckCircle2, XCircle, RotateCcw, Sparkles, Lock } from "lucide-react";
@@ -94,9 +95,7 @@ export const ReviewModal = memo<ReviewModalProps>(
 
         {/* Review Type Selection */}
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1">
-            Tahap Pemeriksaan <span className="text-destructive">*</span>
-          </label>
+          <Label required>Tahap Pemeriksaan</Label>
           <Select {...register("review_type")} error={Boolean(errors.review_type)}>
             <option value="CODE_REVIEW">Code Review (Peer Review Kualitas Kode)</option>
             <option value="TESTING">QA Testing (Pengujian Skenario & Fungsionalitas)</option>
@@ -105,9 +104,7 @@ export const ReviewModal = memo<ReviewModalProps>(
 
         {/* Decision Toggle */}
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1.5">
-            Keputusan Pemeriksaan <span className="text-destructive">*</span>
-          </label>
+          <Label required>Keputusan Pemeriksaan</Label>
           <div className="grid grid-cols-2 gap-2">
             <Button
               type="button"
@@ -163,14 +160,10 @@ export const ReviewModal = memo<ReviewModalProps>(
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1">
+          <Label required={result === "REJECTED"}>
             Catatan Temuan / Deskripsi Bug{" "}
-            {result === "REJECTED" ? (
-              <span className="text-destructive">* (Wajib untuk Rework)</span>
-            ) : (
-              "(Opsional)"
-            )}
-          </label>
+            {result === "REJECTED" ? "(Wajib untuk Rework)" : "(Opsional)"}
+          </Label>
           <Textarea
             placeholder={
               result === "REJECTED"

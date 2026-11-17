@@ -5,6 +5,7 @@ import CreateModuleModal from "@/Components/Modals/CreateModuleModal";
 import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Button } from "@/Components/Elements/Button";
+import { Progress } from "@/Components/Elements/Progress";
 import { ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
@@ -245,9 +246,7 @@ export const ModulesPage: React.FC = () => {
               </p>
             </div>
             <div className="space-y-1.5">
-              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: "0%" }} />
-              </div>
+              <Progress value={0} height="h-2" tone="indigo" />
               <div className="text-right text-xs font-mono text-muted-foreground">
                 0.0%
               </div>
@@ -276,9 +275,7 @@ export const ModulesPage: React.FC = () => {
               </p>
             </div>
             <div className="space-y-1.5">
-              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: "100%" }} />
-              </div>
+              <Progress value={100} height="h-2" tone="indigo" />
               <div className="text-right text-xs font-mono text-primary font-bold">
                 100.0%
               </div>

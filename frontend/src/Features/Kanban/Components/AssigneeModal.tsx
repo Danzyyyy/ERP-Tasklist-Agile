@@ -3,6 +3,7 @@ import React, { memo } from "react";
 import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
 import { Select } from "@/Components/Elements/Select";
+import { Label } from "@/Components/Elements/Label";
 import { useAssigneeSelection } from "../Hooks/useAssigneeSelection";
 import type { Task } from "@/Types/task";
 import { UserCheck, AlertCircle } from "lucide-react";
@@ -79,9 +80,7 @@ export const AssigneeModal = memo<AssigneeModalProps>(
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1">
-            Pilih Pengembang Pelaksana (PIC) <span className="text-destructive">*</span>
-          </label>
+          <Label required>Pilih Pengembang Pelaksana (PIC)</Label>
           <Select
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}

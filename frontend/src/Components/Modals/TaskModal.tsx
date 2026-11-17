@@ -3,6 +3,10 @@ import React, { memo } from "react";
 import useCreateTask from "@/Hooks/useCreateTask";
 import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
+import { Input } from "@/Components/Elements/Input";
+import { Textarea } from "@/Components/Elements/Textarea";
+import { Select } from "@/Components/Elements/Select";
+import { Label } from "@/Components/Elements/Label";
 import { ChevronDown, Info, Minus, Plus, AlertCircle } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
@@ -88,23 +92,18 @@ export const TaskModal = memo<TaskModalProps>(
               {/* Row: Modul Induk & Fitur Terkait */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Modul Induk <span className="text-destructive">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      {...register("module_id")}
-                      className="w-full appearance-none h-9 pl-3 pr-8 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    >
-                      <option value="">Pilih Modul Induk</option>
-                      {modules.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.code} — {m.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
-                  </div>
+                  <Label required>Modul Induk</Label>
+                  <Select
+                    {...register("module_id")}
+                    error={Boolean(errors.module_id)}
+                  >
+                    <option value="">Pilih Modul Induk</option>
+                    {modules.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.code} — {m.name}
+                      </option>
+                    ))}
+                  </Select>
                   {errors.module_id && (
                     <p className="text-[10px] text-destructive mt-0.5 font-medium">
                       {errors.module_id.message}
@@ -113,37 +112,28 @@ export const TaskModal = memo<TaskModalProps>(
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Fitur Terkait (Opsional)
-                  </label>
-                  <div className="relative">
-                    <select
-                      {...register("feature_id")}
-                      className="w-full appearance-none h-9 pl-3 pr-8 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                    >
-                      <option value="">Tanpa Fitur (Tingkat Modul)</option>
-                      {availableFeatures.map((f) => (
-                        <option key={f.id} value={f.id}>
-                          {f.code} — {f.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
-                  </div>
+                  <Label>Fitur Terkait (Opsional)</Label>
+                  <Select {...register("feature_id")}>
+                    <option value="">Tanpa Fitur (Tingkat Modul)</option>
+                    {availableFeatures.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.code} — {f.name}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
               </div>
 
               {/* Row: Kode Tugas & Judul Tugas */}
               <div className="grid grid-cols-3 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Kode Tugas <span className="text-destructive">*</span>
-                  </label>
-                  <input
+                  <Label required>Kode Tugas</Label>
+                  <Input
                     type="text"
                     placeholder="TSK-01"
+                    className="font-mono font-bold uppercase text-xs"
                     {...register("task_code")}
-                    className="w-full h-9 px-3 rounded-lg border border-border bg-card text-xs font-mono font-bold uppercase text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    error={Boolean(errors.task_code)}
                   />
                   {errors.task_code && (
                     <p className="text-[10px] text-destructive mt-0.5 font-medium">
@@ -153,14 +143,13 @@ export const TaskModal = memo<TaskModalProps>(
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Judul Tugas <span className="text-destructive">*</span>
-                  </label>
-                  <input
+                  <Label required>Judul Tugas</Label>
+                  <Input
                     type="text"
                     placeholder="Contoh: Implementasi API validasi nasabah"
+                    className="text-xs"
                     {...register("title")}
-                    className="w-full h-9 px-3 rounded-lg border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    error={Boolean(errors.title)}
                   />
                   {errors.title && (
                     <p className="text-[10px] text-destructive mt-0.5 font-medium">
@@ -172,14 +161,13 @@ export const TaskModal = memo<TaskModalProps>(
 
               {/* Deskripsi Teknis */}
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Deskripsi Teknis (Opsional)
-                </label>
-                <textarea
+                <Label>Deskripsi Teknis (Opsional)</Label>
+                <Textarea
                   rows={4}
                   placeholder="Jelaskan spesifikasi teknis, skema API, dan kriteria penerimaan tugas..."
+                  className="text-xs"
                   {...register("description")}
-                  className="w-full p-2.5 rounded-lg border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  error={Boolean(errors.description)}
                 />
                 {errors.description && (
                   <p className="text-[10px] text-destructive mt-0.5 font-medium">
@@ -194,9 +182,7 @@ export const TaskModal = memo<TaskModalProps>(
               {/* Row: Estimasi Man-Hour & Tenggat Tugas */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Estimasi Man-Hour <span className="text-destructive">*</span>
-                  </label>
+                  <Label required>Estimasi Man-Hour</Label>
                   <div className="h-9 px-2 rounded-lg border border-border bg-card flex items-center justify-between">
                     <Button
                       type="button"
@@ -234,13 +220,12 @@ export const TaskModal = memo<TaskModalProps>(
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
-                    Tenggat Acuan (H-1) <span className="text-destructive">*</span>
-                  </label>
-                  <input
+                  <Label required>Tenggat Acuan (H-1)</Label>
+                  <Input
                     type="date"
+                    className="text-xs"
                     {...register("target_deadline")}
-                    className="w-full h-9 px-3 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    error={Boolean(errors.target_deadline)}
                   />
                   {errors.target_deadline && (
                     <p className="text-[10px] text-destructive mt-0.5 font-medium">
@@ -252,9 +237,7 @@ export const TaskModal = memo<TaskModalProps>(
 
               {/* Bobot Kompleksitas */}
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Bobot Kompleksitas <span className="text-destructive">*</span>
-                </label>
+                <Label required>Bobot Kompleksitas</Label>
                 <div className="grid grid-cols-3 gap-2">
                   {/* LOW */}
                   <div

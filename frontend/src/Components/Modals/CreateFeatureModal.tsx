@@ -6,6 +6,7 @@ import { Button } from "@/Components/Elements/Button";
 import { Input } from "@/Components/Elements/Input";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { Select } from "@/Components/Elements/Select";
+import { Label } from "@/Components/Elements/Label";
 
 export interface CreateFeatureModalProps {
   isOpen: boolean;
@@ -40,9 +41,7 @@ export const CreateFeatureModal = memo<CreateFeatureModalProps>(
       >
         <form id="create-feature-form" onSubmit={onSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              Modul Induk <span className="text-destructive">*</span>
-            </label>
+            <Label required>Modul Induk</Label>
             <Select {...register("module_id")} error={Boolean(errors.module_id)}>
               <option value="">Pilih Modul Induk...</option>
               {modules.map((m) => (
@@ -57,9 +56,7 @@ export const CreateFeatureModal = memo<CreateFeatureModalProps>(
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              Kode Fitur <span className="text-destructive">*</span>
-            </label>
+            <Label required>Kode Fitur</Label>
             <Input
               placeholder="Contoh: FTR-K04-03"
               {...register("code")}
@@ -69,9 +66,7 @@ export const CreateFeatureModal = memo<CreateFeatureModalProps>(
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              Nama Fitur <span className="text-destructive">*</span>
-            </label>
+            <Label required>Nama Fitur</Label>
             <Input
               placeholder="Contoh: Dual-Approval Task Release Gate"
               {...register("name")}
@@ -81,9 +76,7 @@ export const CreateFeatureModal = memo<CreateFeatureModalProps>(
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              Deskripsi Fitur (Opsional)
-            </label>
+            <Label>Deskripsi Fitur (Opsional)</Label>
             <Textarea
               placeholder="Deskripsi fungsionalitas dan kriteria fitur..."
               {...register("description")}

@@ -9,6 +9,7 @@ import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { Button } from "@/Components/Elements/Button";
+import { Input } from "@/Components/Elements/Input";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 import {
@@ -164,13 +165,13 @@ export const ProjectsPage: React.FC = () => {
           {/* Filter Bar */}
           <div className="rounded-xl border border-border bg-card p-3 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-              <input
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground z-10" />
+              <Input
                 type="text"
                 placeholder="Cari nama proyek, kode, atau klien..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-8 pl-8 pr-3 rounded-lg border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full h-8 pl-8 pr-3 text-xs bg-background"
               />
             </div>
 

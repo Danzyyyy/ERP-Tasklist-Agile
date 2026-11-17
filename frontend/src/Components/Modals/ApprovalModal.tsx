@@ -4,6 +4,7 @@ import { useApprovalGate } from "@/Hooks/useApprovalGate";
 import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
+import { Label } from "@/Components/Elements/Label";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { formatDateTime } from "@/Utils/formatters";
 import { getApprovalTimestamp } from "@/Utils/taskUtils";
@@ -146,9 +147,9 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-foreground mb-1">
+              <Label className="text-[11px] font-medium mb-1">
                 Catatan / Justifikasi Keputusan:
-              </label>
+              </Label>
               <Textarea
                 placeholder={
                   isTl

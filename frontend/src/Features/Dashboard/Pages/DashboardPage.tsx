@@ -10,6 +10,7 @@ import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import ModuleDeliverableCard from "../Components/ModuleDeliverableCard";
 import { Button } from "@/Components/Elements/Button";
+import { Badge } from "@/Components/Elements/Badge";
 import { cn } from "@/Utils/cn";
 import {
   AlertTriangle,
@@ -134,16 +135,16 @@ export const DashboardPage: React.FC = () => {
 
   // Complexity man-hours breakdown
   const complexityBreakdown = useMemo(() => {
-    let low = 0;
-    let medium = 0;
-    let high = 0;
-    tasks.forEach((t) => {
-      const h = Number(t.estimated_man_hours) || 0;
-      if (t.complexity_weight === "HIGH") high += h;
-      else if (t.complexity_weight === "MEDIUM") medium += h;
-      else low += h;
-    });
-    return { low, medium, high };
+    return tasks.reduce(
+      (acc, t) => {
+        const h = Number(t.estimated_man_hours) || 0;
+        if (t.complexity_weight === "HIGH") acc.high += h;
+        else if (t.complexity_weight === "MEDIUM") acc.medium += h;
+        else acc.low += h;
+        return acc;
+      },
+      { low: 0, medium: 0, high: 0 },
+    );
   }, [tasks]);
 
   // Upcoming & at-risk tasks
@@ -298,43 +299,25 @@ export const DashboardPage: React.FC = () => {
                 new Date(t.target_deadline).getTime() < Date.now() &&
                 t.status !== "DONE";
 
-              let complexityBadge = "bg-slate-50 dark:bg-slate-900 text-slate-700 border-slate-200";
-              if (t.complexity_weight === "HIGH") {
-                complexityBadge =
-                  "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900";
-              } else if (t.complexity_weight === "MEDIUM") {
-                complexityBadge =
-                  "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900";
-              } else if (t.complexity_weight === "LOW") {
-                complexityBadge =
-                  "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900";
-              }
+              const clickTarget =
+                t.status === "DRAFT"
+                  ? goToTasks
+                  : t.status === "CODE_REVIEW" || t.status === "TESTING"
+                  ? () => navigate(ROUTE_PATHS.REVIEWS)
+                  : goToKanban;
 
-              let stageText = "Siap dikerjakan →";
-              let stageClass = "text-slate-700 dark:text-slate-300";
-              let clickTarget = goToKanban;
-
-              if (t.status === "DRAFT") {
-                stageText = "Menunggu approval";
-                stageClass = "text-amber-600 dark:text-amber-400";
-                clickTarget = goToTasks;
-              } else if (t.status === "DEVELOPMENT") {
-                stageText = "In progress";
-                stageClass = "text-blue-600 dark:text-blue-400";
-                clickTarget = goToKanban;
-              } else if (t.status === "CODE_REVIEW") {
-                stageText = "Code review";
-                stageClass = "text-purple-600 dark:text-purple-400";
-                clickTarget = () => navigate(ROUTE_PATHS.REVIEWS);
-              } else if (t.status === "TESTING") {
-                stageText = "QA Testing";
-                stageClass = "text-cyan-600 dark:text-cyan-400";
-                clickTarget = () => navigate(ROUTE_PATHS.REVIEWS);
-              } else if (t.status === "DONE") {
-                stageText = "Selesai (Done)";
-                stageClass = "text-emerald-600 dark:text-emerald-400";
-                clickTarget = goToKanban;
-              }
+              const stageText =
+                t.status === "DRAFT"
+                  ? "Menunggu approval"
+                  : t.status === "DEVELOPMENT"
+                  ? "In progress"
+                  : t.status === "CODE_REVIEW"
+                  ? "Code review"
+                  : t.status === "TESTING"
+                  ? "QA Testing"
+                  : t.status === "DONE"
+                  ? "Selesai (Done)"
+                  : "Siap dikerjakan →";
 
               return (
                 <div
@@ -346,9 +329,9 @@ export const DashboardPage: React.FC = () => {
                     <div className="flex items-center justify-between text-xs font-mono">
                       <span className="text-muted-foreground">{t.task_code || "#TSK"}</span>
                       {isOverdue ? (
-                        <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 px-1.5 py-0.5 rounded border border-rose-200 dark:border-rose-900">
+                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0.2">
                           OVERDUE
-                        </span>
+                        </Badge>
                       ) : t.target_deadline ? (
                         <span className="text-[11px] text-muted-foreground">
                           {t.target_deadline.split("T")[0]}
@@ -366,9 +349,17 @@ export const DashboardPage: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-bold", complexityBadge)}>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "px-1.5 py-0.2 text-[10px] font-bold",
+                          t.complexity_weight === "HIGH" && "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900",
+                          t.complexity_weight === "MEDIUM" && "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900",
+                          t.complexity_weight === "LOW" && "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900",
+                        )}
+                      >
                         {t.complexity_weight || "MEDIUM"}
-                      </span>
+                      </Badge>
                       <span className="text-xs font-mono text-muted-foreground">
                         {Number(t.estimated_man_hours) || 0} Jam
                       </span>
@@ -384,7 +375,19 @@ export const DashboardPage: React.FC = () => {
                     >
                       {initials}
                     </div>
-                    <span className={cn("text-xs font-medium", stageClass)}>{stageText}</span>
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        t.status === "DRAFT" && "text-amber-600 dark:text-amber-400",
+                        t.status === "DEVELOPMENT" && "text-blue-600 dark:text-blue-400",
+                        t.status === "CODE_REVIEW" && "text-purple-600 dark:text-purple-400",
+                        t.status === "TESTING" && "text-cyan-600 dark:text-cyan-400",
+                        t.status === "DONE" && "text-emerald-600 dark:text-emerald-400",
+                        !["DRAFT", "DEVELOPMENT", "CODE_REVIEW", "TESTING", "DONE"].includes(t.status) && "text-slate-700 dark:text-slate-300",
+                      )}
+                    >
+                      {stageText}
+                    </span>
                   </div>
                 </div>
               );
@@ -417,10 +420,10 @@ export const DashboardPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {modules.map((m) => {
-              let featureSummary = "Tugas Mandiri (Tingkat Modul)";
-              if (m.features && m.features.length > 0) {
-                featureSummary = m.features.map((f) => f.name).join(" · ");
-              }
+              const featureSummary =
+                m.features && m.features.length > 0
+                  ? m.features.map((f) => f.name).join(" · ")
+                  : "Tugas Mandiri (Tingkat Modul)";
 
               return (
                 <ModuleDeliverableCard

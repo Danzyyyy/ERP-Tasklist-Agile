@@ -18,8 +18,12 @@ import {
   ShieldCheck,
   ArrowRight,
   UserCheck,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/Components/Elements/Button";
+import { Badge } from "@/Components/Elements/Badge";
+import { Label } from "@/Components/Elements/Label";
+import { Textarea } from "@/Components/Elements/Textarea";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 import type { Task } from "@/Types/task";
@@ -231,15 +235,6 @@ export const ReviewsPage: React.FC = () => {
               const modCode = t.module?.code || "MOD";
               const taskCode = t.task_code || "#TSK";
 
-              let badgeColor = "border-muted text-muted-foreground bg-muted/30";
-              if (t.status === "CODE_REVIEW") {
-                badgeColor = "border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300";
-              } else if (t.status === "TESTING") {
-                badgeColor = "border-cyan-200 dark:border-cyan-900 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300";
-              } else if (t.status === "DONE") {
-                badgeColor = "border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300";
-              }
-
               return (
                 <div
                   key={t.id}
@@ -258,9 +253,18 @@ export const ReviewsPage: React.FC = () => {
                   <h4 className="text-sm font-bold text-foreground line-clamp-1">{t.title}</h4>
                   <p className="text-xs text-muted-foreground">{picName}</p>
                   <div className="flex items-center justify-between pt-1">
-                    <span className={cn("px-2 py-0.5 rounded border text-[10px] font-bold font-mono uppercase", badgeColor)}>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "text-[10px] font-bold font-mono uppercase px-2 py-0.5",
+                        t.status === "CODE_REVIEW" && "border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300",
+                        t.status === "TESTING" && "border-cyan-200 dark:border-cyan-900 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300",
+                        t.status === "DONE" && "border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300",
+                        !["CODE_REVIEW", "TESTING", "DONE"].includes(t.status) && "border-muted text-muted-foreground bg-muted/30",
+                      )}
+                    >
                       {t.status.replace("_", " ")}
-                    </span>
+                    </Badge>
                     {t.is_pm_verified && (
                       <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                         <Check className="size-3" /> PM Verified
@@ -439,36 +443,48 @@ export const ReviewsPage: React.FC = () => {
                       Pemeriksaan {currentTask.status === "CODE_REVIEW" ? "Code Review" : "QA Testing"}
                     </h4>
 
-                    <div className="flex items-center gap-4 text-xs">
-                      <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
-                        <input
-                          type="radio"
-                          name="qa_decision"
-                          checked={reviewDecision === "PASS"}
-                          onChange={() => setReviewDecision("PASS")}
-                          className="text-primary focus:ring-primary size-3.5"
-                        />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setReviewDecision("PASS")}
+                        className={cn(
+                          "h-auto py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-semibold transition-all",
+                          reviewDecision === "PASS"
+                            ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500"
+                            : "border-border bg-card text-muted-foreground hover:bg-muted",
+                        )}
+                      >
+                        <CheckCircle2 className="size-3.5 text-emerald-600" />
                         <span>Disetujui (Pass)</span>
-                      </label>
-                      <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
-                        <input
-                          type="radio"
-                          name="qa_decision"
-                          checked={reviewDecision === "REVISE"}
-                          onChange={() => setReviewDecision("REVISE")}
-                          className="text-primary focus:ring-primary size-3.5"
-                        />
-                        <span className="text-rose-600 dark:text-rose-400 font-semibold">Perlu Revisi (Rework)</span>
-                      </label>
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setReviewDecision("REVISE")}
+                        className={cn(
+                          "h-auto py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-semibold transition-all",
+                          reviewDecision === "REVISE"
+                            ? "border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500"
+                            : "border-border bg-card text-muted-foreground hover:bg-muted",
+                        )}
+                      >
+                        <RotateCcw className="size-3.5 text-rose-600" />
+                        <span>Perlu Revisi (Rework)</span>
+                      </Button>
                     </div>
 
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-[11px]">
-                        <label className={cn("font-bold", reviewDecision === "REVISE" ? "text-rose-600 dark:text-rose-400" : "text-foreground")}>
-                          {reviewDecision === "REVISE" ? "Alasan Penolakan / Catatan Revisi (Wajib Diisi)*" : "Catatan Hasil Pengujian (Opsional)"}
-                        </label>
+                        <Label
+                          required={reviewDecision === "REVISE"}
+                          className={cn("font-bold mb-0", reviewDecision === "REVISE" ? "text-rose-600 dark:text-rose-400" : "text-foreground")}
+                        >
+                          {reviewDecision === "REVISE" ? "Alasan Penolakan / Catatan Revisi" : "Catatan Hasil Pengujian (Opsional)"}
+                        </Label>
                       </div>
-                      <textarea
+                      <Textarea
                         rows={3}
                         placeholder={
                           reviewDecision === "REVISE"
@@ -477,12 +493,8 @@ export const ReviewsPage: React.FC = () => {
                         }
                         value={reviewNotes}
                         onChange={(e) => setReviewNotes(e.target.value)}
-                        className={cn(
-                          "w-full text-xs rounded-lg border bg-card p-2 text-foreground focus:outline-none focus:ring-1",
-                          reviewDecision === "REVISE" && !reviewNotes.trim()
-                            ? "border-rose-400 focus:ring-rose-500"
-                            : "border-border focus:ring-primary",
-                        )}
+                        error={reviewDecision === "REVISE" && !reviewNotes.trim()}
+                        className="text-xs"
                       />
                     </div>
 

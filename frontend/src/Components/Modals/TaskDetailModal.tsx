@@ -2,6 +2,10 @@
 import React, { memo, useState } from "react";
 import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
+import { Input } from "@/Components/Elements/Input";
+import { Textarea } from "@/Components/Elements/Textarea";
+import { Select } from "@/Components/Elements/Select";
+import { Label } from "@/Components/Elements/Label";
 import type { Task, TaskStatus } from "@/Types/task";
 import { useAuth } from "@/Hooks/useAuth";
 import { useSubmitApproval } from "@/Hooks/useSubmitApproval";
@@ -446,13 +450,13 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
 
             {["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
               <div className="space-y-1 pt-2">
-                <label className="text-xs font-semibold text-foreground">Catatan Keputusan Approval (Opsional)</label>
-                <input
+                <Label className="text-xs font-semibold">Catatan Keputusan Approval (Opsional)</Label>
+                <Input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Berikan alasan atau catatan persetujuan..."
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full text-xs"
                 />
               </div>
             )}
@@ -471,19 +475,19 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             </p>
 
             <div className="space-y-1.5 pt-1">
-              <label className="text-xs font-semibold text-foreground">Pilih Pengembang (Developer)</label>
-              <select
+              <Label className="text-xs font-semibold">Pilih Pengembang (Developer)</Label>
+              <Select
                 value={selectedAssigneeId}
                 onChange={(e) => setSelectedAssigneeId(e.target.value)}
                 disabled={userRole === "DEVELOPER"}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full text-xs"
               >
                 {DEMO_DEVELOPERS.map((dev) => (
                   <option key={dev.id} value={dev.id}>
                     {dev.name} ({dev.role})
                   </option>
                 ))}
-              </select>
+              </Select>
               {userRole === "DEVELOPER" && (
                 <p className="text-[10px] text-muted-foreground">
                   Sebagai Developer, tugas otomatis ditetapkan ke akun Anda sendiri.
@@ -527,13 +531,13 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
           <div className="p-4 rounded-xl border border-border bg-card space-y-3">
             <h4 className="text-xs font-bold text-foreground">Form Penilaian Code Review (TL & PM)</h4>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground">Catatan / Temuan Peer Review</label>
-              <textarea
+              <Label className="text-xs font-medium">Catatan / Temuan Peer Review</Label>
+              <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Tuliskan temuan arsitektur atau catatan persetujuan..."
                 rows={3}
-                className="w-full text-xs p-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full text-xs"
               />
             </div>
           </div>
@@ -548,12 +552,12 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 <ShieldCheck className="size-4 text-cyan-600" />
                 Pengujian QA Tester
               </h4>
-              <textarea
+              <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Catatan hasil pengujian fungsional dan regression test..."
                 rows={2}
-                className="w-full text-xs p-2.5 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full text-xs"
               />
             </div>
 

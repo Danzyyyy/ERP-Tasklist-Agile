@@ -5,6 +5,7 @@ import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
 import { Input } from "@/Components/Elements/Input";
 import { Textarea } from "@/Components/Elements/Textarea";
+import { Label } from "@/Components/Elements/Label";
 
 export interface CreateModuleModalProps {
   isOpen: boolean;
@@ -34,9 +35,7 @@ export const CreateModuleModal = memo<CreateModuleModalProps>(({ isOpen, onClose
     >
       <form id="create-module-form" onSubmit={onSubmit} className="space-y-3.5">
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1">
-            Kode Modul <span className="text-destructive">*</span>
-          </label>
+          <Label required>Kode Modul</Label>
           <Input
             placeholder="Contoh: MOD-E4 atau MOD-INV"
             {...register("code")}
@@ -46,9 +45,7 @@ export const CreateModuleModal = memo<CreateModuleModalProps>(({ isOpen, onClose
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1">
-            Nama Modul <span className="text-destructive">*</span>
-          </label>
+          <Label required>Nama Modul</Label>
           <Input
             placeholder="Contoh: Tasklist dan Eksekusi Agile"
             {...register("name")}
@@ -58,9 +55,7 @@ export const CreateModuleModal = memo<CreateModuleModalProps>(({ isOpen, onClose
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-foreground mb-1">
-            Deskripsi Modul (Opsional)
-          </label>
+          <Label>Deskripsi Modul (Opsional)</Label>
           <Textarea
             placeholder="Jelaskan cakupan deliverable dan tanggung jawab modul..."
             {...register("description")}

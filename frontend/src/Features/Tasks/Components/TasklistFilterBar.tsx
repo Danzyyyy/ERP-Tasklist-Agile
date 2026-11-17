@@ -1,7 +1,9 @@
 // src/Features/Tasks/Components/TasklistFilterBar.tsx
 import React, { memo } from "react";
-import { ChevronDown, Search, Plus } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { Button } from "@/Components/Elements/Button";
+import { Select } from "@/Components/Elements/Select";
+import { Input } from "@/Components/Elements/Input";
 import type { Module } from "@/Types/task";
 
 export interface TasklistFilterBarProps {
@@ -22,11 +24,11 @@ export const TasklistFilterBar = memo<TasklistFilterBarProps>(
       <div className="bg-card border border-border rounded-xl p-2.5 px-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
         <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
           {/* Semua Modul Dropdown */}
-          <div className="relative">
-            <select
+          <div className="w-40">
+            <Select
               value={filters.module_id || "ALL"}
               onChange={(e) => onFilterChange("module_id", e.target.value)}
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-8.5 text-xs font-medium"
             >
               <option value="ALL">Semua Modul</option>
               {modules.map((m) => (
@@ -34,31 +36,29 @@ export const TasklistFilterBar = memo<TasklistFilterBarProps>(
                   {m.code || m.name}
                 </option>
               ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+            </Select>
           </div>
 
           {/* Semua PIC Dropdown */}
-          <div className="relative">
-            <select
+          <div className="w-36">
+            <Select
               value={filters.assignee_id || "ALL"}
               onChange={(e) => onFilterChange("assignee_id", e.target.value)}
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-8.5 text-xs font-medium"
             >
               <option value="ALL">Semua PIC</option>
               <option value="Ariel">Ariel (FE)</option>
               <option value="Fajri">Fajri (BE)</option>
               <option value="Fauzan">Fauzan (TL)</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+            </Select>
           </div>
 
           {/* Semua Status Dropdown */}
-          <div className="relative">
-            <select
+          <div className="w-36">
+            <Select
               value={filters.status || "ALL"}
               onChange={(e) => onFilterChange("status", e.target.value)}
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-8.5 text-xs font-medium"
             >
               <option value="ALL">Semua Status</option>
               <option value="DRAFT">DRAFT</option>
@@ -67,19 +67,18 @@ export const TasklistFilterBar = memo<TasklistFilterBarProps>(
               <option value="CODE_REVIEW">CODE REVIEW</option>
               <option value="TESTING">TESTING</option>
               <option value="DONE">DONE</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+            </Select>
           </div>
 
           {/* Search Box */}
           <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <input
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground z-10" />
+            <Input
               type="text"
               placeholder="Cari tugas..."
               value={filters.search || ""}
               onChange={(e) => onFilterChange("search", e.target.value)}
-              className="w-full h-8.5 pl-8 pr-3 rounded-lg border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+              className="w-full h-8.5 pl-8 pr-3 text-xs"
             />
           </div>
         </div>

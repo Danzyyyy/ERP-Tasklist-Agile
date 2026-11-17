@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
 import { Badge } from "@/Components/Elements/Badge";
 import { Button } from "@/Components/Elements/Button";
+import { Input } from "@/Components/Elements/Input";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { canCreateTaskRole } from "@/Utils/taskUtils";
 import { Plus, ChevronDown, LogOut, FileText, Search, Bell, SlidersHorizontal, Check } from "lucide-react";
@@ -94,13 +95,13 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
           className="hidden md:flex items-center gap-2 h-[34px] w-64 lg:w-[320px] rounded-lg border border-border bg-card px-2.5 text-xs shadow-2xs transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 cursor-text group"
         >
           <Search className="size-3.5 text-muted-foreground group-focus-within:text-primary shrink-0 transition-colors" />
-          <input
+          <Input
             ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari tugas, modul, fitur, atau PIC..."
-            className="w-full bg-transparent border-0 p-0 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0 leading-none"
+            className="w-full bg-transparent border-0 p-0 text-xs text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:outline-none focus-visible:border-transparent shadow-none leading-none h-auto"
             aria-label="Cari tugas, modul, fitur, atau PIC"
           />
           {searchQuery ? (
