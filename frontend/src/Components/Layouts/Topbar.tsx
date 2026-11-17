@@ -11,6 +11,7 @@ import { Button } from "@/Components/Elements/Button";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { canCreateTaskRole } from "@/Utils/taskUtils";
 import { Plus, ChevronDown, LogOut, FileText, Search, Bell, SlidersHorizontal, Check } from "lucide-react";
+import ProjectSwitcherDropdown from "./ProjectSwitcherDropdown";
 
 export interface TopbarProps {
   onOpenTaskModal: () => void;
@@ -112,10 +113,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
         </div>
 
         {/* Project Selector Dropdown Pill (FigCraft 1:1) */}
-        <div className="hidden lg:flex items-center justify-between gap-2 h-[34px] px-3 rounded-lg border border-border bg-card text-xs font-semibold text-foreground cursor-pointer hover:bg-muted/50 transition-colors">
-          <span>Core Banking - Sprint 1</span>
-          <ChevronDown className="size-3 text-muted-foreground shrink-0" />
-        </div>
+        <ProjectSwitcherDropdown />
 
         {/* Mobile / Compact brand title */}
         <div className="md:hidden min-w-0">

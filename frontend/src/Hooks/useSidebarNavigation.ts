@@ -1,26 +1,13 @@
 // src/Hooks/useSidebarNavigation.ts
 import { useMemo } from "react";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
-import { useGetTaskList } from "@/Hooks/useGetTaskList";
 import useGetDeliverableProgress from "@/Hooks/useGetDeliverableProgress";
 import { useSidebar } from "@/Components/Layouts/SidebarContext";
-import { isTaskRework } from "@/Utils/taskUtils";
 import { LayoutGrid, Folder, ListChecks, Columns3, ClipboardCheck, BarChart2 } from "lucide-react";
 
 export function useSidebarNavigation() {
   const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
-  const { data: tasks = [] } = useGetTaskList();
   const { data: metrics } = useGetDeliverableProgress();
-
-  const reviewTestingCount = useMemo(() => {
-    return tasks.filter(
-      (t) =>
-        t.status === "CODE_REVIEW" ||
-        t.status === "TESTING" ||
-        t.status === "DONE" ||
-        isTaskRework(t),
-    ).length;
-  }, [tasks]);
 
   const navItems = useMemo(
     () => [
@@ -48,7 +35,6 @@ export function useSidebarNavigation() {
         to: ROUTE_PATHS.REVIEWS,
         label: "Review & Testing",
         icon: ClipboardCheck,
-        badge: reviewTestingCount > 0 ? reviewTestingCount : undefined,
       },
       {
         to: ROUTE_PATHS.REPORTS,
@@ -56,7 +42,7 @@ export function useSidebarNavigation() {
         icon: BarChart2,
       },
     ],
-    [reviewTestingCount],
+    [],
   );
 
   const handleNavClick = () => {

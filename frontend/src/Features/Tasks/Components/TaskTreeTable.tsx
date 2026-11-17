@@ -38,11 +38,8 @@ export const TaskTreeTable = memo<TaskTreeTableProps>(
           <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-border bg-slate-50/50 dark:bg-slate-900/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                <th className="py-3 px-3 w-10 text-center">
-                  <input
-                    type="checkbox"
-                    className="rounded border-border text-primary focus:ring-primary size-4 cursor-pointer"
-                  />
+                <th className="py-3 px-3 w-10 text-center text-muted-foreground font-mono">
+                  #
                 </th>
                 <th className="py-3 px-3">PEKERJAAN & TUGAS</th>
                 <th className="py-3 px-3 text-center w-24">BOBOT</th>

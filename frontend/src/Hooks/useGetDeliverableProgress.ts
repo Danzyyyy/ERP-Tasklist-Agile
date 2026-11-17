@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import ProgressService from "@/Services/ProgressService";
 import { PROGRESS_QUERY_KEYS } from "@/Constants/ProgressConstant";
+import { useProject } from "@/Contexts/ProjectContext";
 import type { DeliverableProgress } from "@/Types/task";
 
 const DEFAULT_METRICS: DeliverableProgress = {
@@ -15,12 +16,15 @@ const DEFAULT_METRICS: DeliverableProgress = {
   calculatedAt: new Date().toISOString(),
 };
 
-export const useGetDeliverableProgress = (projectId = "PROJ-ERP-01") => {
+export const useGetDeliverableProgress = (projectId?: string) => {
+  const { activeProjectId } = useProject();
+  const effectiveProjectId = projectId || activeProjectId || "PROJ-ERP-01";
+
   return useQuery({
-    queryKey: PROGRESS_QUERY_KEYS.project(projectId),
+    queryKey: PROGRESS_QUERY_KEYS.project(effectiveProjectId),
     queryFn: async (): Promise<DeliverableProgress> => {
       try {
-        const res = await ProgressService.getDeliverableProgress(projectId);
+        const res = await ProgressService.getDeliverableProgress(effectiveProjectId);
         return res.data || DEFAULT_METRICS;
       } catch {
         return DEFAULT_METRICS;

@@ -3,8 +3,44 @@ import type { ReviewType, Task, TaskApproval, TaskReviewLog, TaskStatus } from "
 import type { UserRole } from "@/Types/auth";
 
 /**
- * Normalisasi array review logs baik dari relasi Laravel (`review_logs`) maupun camelCase (`reviewLogs`).
+ * Helper parsing inisial nama PIC / Tim yang bersih dari tanda kurung peran.
  */
+export function getInitials(name?: string | null): string {
+  if (!name || name === "Belum Ditugaskan") return "--";
+  const lower = name.toLowerCase();
+  if (lower.includes("wildan") || lower.includes("tubagus")) return "TW";
+  if (lower.includes("fauzan")) return "FZ";
+  if (lower.includes("ariel")) return "AR";
+  if (lower.includes("fajri")) return "FJ";
+  if (lower.includes("valdric")) return "VD";
+
+  const clean = name.replace(/\([^)]*\)/g, "").trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "--";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+/**
+ * Helper warna latar belakang inisial avatar.
+ */
+export function getAvatarBg(initials: string): string {
+  switch (initials) {
+    case "TW":
+      return "bg-indigo-600 text-white";
+    case "FZ":
+      return "bg-emerald-600 text-white";
+    case "AR":
+      return "bg-purple-600 text-white";
+    case "FJ":
+      return "bg-blue-600 text-white";
+    case "VD":
+      return "bg-amber-600 text-white";
+    default:
+      return "bg-slate-600 text-white";
+  }
+}
+
 export function getTaskReviewLogs(task?: Task | null): TaskReviewLog[] {
   if (!task) return [];
   return task.review_logs ?? task.reviewLogs ?? [];

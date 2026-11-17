@@ -1,6 +1,8 @@
 // src/Features/Reviews/Hooks/useReviewsOverview.ts
 import { useState, useMemo } from "react";
-import { useGetTaskList } from "@/Hooks/useGetTaskList";
+import { useQuery } from "@tanstack/react-query";
+import TaskService from "@/Services/TaskService";
+import { TASK_QUERY_KEYS } from "@/Constants/TaskConstant";
 import { isTaskRework } from "@/Utils/taskUtils";
 import type { Task } from "@/Types/task";
 
@@ -13,65 +15,61 @@ export function useReviewsOverview() {
   const [activeSignOffTask, setActiveSignOffTask] = useState<Task | null>(null);
   const [activeDetailTask, setActiveDetailTask] = useState<Task | null>(null);
 
-  // Menggunakan query filter status kanonis backend: GET /tasks?status=...
-  const queryParams = useMemo(() => {
-    if (tab === "CODE_REVIEW") return { status: "CODE_REVIEW" as const };
-    if (tab === "TESTING") return { status: "TESTING" as const };
-    return {};
-  }, [tab]);
+  // Single query: Sedari awal langsung di-filter fokus pada tugas tahap CODE_REVIEW & TESTING
+  const {
+    data: allReviewTasks = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: [...TASK_QUERY_KEYS.all, "reviews"],
+    queryFn: async () => {
+      const res = await TaskService.getAll();
+      const rawTasks = res.data || [];
+      // Saring langsung: fokus pada Code Review, Testing, Done, dan Rework aktif
+      return rawTasks.filter(
+        (t) =>
+          t.status === "CODE_REVIEW" ||
+          t.status === "TESTING" ||
+          t.status === "DONE" ||
+          isTaskRework(t),
+      );
+    },
+  });
 
-  const { data: filteredTasks = [], isLoading: isFilteredLoading, refetch: refetchFiltered } =
-    useGetTaskList(queryParams);
-  const { data: allTasks = [], isLoading: isAllLoading, refetch: refetchAll } =
-    useGetTaskList({});
-
-  const isLoading = isFilteredLoading || isAllLoading;
-
-  const refetch = async () => {
-    await Promise.all([refetchFiltered(), refetchAll()]);
-  };
-
-  // Jumlah antrean berdasarkan status aktual tugas dari backend
+  // Hitung jumlah antrean berdasarkan data tugas review aktual
   const tabCounts = useMemo(() => {
     let codeReview = 0;
     let testing = 0;
     let signoff = 0;
-    let all = 0;
 
-    allTasks.forEach((t) => {
-      const isCr = t.status === "CODE_REVIEW";
-      const isTest = t.status === "TESTING";
-      const isSignOff = t.status === "TESTING" || t.status === "DONE";
-      const hasActiveRework = isTaskRework(t);
-
-      if (isCr) codeReview++;
-      if (isTest) testing++;
-      if (isSignOff) signoff++;
-
-      if (isCr || isTest || t.status === "DONE" || hasActiveRework) {
-        all++;
-      }
+    allReviewTasks.forEach((t) => {
+      if (t.status === "CODE_REVIEW") codeReview++;
+      if (t.status === "TESTING") testing++;
+      if (t.status === "TESTING" || t.status === "DONE") signoff++;
     });
 
-    return { codeReview, testing, signoff, all };
-  }, [allTasks]);
+    return {
+      codeReview,
+      testing,
+      signoff,
+      all: allReviewTasks.length,
+    };
+  }, [allReviewTasks]);
 
-  // Tasks yang relevan: mengutamakan hasil filter endpoint backend
+  // Tasks yang relevan sesuai tab aktif
   const relevantTasks = useMemo(() => {
-    if (tab === "CODE_REVIEW" || tab === "TESTING") {
-      return filteredTasks;
+    switch (tab) {
+      case "CODE_REVIEW":
+        return allReviewTasks.filter((t) => t.status === "CODE_REVIEW");
+      case "TESTING":
+        return allReviewTasks.filter((t) => t.status === "TESTING");
+      case "SIGNOFF":
+        return allReviewTasks.filter((t) => t.status === "TESTING" || t.status === "DONE");
+      case "ALL":
+      default:
+        return allReviewTasks;
     }
-
-    return allTasks.filter((t) => {
-      const isCr = t.status === "CODE_REVIEW";
-      const isTest = t.status === "TESTING";
-      const isSignOff = t.status === "TESTING" || t.status === "DONE";
-      const hasActiveRework = isTaskRework(t);
-
-      if (tab === "SIGNOFF") return isSignOff;
-      return isCr || isTest || t.status === "DONE" || hasActiveRework;
-    });
-  }, [filteredTasks, allTasks, tab]);
+  }, [allReviewTasks, tab]);
 
   const getEmptyMessage = () => {
     switch (tab) {
@@ -104,4 +102,3 @@ export function useReviewsOverview() {
 }
 
 export default useReviewsOverview;
-

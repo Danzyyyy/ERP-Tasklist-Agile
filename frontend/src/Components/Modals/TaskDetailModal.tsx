@@ -1,12 +1,28 @@
 // src/Components/Modals/TaskDetailModal.tsx
 import React, { memo, useState } from "react";
 import { Modal } from "@/Components/Elements/Modal";
-import type { Task } from "@/Types/task";
+import type { Task, TaskStatus } from "@/Types/task";
 import { useAuth } from "@/Hooks/useAuth";
+import { useSubmitApproval } from "@/Hooks/useSubmitApproval";
+import { useAssignTask } from "@/Features/Tasks/Hooks/useAssignTask";
+import { useUpdateTaskStatus } from "@/Hooks/useUpdateTaskStatus";
 import { useSubmitReview } from "@/Hooks/useSubmitReview";
 import { usePmVerify } from "@/Hooks/usePmVerify";
 import { useTlSignoff } from "@/Hooks/useTlSignoff";
-import { Clock, Check, CheckCircle2 } from "lucide-react";
+import { DEMO_DEVELOPERS } from "@/Features/Kanban/Constants/KanbanConstant";
+import { isTaskRework, getTaskReviewLogs, getInitials, getAvatarBg } from "@/Utils/taskUtils";
+import {
+  Check,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  RotateCcw,
+  ShieldCheck,
+  UserCheck,
+  ArrowRight,
+  FileText,
+  Lock,
+} from "lucide-react";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 
@@ -22,16 +38,21 @@ export interface TaskDetailModalProps {
 export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClose }) => {
   const { user } = useAuth();
   const userRole = user?.role || "PROJECT_MANAGER";
+  const userId = user?.id;
 
-  const [activeTab, setActiveTab] = useState<1 | 2 | 3>(1);
-  const [reviewStatus, setReviewStatus] = useState<"PASS" | "REVISE">("PASS");
-  const [reviewNotes, setReviewNotes] = useState("Tidak ada temuan kritis. Indeks & constraint relasi siap diuji QA.");
+  const [notes, setNotes] = useState("");
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string>(
+    task?.assignee_id || DEMO_DEVELOPERS[0].id,
+  );
 
-  const [checklist, setChecklist] = useState({
-    c1: true,
-    c2: true,
-    c3: true,
-    c4: false,
+  // Mutations
+  const submitApprovalMutation = useSubmitApproval(task?.id, () => {
+    onClose();
+  });
+
+  const assignTaskMutation = useAssignTask();
+  const updateStatusMutation = useUpdateTaskStatus(() => {
+    onClose();
   });
 
   const submitReviewMutation = useSubmitReview(task?.id, () => {
@@ -39,7 +60,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
   });
 
   const pmVerifyMutation = usePmVerify(task?.id, () => {
-    toast.success("Verifikasi kelayakan PM berhasil diperbarui.");
+    toast.success("Verifikasi kelayakan PM (Gerbang 1) berhasil dicatat!");
   });
 
   const tlSignoffMutation = useTlSignoff(task?.id, () => {
@@ -48,393 +69,559 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
 
   if (!task) return null;
 
-  const checkedCount = Object.values(checklist).filter(Boolean).length;
+  const status = task.status;
+  const isRework = isTaskRework(task);
+  const reviewLogs = getTaskReviewLogs(task);
   const isPmVerified = Boolean(task.is_pm_verified);
   const isTlSigned = Boolean(task.is_tl_signed);
 
-  const taskCode = task.task_code || "#TSK-01";
-  const modCode = task.module?.code || "MOD-01";
-  const modName = task.module?.name || "Manajemen Rekening";
-  const title = task.title || "DDL & Skema DB";
-  const featureName = task.feature?.name || "Umum";
-  const statusText = task.status === "DEVELOPMENT" ? "In Progress" : task.status;
-  const hours = Number(task.estimated_man_hours) || 8;
-  const picName = typeof task.pic === "string" ? task.pic : task.pic?.name || "Fajri";
+  // Dual-approval statuses
+  const tlApproval = task.approvals?.find((a) => a.role === "TECHNICAL_LEAD");
+  const pmApproval = task.approvals?.find((a) => a.role === "PROJECT_MANAGER");
 
-  const handleRejectToDevelopment = async () => {
-    if (userRole === "DEVELOPER") {
-      toast.error("Pengembang tidak berwenang menolak review tugas.");
+  // Dynamic Title & Header info
+  const getHeaderInfo = () => {
+    switch (status) {
+      case "DRAFT":
+        return {
+          title: "Persetujuan Rilis Tugas (Dual-Approval Gate)",
+          desc: "Tugas baru berstatus DRAFT memerlukan persetujuan terpisah dari TL & PM sebelum dapat dikerjakan.",
+          tone: "slate",
+        };
+      case "RELEASED":
+        return {
+          title: "Penugasan & Mulai Pengerjaan (Released Task)",
+          desc: "Tugas telah disahkan rilis. Tentukan pengembang pelaksana (PIC) untuk menarik ke fase Development.",
+          tone: "indigo",
+        };
+      case "DEVELOPMENT":
+        return {
+          title: isRework
+            ? "Perbaikan Revisi Tugas (Rework In Progress)"
+            : "Eksekusi Pengerjaan Tugas (Development)",
+          desc: isRework
+            ? "Tugas dikembalikan dari tahap pengujian. Perbaiki temuan sebelum mengajukan kembali."
+            : "Tugas sedang dalam proses pengerjaan oleh pengembang terkait.",
+          tone: isRework ? "amber" : "blue",
+        };
+      case "CODE_REVIEW":
+        return {
+          title: "Pemeriksaan Kualitas Kode (Code Review)",
+          desc: "Tinjau arsitektur, clean code, dan keselarasan kontrak API sebelum diserahkan ke pengujian QA.",
+          tone: "purple",
+        };
+      case "TESTING":
+        return {
+          title: "Pengujian Kualitas & Two-Gate DoD (QA Testing)",
+          desc: "Verifikasi skenario uji QA, lengkapi ceklis PM (Gerbang 1), dan otorisasi akhir TL (Gerbang 2).",
+          tone: "cyan",
+        };
+      case "DONE":
+      default:
+        return {
+          title: "Tugas Selesai & Disahkan (Definition of Done)",
+          desc: "Tugas telah memenuhi kriteria Definition of Done dan terkunci permanen (Terminal State).",
+          tone: "emerald",
+        };
+    }
+  };
+
+  const header = getHeaderInfo();
+
+  // Handlers for DRAFT approval
+  const handleApproval = async (decision: "APPROVED" | "REJECTED") => {
+    if (!["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole)) {
+      toast.error("Hanya Technical Lead atau Project Manager yang berwenang memberikan approval rilis.");
       return;
     }
-    const notes = reviewNotes.trim() || "Pemeriksaan ditolak. Terdapat revisi yang perlu diperbaiki.";
-    const revType = task.status === "CODE_REVIEW" ? "CODE_REVIEW" : "TESTING";
-    await submitReviewMutation.mutateAsync({
-      review_type: revType,
-      result: "REJECTED",
-      notes,
+    await submitApprovalMutation.mutateAsync({
+      status: decision,
+      notes: notes.trim() || (decision === "APPROVED" ? "Disetujui untuk rilis sprint." : "Draft ditolak."),
     });
   };
 
-  const handlePassCurrentStage = async () => {
-    if (task.status === "CODE_REVIEW") {
-      if (!["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole)) {
-        toast.error("Hanya Technical Lead atau Project Manager yang berwenang meloloskan Code Review.");
-        return;
-      }
-      await submitReviewMutation.mutateAsync({
-        review_type: "CODE_REVIEW",
-        result: "PASSED",
-        notes: reviewNotes || "Code review disetujui (Pass).",
-      });
-    } else if (task.status === "TESTING") {
-      if (isPmVerified && userRole === "TECHNICAL_LEAD") {
-        await tlSignoffMutation.mutateAsync();
-      } else if (!isPmVerified && userRole === "PROJECT_MANAGER") {
-        await pmVerifyMutation.mutateAsync();
-      } else {
-        toast.info("Lengkapi ceklis PM dan otorisasi akhir TL untuk menyelesaikan tugas.");
-      }
-    } else {
-      onClose();
+  // Handlers for RELEASED -> DEVELOPMENT
+  const handleStartDevelopment = async () => {
+    const dev = DEMO_DEVELOPERS.find((d) => d.id === selectedAssigneeId) || DEMO_DEVELOPERS[0];
+    if (userRole === "DEVELOPER" && userId && dev.id !== userId) {
+      toast.error("Pengembang hanya boleh menugaskan dirinya sendiri.");
+      return;
     }
+
+    try {
+      await assignTaskMutation.mutateAsync({
+        taskId: task.id,
+        assigneeId: dev.id,
+        assigneeName: dev.name,
+      });
+
+      await updateStatusMutation.mutateAsync({
+        taskId: task.id,
+        status: "DEVELOPMENT",
+        assigneeId: dev.id,
+        assigneeName: dev.name,
+      });
+    } catch {
+      // error handled by mutations
+    }
+  };
+
+  // Handlers for DEVELOPMENT -> CODE_REVIEW
+  const handleRequestCodeReview = async () => {
+    await updateStatusMutation.mutateAsync({
+      taskId: task.id,
+      status: "CODE_REVIEW",
+    });
+  };
+
+  // Handlers for CODE_REVIEW decision
+  const handleCodeReviewDecision = async (decision: "PASSED" | "REJECTED") => {
+    if (!["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole)) {
+      toast.error("Hanya Technical Lead atau Project Manager yang berwenang menilai Code Review.");
+      return;
+    }
+    if (decision === "REJECTED" && !notes.trim()) {
+      toast.error("Wajib menyertakan catatan revisi saat menolak Code Review.");
+      return;
+    }
+    await submitReviewMutation.mutateAsync({
+      review_type: "CODE_REVIEW",
+      result: decision,
+      notes: notes.trim() || "Code review disetujui (Pass).",
+    });
+  };
+
+  // Handlers for TESTING decision
+  const handleQaTestDecision = async (decision: "PASSED" | "REJECTED") => {
+    if (decision === "REJECTED" && !notes.trim()) {
+      toast.error("Wajib menyertakan temuan bug atau alasan revisi pengujian QA.");
+      return;
+    }
+    await submitReviewMutation.mutateAsync({
+      review_type: "TESTING",
+      result: decision,
+      notes: notes.trim() || (decision === "PASSED" ? "Semua skenario pengujian QA lolos." : "Terdapat bug pengujian."),
+    });
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      maxWidth="4xl"
-      title="Pemeriksaan & Pengesahan Tugas"
-      description={`${taskCode} · ${modCode} | ${title} | ${modName} / ${featureName} | ${statusText} | ${hours}.00 Jam | ${picName} | Tenggat: ${task.target_deadline ? task.target_deadline.split("T")[0] : "-"}`}
+      maxWidth="3xl"
+      title={header.title}
+      description={header.desc}
       footer={
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full pt-2">
+        <div className="flex items-center justify-between gap-3 w-full pt-2">
           <button
             type="button"
-            onClick={handleRejectToDevelopment}
-            disabled={submitReviewMutation.isPending || task.status === "DONE"}
-            className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50 w-full sm:w-auto"
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-semibold rounded-xl border border-border bg-card hover:bg-muted text-foreground transition-colors cursor-pointer"
           >
-            ← Tolak & Kembalikan ke Development
+            Tutup
           </button>
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold rounded-xl border border-border bg-card hover:bg-muted text-foreground transition-colors cursor-pointer"
-            >
-              Tutup
-            </button>
-            {task.status !== "DONE" && (
+
+          {/* Dynamic Footer Actions Based on Phase */}
+          <div className="flex items-center gap-2">
+            {/* 1. DRAFT Actions */}
+            {status === "DRAFT" && ["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleApproval("REJECTED")}
+                  disabled={submitApprovalMutation.isPending}
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Tolak Draft
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApproval("APPROVED")}
+                  disabled={submitApprovalMutation.isPending}
+                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Check className="size-3.5" />
+                  <span>Setujui Rilis ({userRole === "TECHNICAL_LEAD" ? "TL" : "PM"})</span>
+                </button>
+              </>
+            )}
+
+            {/* 2. RELEASED Actions */}
+            {status === "RELEASED" && (
               <button
                 type="button"
-                onClick={handlePassCurrentStage}
-                disabled={submitReviewMutation.isPending || tlSignoffMutation.isPending}
+                onClick={handleStartDevelopment}
+                disabled={assignTaskMutation.isPending || updateStatusMutation.isPending}
                 className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                <Check className="size-3.5" />
-                <span>
-                  {task.status === "CODE_REVIEW"
-                    ? "Loloskan Code Review"
-                    : isPmVerified
-                    ? "Otorisasi Sign-Off Done (TL)"
-                    : "Verifikasi Kelayakan (PM)"}
-                </span>
+                <span>Mulai Development</span>
+                <ArrowRight className="size-3.5" />
               </button>
+            )}
+
+            {/* 3. DEVELOPMENT Actions */}
+            {status === "DEVELOPMENT" && (
+              <button
+                type="button"
+                onClick={handleRequestCodeReview}
+                disabled={updateStatusMutation.isPending}
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Ajukan Code Review</span>
+                <ArrowRight className="size-3.5" />
+              </button>
+            )}
+
+            {/* 4. CODE_REVIEW Actions */}
+            {status === "CODE_REVIEW" && ["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleCodeReviewDecision("REJECTED")}
+                  disabled={submitReviewMutation.isPending}
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                >
+                  <RotateCcw className="size-3.5" />
+                  <span>Minta Revisi (Rework)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCodeReviewDecision("PASSED")}
+                  disabled={submitReviewMutation.isPending}
+                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Check className="size-3.5" />
+                  <span>Loloskan ke QA Testing</span>
+                </button>
+              </>
+            )}
+
+            {/* 5. TESTING Actions */}
+            {status === "TESTING" && (
+              <div className="flex items-center gap-2">
+                {["TESTER", "TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
+                  <button
+                    type="button"
+                    onClick={() => handleQaTestDecision("REJECTED")}
+                    disabled={submitReviewMutation.isPending}
+                    className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    QA Reject (Rework)
+                  </button>
+                )}
+
+                {userRole === "PROJECT_MANAGER" && !isPmVerified && (
+                  <button
+                    type="button"
+                    onClick={() => pmVerifyMutation.mutate()}
+                    disabled={pmVerifyMutation.isPending}
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 className="size-3.5" />
+                    <span>Verifikasi Ceklis PM (Gerbang 1)</span>
+                  </button>
+                )}
+
+                {userRole === "TECHNICAL_LEAD" && (
+                  <button
+                    type="button"
+                    onClick={() => tlSignoffMutation.mutate()}
+                    disabled={tlSignoffMutation.isPending || !isPmVerified}
+                    title={!isPmVerified ? "Menunggu verifikasi ceklis PM sebelum dapat disahkan" : undefined}
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <Check className="size-3.5" />
+                    <span>Otorisasi Sign-Off DONE (TL)</span>
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
       }
     >
       <div className="space-y-4">
-        {/* Section Indicator */}
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase">
-            UI-K04-04 · TASK INSPECTION & DEFINITION OF DONE
-          </span>
-          <span className="text-[11px] font-mono text-muted-foreground">
-            Status: <b className="text-foreground">{task.status}</b>
-          </span>
-        </div>
-
-        {/* 3 Step Stage Cards (FigCraft 1:1) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Step 1: Code Review */}
-          <div
-            onClick={() => setActiveTab(1)}
-            className={cn(
-              "p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-2.5",
-              activeTab === 1
-                ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                : "border-border bg-card hover:bg-muted/40",
-            )}
-          >
-            {task.status === "TESTING" || task.status === "DONE" ? (
-              <Check className="size-4 text-emerald-600 shrink-0" />
-            ) : (
-              <Clock className={cn("size-4 shrink-0", activeTab === 1 ? "text-primary" : "text-muted-foreground")} />
-            )}
+        {/* Core Task Identity Card */}
+        <div className="p-4 rounded-xl border border-border bg-slate-50/50 dark:bg-slate-900/40 space-y-3">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <h5 className="text-xs font-bold text-foreground">1. Code Review</h5>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                  {task.task_code}
+                </span>
+                <span className="font-semibold text-xs text-muted-foreground">
+                  {task.module?.name || "Modul Utama"} {task.feature?.name ? `· ${task.feature.name}` : ""}
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-foreground">{task.title}</h3>
+            </div>
+
+            <div className="text-right shrink-0">
+              <span className="font-mono text-xs font-bold text-primary">
+                {Number(task.estimated_man_hours) || 8} Jam Estimasi
+              </span>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {task.status === "CODE_REVIEW" ? "Peninjauan kode oleh TL" : "Disetujui"}
+                Tenggat: {task.target_deadline ? task.target_deadline.split("T")[0] : "-"}
               </p>
             </div>
           </div>
 
-          {/* Step 2: QA Testing */}
-          <div
-            onClick={() => setActiveTab(2)}
-            className={cn(
-              "p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-2.5",
-              activeTab === 2
-                ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                : "border-border bg-card hover:bg-muted/40",
-            )}
-          >
-            {task.status === "DONE" ? (
-              <Check className="size-4 text-emerald-600 shrink-0" />
-            ) : (
-              <Clock className={cn("size-4 shrink-0", activeTab === 2 ? "text-primary" : "text-muted-foreground")} />
-            )}
-            <div>
-              <h5 className="text-xs font-bold text-foreground">2. QA Testing</h5>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {task.status === "TESTING" ? "Verifikasi fungsional & bug" : task.status === "DONE" ? "Lolos uji" : "Belum dimulai"}
-              </p>
-            </div>
-          </div>
+          {task.description && (
+            <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border/60">
+              {task.description}
+            </p>
+          )}
 
-          {/* Step 3: Pengesahan Selesai */}
-          <div
-            onClick={() => setActiveTab(3)}
-            className={cn(
-              "p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-2.5",
-              activeTab === 3
-                ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                : "border-border bg-card hover:bg-muted/40",
-            )}
-          >
-            {task.status === "DONE" ? (
-              <Check className="size-4 text-emerald-600 shrink-0" />
-            ) : (
-              <Clock className={cn("size-4 shrink-0", activeTab === 3 ? "text-primary" : "text-muted-foreground")} />
-            )}
-            <div>
-              <h5 className="text-xs font-bold text-foreground">3. Pengesahan Selesai</h5>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {task.status === "DONE" ? "Tugas resmi DONE" : "Final sign-off TL & rilis"}
-              </p>
-            </div>
+          {/* Quick Metrics Badges */}
+          <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+            <span className="px-2 py-0.5 rounded border border-border bg-card text-[11px] font-mono">
+              Bobot: <b>{task.complexity_weight}</b>
+            </span>
+            <span className="px-2 py-0.5 rounded border border-border bg-card text-[11px]">
+              PIC: <b>{task.assignee_name || "Belum Ditugaskan"}</b>
+            </span>
+            <span className="px-2 py-0.5 rounded border border-border bg-card text-[11px] font-mono uppercase">
+              Status: <b>{task.status}</b>
+            </span>
           </div>
         </div>
 
-        {/* 2-Column Inspection Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Left Column: Review Form & TL Authorization */}
-          <div className="space-y-4">
-            {/* Review Notes Card */}
-            <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-2xs">
-              <div>
-                <h5 className="text-xs font-bold text-foreground">
-                  Catatan {task.status === "CODE_REVIEW" ? "Code Review" : "QA Testing"}
-                </h5>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Verifikasi kualitas kode sebelum masuk ke pengujian QA dan rilis.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4 text-xs">
-                <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
-                  <input
-                    type="radio"
-                    name="review_decision"
-                    checked={reviewStatus === "PASS"}
-                    onChange={() => setReviewStatus("PASS")}
-                    className="text-primary focus:ring-primary size-3.5"
-                  />
-                  <span>Disetujui (Pass)</span>
-                </label>
-                <label className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
-                  <input
-                    type="radio"
-                    name="review_decision"
-                    checked={reviewStatus === "REVISE"}
-                    onChange={() => setReviewStatus("REVISE")}
-                    className="text-primary focus:ring-primary size-3.5"
-                  />
-                  <span>Perlu Revisi (Rework)</span>
-                </label>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-foreground">Catatan / Temuan Bug</label>
-                <textarea
-                  rows={3}
-                  value={reviewNotes}
-                  onChange={(e) => setReviewNotes(e.target.value)}
-                  className="w-full text-xs rounded-lg border border-border bg-card p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={handlePassCurrentStage}
-                disabled={submitReviewMutation.isPending || task.status === "DONE"}
-                className="px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {submitReviewMutation.isPending ? "Menyimpan..." : "Simpan Hasil Review"}
-              </button>
+        {/* 1. FASE DRAFT: DUAL-APPROVAL STATUS */}
+        {status === "DRAFT" && (
+          <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <ShieldCheck className="size-4 text-primary" />
+                Status Persetujuan Rilis (Dual-Approval)
+              </h4>
+              <span className="text-[11px] text-muted-foreground">Keduanya wajib APPROVED</span>
             </div>
 
-            {/* Otorisasi Akhir TL Card */}
-            <div className="rounded-xl border border-border bg-card p-4 space-y-2.5 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <h5 className="text-xs font-bold text-foreground">Otorisasi Akhir TL</h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg border border-border bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-semibold text-muted-foreground">Technical Lead (TL)</span>
+                  <p className="text-xs font-bold text-foreground">Fauzan</p>
+                </div>
                 <span
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold font-mono",
-                    isTlSigned
-                      ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300"
-                      : "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300",
+                    "px-2 py-1 rounded text-[10px] font-bold font-mono",
+                    tlApproval?.status === "APPROVED"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200",
                   )}
                 >
-                  {isTlSigned ? "DONE" : "MENUNGGU"}
+                  {tlApproval?.status || "PENDING"}
                 </span>
               </div>
-              <p className="text-[11px] text-muted-foreground">Technical Lead · Otoritas Final</p>
 
-              <div className="py-1">
-                <div className="text-sm font-extrabold text-foreground">
-                  {isPmVerified ? "Ceklis PM Lengkap ✓" : `${checkedCount}/4 persyaratan terpenuhi`}
+              <div className="p-3 rounded-lg border border-border bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-semibold text-muted-foreground">Project Manager (PM)</span>
+                  <p className="text-xs font-bold text-foreground">Tubagus M. Wildan</p>
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Lengkapi seluruh ceklis verifikasi PM sebelum otorisasi akhir TL.
-                </p>
+                <span
+                  className={cn(
+                    "px-2 py-1 rounded text-[10px] font-bold font-mono",
+                    pmApproval?.status === "APPROVED"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200",
+                  )}
+                >
+                  {pmApproval?.status || "PENDING"}
+                </span>
               </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={async () => {
-                  if (userRole !== "TECHNICAL_LEAD") {
-                    toast.error("Hanya Technical Lead yang berwenang melakukan final sign-off penutupan tugas.");
-                    return;
-                  }
-                  await tlSignoffMutation.mutateAsync();
-                }}
-                disabled={tlSignoffMutation.isPending || (!isPmVerified && checkedCount < 4) || isTlSigned}
-                className={cn(
-                  "w-full px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5",
-                  isTlSigned
-                    ? "bg-emerald-600 text-white cursor-default"
-                    : !isPmVerified && checkedCount < 4
-                    ? "bg-muted text-muted-foreground cursor-not-allowed"
-                    : "bg-purple-600 hover:bg-purple-700 text-white cursor-pointer shadow-xs",
-                )}
+            {["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
+              <div className="space-y-1 pt-2">
+                <label className="text-xs font-semibold text-foreground">Catatan Keputusan Approval (Opsional)</label>
+                <input
+                  type="text"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Berikan alasan atau catatan persetujuan..."
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 2. FASE RELEASED: ASSIGNEE SELECTION */}
+        {status === "RELEASED" && (
+          <div className="p-4 rounded-xl border border-indigo-200/80 dark:border-indigo-900/50 bg-indigo-50/20 dark:bg-indigo-950/10 space-y-3">
+            <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <UserCheck className="size-4 text-indigo-600" />
+              Tentukan Pengembang Pelaksana (PIC)
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              Tugas telah dirilis resmi. Sebelum pengerjaan dimulai, tentukan pengembang yang bertanggung jawab.
+            </p>
+
+            <div className="space-y-1.5 pt-1">
+              <label className="text-xs font-semibold text-foreground">Pilih Pengembang (Developer)</label>
+              <select
+                value={selectedAssigneeId}
+                onChange={(e) => setSelectedAssigneeId(e.target.value)}
+                disabled={userRole === "DEVELOPER"}
+                className="w-full text-xs px-3 py-2 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                <CheckCircle2 className="size-3.5" />
-                <span>{tlSignoffMutation.isPending ? "Mengesahkan..." : isTlSigned ? "Tugas Telah Di-Sign-off" : "Sahkan & Tutup Tiket"}</span>
-              </button>
+                {DEMO_DEVELOPERS.map((dev) => (
+                  <option key={dev.id} value={dev.id}>
+                    {dev.name} ({dev.role})
+                  </option>
+                ))}
+              </select>
+              {userRole === "DEVELOPER" && (
+                <p className="text-[10px] text-muted-foreground">
+                  Sebagai Developer, tugas otomatis ditetapkan ke akun Anda sendiri.
+                </p>
+              )}
             </div>
           </div>
+        )}
 
-          {/* Right Column: Ceklis Verifikasi PM */}
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <h5 className="text-xs font-bold text-foreground">Ceklis Verifikasi PM</h5>
-                <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[9px] font-bold font-mono">
-                  PM ONLY
-                </span>
+        {/* 3. FASE DEVELOPMENT: REWORK ALERT & PROGRESS */}
+        {status === "DEVELOPMENT" && (
+          <div className="space-y-3">
+            {isRework && (
+              <div className="p-4 rounded-xl border border-amber-300 dark:border-amber-900 bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-xs">
+                  <AlertTriangle className="size-4 text-amber-600" />
+                  <span>Perhatian: Tugas dalam Status Rework (Revisi Pengujian)</span>
+                </div>
+                {reviewLogs.find((l) => l.result === "REJECTED")?.notes && (
+                  <p className="text-xs bg-card/60 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800">
+                    Catatan Review: "<b>{reviewLogs.find((l) => l.result === "REJECTED")?.notes}</b>"
+                  </p>
+                )}
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-[10px] font-bold font-mono">
-                {isPmVerified ? "TERVERIFIKASI" : `${checkedCount}/4 ${checkedCount === 4 ? "LENGKAP" : "BELUM LENGKAP"}`}
+            )}
+
+            <div className="p-4 rounded-xl border border-border bg-card flex items-center justify-between text-xs">
+              <div>
+                <p className="font-semibold text-foreground">Pelaksana Aktif (PIC)</p>
+                <p className="text-muted-foreground mt-0.5">{task.assignee_name || "Ariel (Frontend Dev)"}</p>
+              </div>
+              <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-mono font-bold">
+                SEDANG DIKERJAKAN
               </span>
             </div>
+          </div>
+        )}
 
-            <div className="space-y-2.5">
-              <label className="p-3 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-start gap-2.5 cursor-pointer transition-colors block">
-                <input
-                  type="checkbox"
-                  checked={checklist.c1}
-                  onChange={(e) => setChecklist((prev) => ({ ...prev, c1: e.target.checked }))}
-                  className="mt-0.5 size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                />
-                <div>
-                  <h6 className="text-xs font-bold text-foreground leading-snug">Sesuai dengan acceptance criteria modul</h6>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Fungsionalitas utama telah diuji</p>
-                </div>
-              </label>
-
-              <label className="p-3 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-start gap-2.5 cursor-pointer transition-colors block">
-                <input
-                  type="checkbox"
-                  checked={checklist.c2}
-                  onChange={(e) => setChecklist((prev) => ({ ...prev, c2: e.target.checked }))}
-                  className="mt-0.5 size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                />
-                <div>
-                  <h6 className="text-xs font-bold text-foreground leading-snug">Tidak ada regression pada modul terkait</h6>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Integrasi antar fitur tetap stabil</p>
-                </div>
-              </label>
-
-              <label className="p-3 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-start gap-2.5 cursor-pointer transition-colors block">
-                <input
-                  type="checkbox"
-                  checked={checklist.c3}
-                  onChange={(e) => setChecklist((prev) => ({ ...prev, c3: e.target.checked }))}
-                  className="mt-0.5 size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                />
-                <div>
-                  <h6 className="text-xs font-bold text-foreground leading-snug">Dokumentasi teknis & API diperbarui</h6>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Endpoint & skema tercatat rapi</p>
-                </div>
-              </label>
-
-              <label className="p-3 rounded-xl border border-border bg-card hover:bg-muted/30 flex items-start gap-2.5 cursor-pointer transition-colors block">
-                <input
-                  type="checkbox"
-                  checked={checklist.c4}
-                  onChange={(e) => setChecklist((prev) => ({ ...prev, c4: e.target.checked }))}
-                  className="mt-0.5 size-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                />
-                <div>
-                  <h6 className="text-xs font-bold text-foreground leading-snug">Siap untuk sign-off Tech Lead</h6>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Seluruh temuan QA telah diselesaikan</p>
-                </div>
-              </label>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={async () => {
-                  if (userRole !== "PROJECT_MANAGER") {
-                    toast.error("Hanya Project Manager yang berwenang mengisi verifikasi ceklis penyelesaian.");
-                    return;
-                  }
-                  await pmVerifyMutation.mutateAsync();
-                }}
-                disabled={pmVerifyMutation.isPending || isPmVerified}
-                className={cn(
-                  "w-full h-9 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5",
-                  isPmVerified
-                    ? "border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 cursor-default"
-                    : "bg-primary hover:bg-primary-hover text-white cursor-pointer shadow-xs",
-                )}
-              >
-                <Check className="size-3.5" />
-                <span>
-                  {pmVerifyMutation.isPending
-                    ? "Menyimpan Verifikasi..."
-                    : isPmVerified
-                    ? "Ceklis PM Terverifikasi ✓"
-                    : "Simpan Ceklis Verifikasi PM"}
-                </span>
-              </button>
+        {/* 4. FASE CODE REVIEW: REVIEW FORM */}
+        {status === "CODE_REVIEW" && (
+          <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+            <h4 className="text-xs font-bold text-foreground">Form Penilaian Code Review (TL & PM)</h4>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Catatan / Temuan Peer Review</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Tuliskan temuan arsitektur atau catatan persetujuan..."
+                rows={3}
+                className="w-full text-xs p-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              />
             </div>
           </div>
-        </div>
+        )}
+
+        {/* 5. FASE TESTING: QA TESTING & TWO-GATE DOD */}
+        {status === "TESTING" && (
+          <div className="space-y-3">
+            {/* QA Testing Section */}
+            <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+              <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <ShieldCheck className="size-4 text-cyan-600" />
+                Pengujian QA Tester
+              </h4>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Catatan hasil pengujian fungsional dan regression test..."
+                rows={2}
+                className="w-full text-xs p-2.5 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            {/* Two-Gate DoD Status */}
+            <div className="p-4 rounded-xl border border-border bg-slate-50/50 dark:bg-slate-900/30 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Dua Gerbang Pengesahan (Two-Gate DoD)
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {/* Gate 1: PM */}
+                <div className="p-3 rounded-lg border border-border bg-card space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-muted-foreground">Gerbang 1: Ceklis PM</span>
+                    {isPmVerified ? (
+                      <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
+                        <Check className="size-3" /> VERIFIED
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold text-amber-600">PENDING</span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isPmVerified
+                      ? `Diverifikasi oleh ${task.pm_verified_by || "PM"}`
+                      : "Memerlukan konfirmasi fungsional PM"}
+                  </p>
+                </div>
+
+                {/* Gate 2: TL */}
+                <div className="p-3 rounded-lg border border-border bg-card space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-muted-foreground">Gerbang 2: Sign-Off TL</span>
+                    {isTlSigned ? (
+                      <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
+                        <Check className="size-3" /> SIGNED
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold text-amber-600">MENUNGGU</span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isTlSigned ? `Disahkan oleh ${task.tl_signed_by || "TL"}` : "Otorisasi penutupan akhir"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. FASE DONE: LOCKED TERMINAL VIEW */}
+        {status === "DONE" && (
+          <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-3">
+            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+              <Lock className="size-4" />
+              <span>Status Final (Terkunci Permanen Sesuai Kontrak Backend)</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Tugas ini telah melewati seluruh siklus agile: verifikasi ceklis PM dan otorisasi pengesahan akhir TL.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-2 border-t border-emerald-200/60">
+              <div className="p-2 rounded bg-card border border-border">
+                <span className="text-[10px] text-muted-foreground">Verifikasi PM</span>
+                <p className="font-semibold text-foreground truncate">{task.pm_verified_by || "Wildan (PM)"}</p>
+              </div>
+              <div className="p-2 rounded bg-card border border-border">
+                <span className="text-[10px] text-muted-foreground">Sign-Off Akhir TL</span>
+                <p className="font-semibold text-foreground truncate">{task.tl_signed_by || "Fauzan (TL)"}</p>
+              </div>
+              <div className="p-2 rounded bg-card border border-border">
+                <span className="text-[10px] text-muted-foreground">Jam Kerja Aktual</span>
+                <p className="font-semibold text-foreground truncate">
+                  {task.actual_man_hours || task.estimated_man_hours} Jam Selesai
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   );

@@ -1,7 +1,8 @@
 // src/Features/Tasks/Components/TaskTreeRow.tsx
 import React, { memo } from "react";
-import { ChevronDown, ChevronRight, MoreHorizontal } from "lucide-react";
+import { ChevronDown, ChevronRight, MoreHorizontal, Layers } from "lucide-react";
 import type { Task, Module, Feature } from "@/Types/task";
+import { getInitials, getAvatarBg } from "@/Utils/taskUtils";
 import { cn } from "@/Utils/cn";
 
 export type TreeItem =
@@ -21,28 +22,42 @@ export interface TaskTreeRowProps {
 
 export const TaskTreeRow = memo<TaskTreeRowProps>(
   ({ item, isOpen = true, onToggle, onSelectTask }) => {
+    // 1. MODULE ROW
     if (item.kind === "MODULE") {
       const mod = item.data;
-      const isMod02 = mod.code?.includes("02") || mod.name?.toLowerCase().includes("autentikasi");
-      const hoursText = isMod02 ? "24 / 24 Jam" : "0 / 72 Jam";
+      const modTasks = mod.tasks || [];
+      const totalH = modTasks.reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
+      const doneH = modTasks
+        .filter((t) => t.status === "DONE")
+        .reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
+      const hoursText = `${doneH.toFixed(0)} / ${totalH.toFixed(0)} Jam`;
 
       return (
-        <tr className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-border/80 text-xs font-semibold select-none">
+        <tr className="bg-slate-50/90 dark:bg-slate-900/70 border-b border-border text-xs font-semibold select-none group">
           <td className="py-2.5 px-3 text-center">
             <span
               onClick={onToggle}
-              className="inline-flex cursor-pointer text-muted-foreground hover:text-foreground"
+              className="inline-flex cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+              title={isOpen ? "Tutup Modul" : "Buka Modul"}
             >
               {isOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
             </span>
           </td>
           <td colSpan={7} className="py-2.5 px-2">
-            <span
-              onClick={onToggle}
-              className="cursor-pointer text-foreground hover:text-primary transition-colors"
-            >
-              {mod.code || "MOD-01"} / {mod.name}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-bold">
+                {mod.code || "MOD"}
+              </span>
+              <span
+                onClick={onToggle}
+                className="cursor-pointer text-foreground hover:text-primary transition-colors text-xs font-bold"
+              >
+                {mod.name}
+              </span>
+              <span className="text-[11px] text-muted-foreground font-normal">
+                ({modTasks.length} tugas · {mod.features?.length || 0} fitur)
+              </span>
+            </div>
           </td>
           <td className="py-2.5 px-3 text-right font-mono text-xs text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap">
             {hoursText}
@@ -51,31 +66,79 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
       );
     }
 
+    // 2. FEATURE ROW (SOP-05 Hierarchy: Module -> Feature -> Task)
     if (item.kind === "FEATURE") {
-      return null; // FigCraft groups directly by Module with feature subtitles under task titles
+      const ftr = item.data;
+      const ftrTasks = ftr.tasks || [];
+      const totalH = ftrTasks.reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
+      const doneH = ftrTasks
+        .filter((t) => t.status === "DONE")
+        .reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
+      const hoursText = `${doneH.toFixed(0)} / ${totalH.toFixed(0)} Jam`;
+
+      return (
+        <tr className="bg-slate-100/60 dark:bg-slate-800/40 border-b border-border/70 text-xs font-medium select-none group">
+          <td className="py-2 px-3 text-center">
+            <span
+              onClick={onToggle}
+              className="inline-flex cursor-pointer text-muted-foreground hover:text-foreground pl-2 transition-colors"
+              title={isOpen ? "Tutup Fitur" : "Buka Fitur"}
+            >
+              {isOpen ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+            </span>
+          </td>
+          <td colSpan={7} className="py-2 px-2">
+            <div className="flex items-center gap-2 pl-3">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-mono text-[10px] font-bold">
+                <Layers className="size-2.5" />
+                {ftr.code || "FTR"}
+              </span>
+              <span
+                onClick={onToggle}
+                className="cursor-pointer text-foreground hover:text-primary transition-colors font-semibold text-xs"
+              >
+                {ftr.name}
+              </span>
+              <span className="text-[11px] text-muted-foreground font-normal">
+                ({ftrTasks.length} tugas)
+              </span>
+            </div>
+          </td>
+          <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground font-semibold whitespace-nowrap">
+            {hoursText}
+          </td>
+        </tr>
+      );
     }
 
-    // TASK Row
+    // 3. TASK ROW
     const task = item.data;
     const hours = Number(task.estimated_man_hours) || 8;
     const formattedHours = `${hours.toFixed(2)} h`;
 
-    // Format target date as MM-DD (e.g. 10-12)
-    const targetDateFormatted = task.target_date
-      ? new Date(task.target_date).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" }).replace("/", "-")
-      : "10-18";
+    // Target deadline formatting
+    const targetDateFormatted = task.target_deadline
+      ? new Date(task.target_deadline)
+          .toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
+          .replace("/", "-")
+      : "-";
 
-    // Feature or module subtitle
-    const subCode = task.feature_id ? "FIT-1.1" : "JWT & Otorisasi";
-    const taskCodeSubtitle = `${task.task_code || "#TSK-01"} · ${subCode}`;
+    // Subtitle hierarchy
+    const subtitle = [
+      task.task_code,
+      task.module?.code,
+      task.feature?.code,
+    ]
+      .filter(Boolean)
+      .join(" · ");
 
-    // PIC
-    const picName = typeof task.pic === "string" ? task.pic : task.pic?.name || "Fajri";
-    const picInitial = picName.includes("Ariel") ? "AR" : "FJ";
-    const picBg = picInitial === "AR" ? "bg-purple-600" : "bg-indigo-600";
+    // PIC details
+    const picName = task.assignee_name || "Belum Ditugaskan";
+    const picInitial = getInitials(picName);
+    const picBg = getAvatarBg(picInitial);
 
-    // Complexity
-    const getComplexityBadge = (c: string) => {
+    // Complexity badge
+    const getComplexityBadge = (c?: string) => {
       switch (c) {
         case "HIGH":
           return "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900";
@@ -87,9 +150,11 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
       }
     };
 
-    // Dual-Approval pills
-    const isTlApproved = task.status !== "DRAFT" || task.task_code === "#TSK-04";
-    const isPmApproved = task.status !== "DRAFT";
+    // Dual-Approval pills from actual task.approvals relation
+    const tlApproval = task.approvals?.find((a) => a.role === "TECHNICAL_LEAD");
+    const pmApproval = task.approvals?.find((a) => a.role === "PROJECT_MANAGER");
+    const isTlApproved = tlApproval?.status === "APPROVED" || task.status !== "DRAFT";
+    const isPmApproved = pmApproval?.status === "APPROVED" || task.status !== "DRAFT";
 
     // Status pill
     const getStatusPill = (status: string) => {
@@ -117,27 +182,28 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
           ? "CODE REVIEW"
           : task.status;
 
+    // Indentation based on depth (depth 2 under feature, depth 1 under module)
+    const paddingLeftClass =
+      item.depth >= 2 ? "pl-9" : item.depth === 1 ? "pl-4" : "pl-1";
+
     return (
       <tr
         onClick={() => onSelectTask?.(task)}
-        className="border-b border-border/70 hover:bg-slate-50/60 dark:hover:bg-slate-900/40 transition-colors cursor-pointer text-xs"
+        className="border-b border-border/70 hover:bg-slate-50/70 dark:hover:bg-slate-900/40 transition-colors cursor-pointer text-xs group"
       >
-        {/* Checkbox */}
-        <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
-          <input
-            type="checkbox"
-            className="rounded border-border text-primary focus:ring-primary size-4 cursor-pointer"
-          />
+        {/* Row indicator bullet (replacing removed checkbox) */}
+        <td className="py-3 px-3 text-center text-muted-foreground font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
+          <span className="size-1.5 rounded-full bg-border group-hover:bg-primary inline-block transition-colors" />
         </td>
 
         {/* Pekerjaan & Tugas */}
         <td className="py-3 px-3 min-w-[220px]">
-          <div>
+          <div className={paddingLeftClass}>
             <span className="font-semibold text-foreground hover:text-primary transition-colors block">
               {task.title}
             </span>
             <span className="font-mono text-[10px] text-muted-foreground block mt-0.5">
-              {taskCodeSubtitle}
+              {subtitle}
             </span>
           </div>
         </td>
@@ -167,8 +233,9 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
         {/* PIC */}
         <td className="py-3 px-3 text-center">
           <div
+            title={picName}
             className={cn(
-              "size-6 rounded-full text-white font-bold text-[10px] grid place-items-center shadow-2xs mx-auto",
+              "size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs mx-auto",
               picBg,
             )}
           >
@@ -219,6 +286,7 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
             type="button"
             onClick={() => onSelectTask?.(task)}
             className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded cursor-pointer"
+            aria-label="Detail Tugas"
           >
             <MoreHorizontal className="size-4" />
           </button>
@@ -236,7 +304,7 @@ export const TaskTreeRowSkeleton: React.FC<{ count?: number }> = ({ count = 5 })
       {Array.from({ length: count }).map((_, i) => (
         <tr key={i} className="border-b border-border/70">
           <td className="py-3 px-3 text-center">
-            <div className="size-4 bg-muted rounded mx-auto animate-pulse" />
+            <div className="size-2 bg-muted rounded-full mx-auto animate-pulse" />
           </td>
           <td className="py-3 px-3">
             <div className="h-4 w-40 bg-muted rounded animate-pulse" />

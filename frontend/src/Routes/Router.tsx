@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/Contexts/AuthContext";
+import { ProjectProvider } from "@/Contexts/ProjectContext";
 import { router } from "./AppRoutes";
 
 export const Router: React.FC = () => {
@@ -24,8 +25,10 @@ export const Router: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
-        <Toaster richColors position="bottom-right" closeButton />
+        <ProjectProvider>
+          <RouterProvider router={router} />
+          <Toaster richColors position="bottom-right" closeButton />
+        </ProjectProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -147,3 +147,50 @@ export interface ModuleProgressResponse {
   moduleCode: string;
   data: DeliverableProgress;
 }
+
+export interface ProjectItem {
+  projectId: string;
+  canonicalCode: string;
+  projectName: string;
+  clientId: string;
+  clientName: string;
+  amEmployeeId?: string | null;
+  amName?: string | null;
+  pmEmployeeId?: string | null;
+  pmName?: string | null;
+  startDate?: string | null;
+  targetEndDate?: string | null;
+  documentsComplete: boolean;
+  poReceived: boolean;
+  status: string;
+  active: boolean;
+  moduleCount: number;
+  taskCount: number;
+  source?: string;
+}
+
+export interface ProjectQueryParams {
+  status?: string;
+  q?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ProjectGuardResponse {
+  status: string;
+  projectId: string;
+  allowed: boolean;
+  projectStatus: string;
+  message: string;
+  data?: any;
+}
+
+export interface ExecutionReadiness {
+  projectId: string;
+  kickoffId?: string | null;
+  momId?: string | null;
+  status: string;
+  completedAt?: string | null;
+  readyForExecution: boolean;
+  source?: string;
+}
