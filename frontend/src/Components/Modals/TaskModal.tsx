@@ -38,7 +38,7 @@ export const TaskModal = memo<TaskModalProps>(
         onClose={onClose}
         maxWidth="4xl"
         title="Form Input Tugas Proyek"
-        description="Definisikan ruang lingkup, estimasi, dan dependensi tugas proyek sesuai SOP-07."
+        description="Definisikan ruang lingkup teknis, estimasi man-hour, dan target tenggat tugas sesuai SOP-07."
         footer={
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full pt-2">
             {Object.keys(errors).length > 0 && (
@@ -173,7 +173,7 @@ export const TaskModal = memo<TaskModalProps>(
                   Deskripsi Teknis (Opsional)
                 </label>
                 <textarea
-                  rows={3}
+                  rows={4}
                   placeholder="Jelaskan spesifikasi teknis, skema API, dan kriteria penerimaan tugas..."
                   {...register("description")}
                   className="w-full p-2.5 rounded-lg border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
@@ -181,67 +181,6 @@ export const TaskModal = memo<TaskModalProps>(
                 {errors.description && (
                   <p className="text-[10px] text-destructive mt-0.5 font-medium">
                     {errors.description.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Bobot Kompleksitas */}
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Bobot Kompleksitas <span className="text-destructive">*</span>
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {/* LOW */}
-                  <div
-                    onClick={() => setValue("complexity_weight", "LOW", { shouldValidate: true })}
-                    className={cn(
-                      "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
-                      complexity === "LOW"
-                        ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 ring-1 ring-emerald-500"
-                        : "border-border bg-card hover:bg-muted/40",
-                    )}
-                  >
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                      LOW
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">Bobot 1×</span>
-                  </div>
-
-                  {/* MEDIUM */}
-                  <div
-                    onClick={() => setValue("complexity_weight", "MEDIUM", { shouldValidate: true })}
-                    className={cn(
-                      "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
-                      complexity === "MEDIUM"
-                        ? "border-primary bg-primary/10 ring-1 ring-primary"
-                        : "border-border bg-card hover:bg-muted/40",
-                    )}
-                  >
-                    <span className="text-xs font-bold text-primary">
-                      MEDIUM
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">Bobot 2×</span>
-                  </div>
-
-                  {/* HIGH */}
-                  <div
-                    onClick={() => setValue("complexity_weight", "HIGH", { shouldValidate: true })}
-                    className={cn(
-                      "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
-                      complexity === "HIGH"
-                        ? "border-rose-500 bg-rose-50/60 dark:bg-rose-950/40 ring-1 ring-rose-500"
-                        : "border-border bg-card hover:bg-muted/40",
-                    )}
-                  >
-                    <span className="text-xs font-bold text-rose-700 dark:text-rose-300">
-                      HIGH
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">Bobot 3×</span>
-                  </div>
-                </div>
-                {errors.complexity_weight && (
-                  <p className="text-[10px] text-destructive mt-1 font-medium">
-                    {errors.complexity_weight.message}
                   </p>
                 )}
               </div>
@@ -304,36 +243,69 @@ export const TaskModal = memo<TaskModalProps>(
                 </div>
               </div>
 
-              {/* PIC Pelaksana (Info Note SOP-07) */}
+              {/* Bobot Kompleksitas */}
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1 flex items-center justify-between">
-                  <span>PIC Pelaksana</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">
-                    (Tahap Development)
-                  </span>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Bobot Kompleksitas <span className="text-destructive">*</span>
                 </label>
-                <div className="h-9 px-3 rounded-lg border border-dashed border-border bg-muted/30 text-xs text-muted-foreground flex items-center justify-between">
-                  <span>Ditetapkan saat tugas RELEASED ditarik ke Sprint</span>
-                  <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">SOP-07</span>
-                </div>
-              </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {/* LOW */}
+                  <div
+                    onClick={() => setValue("complexity_weight", "LOW", { shouldValidate: true })}
+                    className={cn(
+                      "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
+                      complexity === "LOW"
+                        ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 ring-1 ring-emerald-500"
+                        : "border-border bg-card hover:bg-muted/40",
+                    )}
+                  >
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                      LOW
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">Bobot 1×</span>
+                  </div>
 
-              {/* Dependensi Tugas */}
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1 flex items-center justify-between">
-                  <span>Dependensi Tugas</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">
-                    (Sprint 2 / FTR-K04-08)
-                  </span>
-                </label>
-                <div className="h-9 px-3 rounded-lg border border-dashed border-border bg-muted/30 text-xs text-muted-foreground flex items-center justify-between">
-                  <span>Tidak ada dependensi aktif</span>
-                  <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">P1</span>
+                  {/* MEDIUM */}
+                  <div
+                    onClick={() => setValue("complexity_weight", "MEDIUM", { shouldValidate: true })}
+                    className={cn(
+                      "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
+                      complexity === "MEDIUM"
+                        ? "border-primary bg-primary/10 ring-1 ring-primary"
+                        : "border-border bg-card hover:bg-muted/40",
+                    )}
+                  >
+                    <span className="text-xs font-bold text-primary">
+                      MEDIUM
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">Bobot 2×</span>
+                  </div>
+
+                  {/* HIGH */}
+                  <div
+                    onClick={() => setValue("complexity_weight", "HIGH", { shouldValidate: true })}
+                    className={cn(
+                      "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
+                      complexity === "HIGH"
+                        ? "border-rose-500 bg-rose-50/60 dark:bg-rose-950/40 ring-1 ring-rose-500"
+                        : "border-border bg-card hover:bg-muted/40",
+                    )}
+                  >
+                    <span className="text-xs font-bold text-rose-700 dark:text-rose-300">
+                      HIGH
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">Bobot 3×</span>
+                  </div>
                 </div>
+                {errors.complexity_weight && (
+                  <p className="text-[10px] text-destructive mt-1 font-medium">
+                    {errors.complexity_weight.message}
+                  </p>
+                )}
               </div>
 
               {/* Bottom Info Banner */}
-              <div className="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 flex items-start gap-2.5 text-xs text-indigo-900 dark:text-indigo-200 mt-2">
+              <div className="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 flex items-start gap-2.5 text-xs text-indigo-900 dark:text-indigo-200">
                 <Info className="size-4 text-primary shrink-0 mt-0.5" />
                 <p className="leading-relaxed text-[11px]">
                   <b>DRAFT LISENSI</b> · Tugas disimpan berstatus <b>DRAFT</b> dan otomatis menginisialisasi catatan <b>Dual-Approval (TL & PM)</b>. Tugas baru muncul di papan eksekusi Kanban setelah disetujui penuh oleh kedua pihak (SOP-07).
