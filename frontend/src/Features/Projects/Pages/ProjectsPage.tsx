@@ -9,6 +9,7 @@ import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { Button } from "@/Components/Elements/Button";
+import { Badge } from "@/Components/Elements/Badge";
 import { Input } from "@/Components/Elements/Input";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
@@ -201,15 +202,15 @@ export const ProjectsPage: React.FC = () => {
                         </span>
 
                         {isRegistered ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                            <ShieldCheck className="size-3 text-emerald-600" />
+                          <Badge variant="success" size="sm">
+                            <ShieldCheck className="size-3" />
                             REGISTERED
-                          </span>
+                          </Badge>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                            <AlertCircle className="size-3 text-amber-600" />
+                          <Badge variant="warning" size="sm">
+                            <AlertCircle className="size-3" />
                             UNDER REVIEW
-                          </span>
+                          </Badge>
                         )}
                       </div>
 
@@ -226,7 +227,7 @@ export const ProjectsPage: React.FC = () => {
 
                       {/* Metrics 4-Box Grid */}
                       <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-                        <div className="p-2.5 rounded-xl border border-border/70 bg-slate-50/50 dark:bg-slate-900/40 space-y-0.5">
+                        <div className="p-2.5 rounded-xl border border-border/70 bg-muted/30 space-y-0.5">
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                             <Layers className="size-3" />
                             Modul
@@ -234,7 +235,7 @@ export const ProjectsPage: React.FC = () => {
                           <p className="text-xs font-bold text-foreground font-mono">{proj.moduleCount ?? 0} Modul</p>
                         </div>
 
-                        <div className="p-2.5 rounded-xl border border-border/70 bg-slate-50/50 dark:bg-slate-900/40 space-y-0.5">
+                        <div className="p-2.5 rounded-xl border border-border/70 bg-muted/30 space-y-0.5">
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                             <ListTodo className="size-3" />
                             Tugas
@@ -242,22 +243,22 @@ export const ProjectsPage: React.FC = () => {
                           <p className="text-xs font-bold text-foreground font-mono">{proj.taskCount ?? 0} Task</p>
                         </div>
 
-                        <div className="p-2.5 rounded-xl border border-border/70 bg-slate-50/50 dark:bg-slate-900/40 space-y-0.5">
+                        <div className="p-2.5 rounded-xl border border-border/70 bg-muted/30 space-y-0.5">
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                             <FileCheck2 className="size-3" />
                             Status PO
                           </span>
-                          <p className={cn("text-[11px] font-bold", proj.poReceived ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
+                          <p className={cn("text-[11px] font-bold", proj.poReceived ? "text-success" : "text-warning")}>
                             {proj.poReceived ? "Diterima" : "Pending PO"}
                           </p>
                         </div>
 
-                        <div className="p-2.5 rounded-xl border border-border/70 bg-slate-50/50 dark:bg-slate-900/40 space-y-0.5">
+                        <div className="p-2.5 rounded-xl border border-border/70 bg-muted/30 space-y-0.5">
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                             <CheckCircle2 className="size-3" />
                             Dokumen
                           </span>
-                          <p className={cn("text-[11px] font-bold", proj.documentsComplete ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
+                          <p className={cn("text-[11px] font-bold", proj.documentsComplete ? "text-success" : "text-warning")}>
                             {proj.documentsComplete ? "Lengkap" : "Kurang"}
                           </p>
                         </div>
@@ -297,8 +298,8 @@ export const ProjectsPage: React.FC = () => {
                     <div className="pt-3 border-t border-border/60">
                       {isActive ? (
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                            <CheckCircle2 className="size-4 text-emerald-600" />
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-success">
+                            <CheckCircle2 className="size-4 text-success" />
                             <span>Proyek Aktif Saat Ini</span>
                           </div>
                           <Button type="button" variant="link" onClick={() => navigate(ROUTE_PATHS.DASHBOARD)} className="text-xs font-semibold text-primary p-0 h-auto gap-1">
@@ -314,7 +315,7 @@ export const ProjectsPage: React.FC = () => {
                             onClick={() => handleSelectProject(proj.projectId, proj.projectName)}
                             className={cn(
                               "w-full h-8.5 rounded-lg text-xs font-semibold gap-1.5 shadow-2xs",
-                              !isRegistered && "border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100",
+                              !isRegistered && "border-warning-subtle-border bg-warning-subtle text-warning-subtle-foreground hover:bg-warning-subtle/80",
                             )}
                           >
                             <span>Pilih & Alihkan ke Proyek Ini</span>
@@ -391,9 +392,9 @@ export const ProjectsPage: React.FC = () => {
                           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Fitur-fitur Modul:</p>
                           <div className="flex flex-wrap gap-1.5">
                             {m.features?.map((f) => (
-                              <span key={f.id} className="px-2 py-0.5 rounded-md text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+                              <Badge key={f.id} variant="secondary" size="sm" className="font-medium lowercase">
                                 {f.name}
-                              </span>
+                              </Badge>
                             ))}
                           </div>
                         </div>
