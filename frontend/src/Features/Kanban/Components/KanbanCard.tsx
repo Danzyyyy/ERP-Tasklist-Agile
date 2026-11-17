@@ -2,7 +2,8 @@
 import React, { memo } from "react";
 import { cn } from "@/Utils/cn";
 import { Button } from "@/Components/Elements/Button";
-import { canRoleDragKanbanCard } from "@/Utils/taskUtils";
+import { Badge } from "@/Components/Elements/Badge";
+import { canRoleDragKanbanCard, getInitials, getAvatarBg } from "@/Utils/taskUtils";
 import type { Task, TaskStatus } from "@/Types/task";
 import type { UserRole } from "@/Types/auth";
 import { MoreHorizontal } from "lucide-react";
@@ -21,28 +22,9 @@ export const KanbanCard = memo<KanbanCardProps>(
   ({ task, userRole, onSelect, onDragStart, onDragEnd }) => {
     const isDraggable = canRoleDragKanbanCard(userRole, task.status);
 
-    const getComplexityBadge = (c: string) => {
-      switch (c) {
-        case "HIGH":
-          return "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900";
-        case "MEDIUM":
-          return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900";
-        case "LOW":
-        default:
-          return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
-      }
-    };
-
-    const getPicInitials = (pic?: { name: string } | string | null) => {
-      if (!pic) return "FJ";
-      const name = typeof pic === "string" ? pic : pic.name;
-      const parts = name.trim().split(" ");
-      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-      return name.slice(0, 2).toUpperCase();
-    };
-
-    const picInitials = getPicInitials(task.pic);
-    const picBg = picInitials === "AR" ? "bg-purple-600" : "bg-indigo-600";
+    const picName = task.assignee_name || (typeof task.pic === "string" ? task.pic : task.pic?.name) || "Belum Ditugaskan";
+    const picInitials = getInitials(picName);
+    const picBg = getAvatarBg(picInitials);
 
     const hours = Number(task.estimated_man_hours) || 8;
     const moduleName = task.module?.title || "Manajemen Rekening";
@@ -97,14 +79,9 @@ export const KanbanCard = memo<KanbanCardProps>(
         {/* Complexity, Man-hour & PIC Avatar */}
         <div className="flex items-center justify-between pt-0.5">
           <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "px-1.5 py-0.5 rounded border text-[10px] font-bold font-mono uppercase",
-                getComplexityBadge(task.complexity_weight),
-              )}
-            >
+            <Badge variant={task.complexity_weight || "MEDIUM"} size="sm">
               {task.complexity_weight || "MEDIUM"}
-            </span>
+            </Badge>
             <span className="text-xs font-mono text-muted-foreground">
               {hours}h
             </span>
@@ -112,7 +89,7 @@ export const KanbanCard = memo<KanbanCardProps>(
 
           <div
             className={cn(
-              "size-6 rounded-full text-white font-bold text-[10px] grid place-items-center shadow-2xs shrink-0",
+              "size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs shrink-0",
               picBg,
             )}
           >
@@ -127,11 +104,11 @@ export const KanbanCard = memo<KanbanCardProps>(
           </span>
 
           {task.status === "DONE" ? (
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="font-bold text-success">
               ✓ DISAHKAN
             </span>
           ) : task.status === "TESTING" ? (
-            <span className="font-bold text-amber-600 dark:text-amber-400">
+            <span className="font-bold text-warning">
               3/4 PM CHECK
             </span>
           ) : (
