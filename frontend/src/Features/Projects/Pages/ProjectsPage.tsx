@@ -35,8 +35,14 @@ export const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
   const { projects, activeProjectId, activeProject, isLoadingProjects, setActiveProjectId } = useProject();
 
-  const { isModuleModalOpen, setIsModuleModalOpen, isFeatureModalOpen, setIsFeatureModalOpen, selectedModuleId, handleOpenAddFeature, handleCloseFeatureModal } =
-    useModulesOverview();
+  const {
+    isModuleModalOpen,
+    setIsModuleModalOpen,
+    isFeatureModalOpen,
+    selectedModuleId,
+    handleOpenAddFeature,
+    handleCloseFeatureModal,
+  } = useModulesOverview();
 
   const { data: rawModules = [], isLoading: isLoadingModules } = useGetModuleList();
 
@@ -421,7 +427,11 @@ export const ProjectsPage: React.FC = () => {
       {/* Modals for Create Module & Feature */}
       <CreateModuleModal isOpen={isModuleModalOpen} onClose={() => setIsModuleModalOpen(false)} />
 
-      <CreateFeatureModal isOpen={isFeatureModalOpen} onClose={handleCloseFeatureModal} moduleId={selectedModuleId || ""} />
+      <CreateFeatureModal
+        isOpen={isFeatureModalOpen}
+        onClose={handleCloseFeatureModal}
+        moduleId={selectedModuleId}
+      />
     </div>
   );
 };

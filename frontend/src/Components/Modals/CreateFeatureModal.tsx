@@ -11,13 +11,15 @@ import { Label } from "@/Components/Elements/Label";
 export interface CreateFeatureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  defaultModuleId?: string;
+  defaultModuleId?: string | null;
+  moduleId?: string | null;
 }
 
 export const CreateFeatureModal = memo<CreateFeatureModalProps>(
-  ({ isOpen, onClose, defaultModuleId }) => {
+  ({ isOpen, onClose, defaultModuleId, moduleId }) => {
+    const activeModuleId = (moduleId ?? defaultModuleId) || undefined;
     const { register, errors, onSubmit, isPending, modules } = useCreateFeature({
-      moduleId: defaultModuleId,
+      moduleId: activeModuleId,
       onSuccess: onClose,
     });
 
