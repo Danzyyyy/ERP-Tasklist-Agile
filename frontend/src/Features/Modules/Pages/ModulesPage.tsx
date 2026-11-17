@@ -5,6 +5,7 @@ import CreateModuleModal from "@/Components/Modals/CreateModuleModal";
 import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Button } from "@/Components/Elements/Button";
+import { Badge } from "@/Components/Elements/Badge";
 import { Progress } from "@/Components/Elements/Progress";
 import { ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react";
 import { cn } from "@/Utils/cn";
@@ -92,8 +93,8 @@ export const ModulesPage: React.FC = () => {
           <div className="space-y-2">
             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">SENIN</div>
             <div className="text-lg font-black text-foreground">12</div>
-            <div className="p-3 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/40 space-y-2">
-              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-blue-700 dark:text-blue-300">
+            <div className="p-3 rounded-xl border border-primary-subtle-border bg-primary-subtle text-primary-subtle-foreground space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-primary">
                 <Clock className="size-3" />
                 <span>09:00</span>
               </div>
@@ -108,8 +109,8 @@ export const ModulesPage: React.FC = () => {
           <div className="space-y-2">
             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">SELASA</div>
             <div className="text-lg font-black text-foreground">13</div>
-            <div className="p-3 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/40 space-y-2">
-              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300">
+            <div className="p-3 rounded-xl border border-success-subtle-border bg-success-subtle text-success-subtle-foreground space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-success">
                 <Clock className="size-3" />
                 <span>10:00</span>
               </div>
@@ -124,8 +125,8 @@ export const ModulesPage: React.FC = () => {
           <div className="space-y-2">
             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">RABU</div>
             <div className="text-lg font-black text-foreground">14</div>
-            <div className="p-3 rounded-xl border border-purple-200 dark:border-purple-900 bg-purple-50/60 dark:bg-purple-950/40 space-y-2">
-              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-purple-700 dark:text-purple-300">
+            <div className="p-3 rounded-xl border border-purple-subtle-border bg-purple-subtle text-purple-subtle-foreground space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-purple-subtle-foreground">
                 <Clock className="size-3" />
                 <span>13:00</span>
               </div>
@@ -149,8 +150,8 @@ export const ModulesPage: React.FC = () => {
           <div className="space-y-2">
             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">JUMAT</div>
             <div className="text-lg font-black text-foreground">16</div>
-            <div className="p-3 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/40 space-y-2">
-              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-rose-700 dark:text-rose-300">
+            <div className="p-3 rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground space-y-2">
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-destructive">
                 <Clock className="size-3" />
                 <span>15:00</span>
               </div>
@@ -183,9 +184,9 @@ export const ModulesPage: React.FC = () => {
           {/* Card 1: MOD-01 */}
           <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">
             <div className="flex items-center justify-between text-xs">
-              <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 text-[10px] font-bold font-mono">
+              <Badge variant="primary" size="sm">
                 MOD-01
-              </span>
+              </Badge>
               <span className="text-xs text-muted-foreground font-mono">Sprint 1 · 25 Okt 2026</span>
             </div>
             <div>
@@ -193,7 +194,7 @@ export const ModulesPage: React.FC = () => {
               <p className="text-xs text-muted-foreground mt-0.5">Fitur 1.1 Buka Tabungan / Fitur 1.2 Monitoring Saldo</p>
             </div>
             <div className="space-y-1.5">
-              <Progress value={0} height="h-2" tone="indigo" />
+              <Progress value={0} height="h-2" tone="primary" />
               <div className="text-right text-xs font-mono text-muted-foreground">0.0%</div>
             </div>
             <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">0 / 72 Jam selesai</div>
@@ -202,9 +203,9 @@ export const ModulesPage: React.FC = () => {
           {/* Card 2: MOD-02 */}
           <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">
             <div className="flex items-center justify-between text-xs">
-              <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 text-[10px] font-bold font-mono">
+              <Badge variant="primary" size="sm">
                 MOD-02
-              </span>
+              </Badge>
               <span className="text-xs text-muted-foreground font-mono">Sprint 1 · 28 Okt 2026</span>
             </div>
             <div>
@@ -212,7 +213,7 @@ export const ModulesPage: React.FC = () => {
               <p className="text-xs text-muted-foreground mt-0.5">JWT & Otorisasi Peran</p>
             </div>
             <div className="space-y-1.5">
-              <Progress value={100} height="h-2" tone="indigo" />
+              <Progress value={100} height="h-2" tone="primary" />
               <div className="text-right text-xs font-mono text-primary font-bold">100.0%</div>
             </div>
             <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">24 / 24 Jam selesai</div>
