@@ -2,11 +2,11 @@
 
 | Metadata | Detail |
 | :--- | :--- |
-| **Document ID** | `PRD-ERP-K04-FE-v2.1` |
-| **Status** | `Approved & Synchronized — Sinkronisasi Penuh State Backend (Terminal DONE, Strict Role Guards, D-1 Project Guards, & OpenAPI Alignment)` |
+| **Document ID** | `PRD-ERP-K04-FE-v2.2` |
+| **Status** | `Approved & Synchronized — Sinkronisasi Penuh State Backend (Terminal DONE, Strict Role Guards, D-1 Project Switcher & Guard, E-3 Execution Readiness, & OpenAPI Alignment)` |
 | **Owner** | Tim Frontend & Backend ERP Tasklist Agile (Kelompok 4 / Kelas E) |
-| **Dokumen Referensi** | `docs/spesifikasi_fitur_minimum_4_e.md`, `docs/api_documentation.md`, `docs/openapi.yaml`, `docs/ERP_Modul_E4_Postman_Collection.json`, `backend/tests/Feature/TaskBugFixesTest.php`, `backend/tests/Feature/TaskAgileExecutionTest.php` |
-| **Target Environment** | React + Vite + TypeScript (Frontend), Laravel REST API `v1` (`http://127.0.0.1:8001/api/v1` & `http://127.0.0.1:8000/api/v1`) |
+| **Dokumen Referensi** | `docs/spesifikasi_fitur_minimum_4_e.md`, `docs/api_documentation.md`, `docs/openapi.yaml`, `docs/ERP_Modul_E4_Postman_Collection.json`, `backend/tests/Feature/TaskBugFixesTest.php`, `backend/tests/Feature/TaskAgileExecutionTest.php`, `backend/tests/Feature/ExternalIntegrationTest.php` |
+| **Target Environment** | React + Vite + TypeScript (Frontend), Laravel REST API `v1` (`https://168-110-206-131.sslip.io/api/v1` & `http://127.0.0.1:8001/api/v1`) |
 
 ---
 
@@ -19,9 +19,12 @@ Aplikasi Frontend **ERP Tasklist Agile (Modul K-04 / E-4)** adalah antarmuka eks
 - **Pencatatan Review, QA Testing, & Otomasi Alur Rework (FTR-K04-05):** Pengembalian otomatis tugas gagal uji (`REJECTED`) ke kolom `DEVELOPMENT` beserta pencatatan log audit.
 - **Two-Gate Definition of Done (FTR-K04-06):** Verifikasi ceklis fungsional oleh Project Manager (`is_pm_verified = true`) diikuti otorisasi pengesahan akhir oleh Technical Lead (`is_tl_signed = true`).
 - **Mesin Kalkulasi Progres Deliverable (FTR-K04-07 & API-K04-01):** Akumulasi matematis rasio jam kerja (*man-hour*) tugas selesai terhadap total beban deliverable proyek/modul.
+- **Integrasi Modul D-1 Project Switcher (FTR-K04-11):** Penukaran dinamis konteks proyek aktif (`GET /projects` & `GET /projects/{projectId}`) dengan sinkronisasi otomatis modul, sprint tasklist, dan rasio deliverable.
+- **Validasi Guard Proyek D-1 (FTR-K04-12):** Pemeriksaan pra-syarat eksekusi agile (`GET /projects/{projectId}/guard`) untuk memastikan proyek berstatus `REGISTERED` sebelum modul/tugas dapat dibuat atau dieksekusi.
+- **Integrasi Modul E-3 Execution Readiness P6 (FTR-K04-13):** Validasi kesiapan eksekusi proyek berbasis MoM & Kickoff Meeting sebelum eksekusi kanban intensif (`GET /projects/{projectId}/execution-readiness`).
 
-### 1.2 State Terkini Backend (Pasca Bug Fixes & Guard Enforcement PR #7)
-Backend telah memperbarui dan memvalidasi seluruh aturan bisnis melalui 29 unit/feature tests (`TaskBugFixesTest` dan `TaskAgileExecutionTest`). Aturan ketat yang saat ini aktif di backend:
+### 1.2 State Terkini Backend (Pasca Bug Fixes PR #7 & Integrasi Eksternal PR #9)
+Backend telah memperbarui dan memvalidasi seluruh aturan bisnis melalui 29 unit/feature tests (`TaskBugFixesTest` dan `TaskAgileExecutionTest`) serta suite `ExternalIntegrationTest`. Aturan ketat yang saat ini aktif di backend:
 1. **Terminal DONE Immutability:** Tugas berstatus `DONE` terkunci permanen. Segala upaya memindahkan status (`PATCH /status`), menguji/mereview ulang (`POST /reviews`), atau mengubah PIC (`PATCH /assign`) ditolak dengan **HTTP 422 Unprocessable Content**.
 2. **Strict Role-Based Transitions & Reviews:**
    - Peran `DEVELOPER` **hanya berwenang** menarik dari `RELEASED -> DEVELOPMENT` (dengan menugaskan diri sendiri) dan memajukan dari `DEVELOPMENT -> CODE_REVIEW`. Developer **dilarang keras** mengubah status kartu di `CODE_REVIEW` atau `TESTING`, memindahkan ke `DONE` secara langsung, atau submit review (`POST /reviews`) (**HTTP 403 Forbidden**).
@@ -30,6 +33,8 @@ Backend telah memperbarui dan memvalidasi seluruh aturan bisnis melalui 29 unit/
 3. **Guard Pembuatan Modul & Tugas (D-1 Project Guard):** Pembuatan Modul, Fitur, dan Tugas hanya boleh dilakukan oleh `TECHNICAL_LEAD` atau `PROJECT_MANAGER` (**HTTP 403** jika Developer/Tester) dan proyek terkait wajib berstatus `REGISTERED` pada Modul D-1 (**HTTP 422**).
 4. **Guard Penetapan PIC (`PATCH /tasks/{id}/assign`):** Tugas `DRAFT` belum boleh di-assign sebelum dirilis via Dual-Approval (**HTTP 422**); tugas `DONE` tidak boleh di-assign ulang (**HTTP 422**); Developer hanya boleh *self-assign* (**HTTP 403** jika meng-assign orang lain); Tester dilarang meng-assign (**HTTP 403**).
 5. **Serialisasi Eloquent & Kontrak Field OpenAPI:** Relasi review log diserialisasi sebagai `review_logs` dengan field `review_type` (bukan `stage`), `result`, `reviewer_id`, `reviewer_name`, `notes`, `created_at` (bukan `reviewed_at`); approval memakai `role`, `status`, `actioned_at`; jam kerja menggunakan `actual_man_hours` dan `estimated_man_hours`.
+6. **Project Switcher & Enriched Project Details (PR #9):** Penambahan endpoint `GET /projects` dan pemutakhiran `GET /projects/{projectId}` yang menggabungkan proyek kanonis D-1 (`202601`, `202602`) dan canonical internal E-4 (`PROJ-ERP-01`) lengkap dengan query filter `status`, `q`, pagination `meta`, serta metrik `moduleCount` dan `taskCount`.
+7. **Execution Readiness Gate (Modul E-3):** Endpoint `GET /projects/{projectId}/execution-readiness` memverifikasi status kelengkapan kick-off meeting dan MoM untuk memenuhi kepatuhan prioritas P6.
 
 ### 1.3 Target Metrik Keberhasilan Frontend (Measurable KPI)
 - **0% Transisi Ilegal di UI:** 100% aksi ilegal di Kanban dicegah di level antarmuka sebelum request dikirim (kartu `DONE` `draggable={false}`, dropzone terlarang dinonaktifkan, aksi sesuai peran pengguna aktif).
@@ -116,6 +121,24 @@ flowchart TD
     M -->|"Kalkulasi Otomatis Progres"| C
 ```
 
+### 3.4 Alur Project Switcher & Context Filtering (Modul D-1 & E-3)
+
+```mermaid
+flowchart TD
+    PS["Topbar Project Switcher ('Core Banking - Sprint 1 ⌄')"] -->|"Klik Dropdown"| API_P["GET /api/v1/projects?status=REGISTERED"]
+    API_P --> LIST["Daftar Proyek Kanonis (PROJ-ERP-01, 202601 Modernisasi Gedung, dsb)"]
+    LIST -->|"User Memilih Proyek Baru"| SET_CTX["ProjectContext (Simpan activeProjectId)"]
+    SET_CTX --> CHECK_GUARD["GET /api/v1/projects/{projectId}/guard"]
+    CHECK_GUARD -->|"Status: REGISTERED (allowed = true)"| VALID_PROJ["Mode Eksekusi Penuh (Full Agile Access)"]
+    CHECK_GUARD -->|"Status: BUKAN REGISTERED (allowed = false)"| RESTRICTED["Mode Terbatas (Read-Only Warning, Form Modul/Task Disabled)"]
+    VALID_PROJ --> FETCH_MODULES["GET /api/v1/modules?project_id={projectId}"]
+    VALID_PROJ --> FETCH_TASKS["GET /api/v1/tasks (Filter modul milik project)"]
+    VALID_PROJ --> FETCH_PROGRESS["GET /api/v1/projects/{projectId}/deliverable-progress"]
+    VALID_PROJ --> FETCH_READINESS["GET /api/v1/projects/{projectId}/execution-readiness"]
+    FETCH_PROGRESS --> SYNC_UI["Update Dashboard, Modul, Kanban, & Laporan Secara Real-Time"]
+    FETCH_READINESS --> BADGE_READINESS["Tampilkan Status Kesiapan Eksekusi P6 (Ready / Pending MoM)"]
+```
+
 ---
 
 ## 4. Scope Definition (In-Scope vs Non-Goals)
@@ -141,6 +164,10 @@ flowchart TD
 5. **Two-Gate DoD Modal (`SignOffModal`):**
    - Menampilkan status Gerbang 1 (PM Verification) dan Gerbang 2 (TL Sign-off).
    - Menonaktifkan tombol TL sign-off jika PM belum melakukan verifikasi, dan hanya menampilkan tombol aksi sesuai role yang sedang login.
+6. **Integrasi Modul D-1 Project Switcher & E-3 Execution Readiness (PR #9):**
+   - Menghubungkan dropdown proyek pada `Topbar.tsx` ke endpoint `GET /projects` dan `GET /projects/{projectId}`.
+   - Mengelola active `projectId` (default: `PROJ-ERP-01`) agar modul, hierarki tugas, dan deliverable progress berganti secara dinamis saat proyek dialihkan.
+   - Menampilkan badge kesiapan eksekusi agile dari Modul E-3 (`GET /projects/{projectId}/execution-readiness`).
 
 ### Non-Goals (Di Luar Ruang Lingkup)
 1. **Membuka Kembali Task `DONE` (Reopening):** Task `DONE` bersifat final dan tidak dapat dibuka kembali. Jika ada bug lanjutan pasca rilis, tim wajib membuat task baru (*bugfix task*).
@@ -165,6 +192,9 @@ Setiap kebutuhan diverifikasi melalui kriteria *Given-When-Then* berikut:
 | **REQ-08** | **Mekanisme Dual-Approval Task Release** | **Given** tugas baru berstatus `DRAFT`, **When** TL dan PM menyetujui secara terpisah di `ApprovalModal`, **Then** status tugas tetap `DRAFT` hingga kedua pihak menyetujui (`APPROVED`), dan otomatis beralih ke `RELEASED` setelah approval kedua masuk. | Verified BE (Test 2 Agile) |
 | **REQ-09** | **Two-Gate Definition of Done (`TESTING -> DONE`)** | **Given** tugas berada di `TESTING`, **When** PM mengisi ceklis verifikasi (`is_pm_verified = true`), **Then** tombol sign-off TL menjadi aktif. Ketika TL mengeksekusi sign-off, status resmi menjadi `DONE`. TL ditolak HTTP 422 jika PM belum verify; non-TL ditolak HTTP 403. | Verified BE (Test 7 Agile) |
 | **REQ-10** | **Multi-Akun Demo F-1 Termasuk Fajri (`mock_fajri`)** | **Given** terdapat 5 akun demo di backend, **When** user memilih akun di `LoginPage`, **Then** seleksi mengikat `token` unik (bukan string role), sehingga `Ariel` (`mock_dev`) dan `Muhamad Fajri` (`mock_fajri`) dapat dipilih secara independen tanpa konflik. | Verified BE (Auth Controller) |
+| **REQ-11** | **Integrasi Modul D-1 Project Switcher** | **Given** pengguna terautentikasi, **When** pengguna mengklik dropdown Project Switcher di `Topbar.tsx`, **Then** sistem memanggil `GET /api/v1/projects` (mendukung filter query `status`, `q`, `page`, `limit`), menampilkan daftar proyek kanonis (ID, kode, nama, klien, status, metrik modul/tugas), dan memilih proyek aktif untuk mengalirkan `activeProjectId` ke seluruh state aplikasi. | Verified BE (PR #9 ExternalIntegrationTest) |
+| **REQ-12** | **Detail Kanonis Proyek & Validasi Guard D-1** | **Given** proyek aktif terpilih di antarmuka, **When** pengguna mengakses detail proyek atau membuka modal pembuatan modul/tugas, **Then** sistem memverifikasi kesiapan guard proyek via `GET /projects/{projectId}/guard`. Jika status proyek bukan `REGISTERED` (misal `UNDER_REVIEW`), sistem memblokir form aksi pembuatan dan menampilkan alert pencegahan human-error. | Verified BE (PR #9 ExternalIntegrationTest) |
+| **REQ-13** | **Status Kesiapan Eksekusi Modul E-3 (Prioritas P6)** | **Given** proyek berstatus `REGISTERED`, **When** pengguna memantau kesiapan peluncuran sprint di dashboard atau header, **Then** sistem memanggil `GET /projects/{projectId}/execution-readiness` untuk memverifikasi dokumen Kickoff Meeting (`kickoffId`) dan Minutes of Meeting (`momId`), serta menampilkan indikator kesiapan eksekusi (`readyForExecution: true`). | Verified BE (PR #9 ExternalIntegrationTest) |
 
 ---
 
@@ -273,6 +303,67 @@ export const TaskSchema = z.object({
   feature: z.any().optional(),
 });
 export type Task = z.infer<typeof TaskSchema>;
+
+// Skema Entitas Proyek (Modul D-1 & Internal E-4 Project Switcher - FTR-K04-11)
+export const ProjectSourceSchema = z.enum(["internal_canonical", "d1_canonical_seed", "d1_external"]);
+export type ProjectSource = z.infer<typeof ProjectSourceSchema>;
+
+export const ProjectItemSchema = z.object({
+  projectId: z.string(),
+  canonicalCode: z.string(),
+  projectName: z.string(),
+  clientId: z.string(),
+  clientName: z.string(),
+  amEmployeeId: z.string().nullable().optional(),
+  amName: z.string().nullable().optional(),
+  pmEmployeeId: z.string().nullable().optional(),
+  pmName: z.string().nullable().optional(),
+  startDate: z.string().nullable().optional(),
+  targetEndDate: z.string().nullable().optional(),
+  documentsComplete: z.boolean().default(false),
+  poReceived: z.boolean().default(false),
+  status: z.string(),
+  active: z.boolean().default(true),
+  moduleCount: z.number().default(0),
+  taskCount: z.number().default(0),
+  source: z.string().optional(),
+});
+export type ProjectItem = z.infer<typeof ProjectItemSchema>;
+
+export const ProjectListResponseSchema = z.object({
+  status: z.enum(["success", "error"]),
+  data: z.array(ProjectItemSchema),
+  meta: z.object({
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+  }).nullable().optional(),
+  message: z.string().nullable().optional(),
+});
+export type ProjectListResponse = z.infer<typeof ProjectListResponseSchema>;
+
+// Skema Guard Status Proyek D-1 (FTR-K04-12)
+export const ProjectGuardResponseSchema = z.object({
+  status: z.enum(["success", "error"]),
+  projectId: z.string(),
+  allowed: z.boolean(),
+  projectStatus: z.string(),
+  message: z.string(),
+  data: z.any().optional(),
+});
+export type ProjectGuardResponse = z.infer<typeof ProjectGuardResponseSchema>;
+
+// Skema Kesiapan Eksekusi Modul E-3 Prioritas P6 (FTR-K04-13)
+export const ExecutionReadinessSchema = z.object({
+  projectId: z.string(),
+  kickoffId: z.string().nullable().optional(),
+  momId: z.string().nullable().optional(),
+  status: z.string(),
+  completedAt: z.string().nullable().optional(),
+  readyForExecution: z.boolean(),
+  source: z.string().optional(),
+});
+export type ExecutionReadiness = z.infer<typeof ExecutionReadinessSchema>;
 ```
 
 ### 6.2 Request Payload & Endpoint Contracts Table
@@ -281,6 +372,10 @@ export type Task = z.infer<typeof TaskSchema>;
 | :--- | :--- | :--- | :--- |
 | `GET /auth/demo-tokens` | Publik | - | Mengembalikan 5 akun simulasi (`mock_tl`, `mock_pm`, `mock_dev`, `mock_fajri`, `mock_tester`). |
 | `POST /auth/login` | Publik | `{ emailOrUsername: string, password: string, rememberMe?: boolean }` | Login Modul F-1 dengan fallback mock jika server F-1 offline. |
+| `GET /projects` | Terotentikasi | Query params: `status`, `q`, `page`, `limit` | Mengambil daftar proyek kanonis Modul D-1 & internal E-4 untuk komponen Project Switcher di topbar. |
+| `GET /projects/{id}` | Terotentikasi | - | Mengambil detail spesifik proyek dari Modul D-1/internal termasuk ringkasan `moduleCount` dan `taskCount`. |
+| `GET /projects/{id}/guard` | Terotentikasi | - | Memvalidasi apakah proyek berstatus `REGISTERED` di D-1. Menghasilkan HTTP 200 (`allowed: true`) atau HTTP 422 (`allowed: false`). |
+| `GET /projects/{id}/execution-readiness` | Terotentikasi | - | Mengambil status kesiapan eksekusi proyek dari Modul E-3 berdasarkan dokumen Kickoff Meeting dan Minutes of Meeting (MoM). |
 | `POST /modules` | `TECHNICAL_LEAD`, `PROJECT_MANAGER` | `{ project_id: string, code: string, name: string, description?: string }` | Proyek wajib `REGISTERED` di D-1 (HTTP 422). Peran lain ditolak HTTP 403. |
 | `POST /modules/{id}/features` | `TECHNICAL_LEAD`, `PROJECT_MANAGER` | `{ code: string, name: string, description?: string }` | Modul wajib terdaftar pada proyek `REGISTERED` di D-1 (HTTP 422). Peran lain ditolak HTTP 403. |
 | `POST /tasks` | `TECHNICAL_LEAD`, `PROJECT_MANAGER` | `{ module_id: string, feature_id?: string, task_code: string, title: string, description?: string, complexity_weight: "LOW"\|"MEDIUM"\|"HIGH", estimated_man_hours: number, target_deadline: string }` | Status awal otomatis `DRAFT` dan membuat 2 record approval `PENDING`. Guard D-1 `REGISTERED` (HTTP 422). Peran lain ditolak HTTP 403. |
@@ -310,17 +405,20 @@ export type Task = z.infer<typeof TaskSchema>;
 | **Developer menugaskan orang lain** | `403 Forbidden` | *"Pengembang hanya berwenang menugaskan diri sendiri ke tugas."* | Dropdown PIC pada Developer dikunci hanya menampilkan opsi akun diri sendiri. |
 | **Tester mencoba drag status manual** | `403 Forbidden` | *"Peran Tester tidak berwenang memindahkan kolom tugas secara manual. Gunakan endpoint review/testing."* | Seluruh kartu di papan Kanban diset `draggable={false}` bagi peran Tester; Tester diarahkan ke antarmuka review. |
 | **Non-TL/PM mencoba membuat Task baru** | `403 Forbidden` | *"Akses ditolak. Hanya peran Technical Lead dan Project Manager yang berwenang membuat tugas baru."* | Tombol "Tambah Tugas" disembunyikan bagi Developer dan Tester. |
+| **Proyek berstatus `UNDER_REVIEW` dipilih di Switcher** | `422 Unprocessable Content` (pada guard check) | *"Proyek sedang dalam tahap review intake D-1 dan belum disahkan (REGISTERED)."* | UI menampilkan badge status kuning `UNDER_REVIEW`, mengunci tombol "Tambah Modul" dan "Tambah Tugas", serta mengaktifkan mode *read-only* dengan banner informasi. |
+| **Kesiapan Eksekusi E-3 belum lengkap (`readyForExecution: false`)** | `200 OK` (dengan flag `readyForExecution: false`) | *"Kickoff meeting atau Minutes of Meeting (MoM) belum disahkan."* | Dashboard dan Header menampilkan status peringatan *"Execution Readiness Pending MoM"* untuk mematuhi regulasi prioritas P6. |
+| **Timeout atau kegagalan jaringan Modul D-1** | `500 / Network Error` | Gagal memuat daftar proyek eksternal | Frontend melakukan fallback aman (*graceful fallback*) ke proyek kanonis lokal `PROJ-ERP-01` tanpa menyebabkan antarmuka crash. |
 
 ---
 
 ## 8. Non-Functional Requirements & UX Standards
 
-1. **Strict Type Safety & Zero `any`:** Seluruh tipe API, hook, dan komponen wajib menggunakan inferensi tipe Zod (`Task`, `TaskReviewLog`, `TaskApproval`, `UserRole`, `TaskStatus`).
+1. **Strict Type Safety & Zero `any`:** Seluruh tipe API, hook, dan komponen wajib menggunakan inferensi tipe Zod (`Task`, `TaskReviewLog`, `TaskApproval`, `UserRole`, `TaskStatus`, `ProjectItem`, `ProjectGuardResponse`, `ExecutionReadiness`).
 2. **Visual Affordance & Feedback Kanban:**
    - Kartu `DONE` memiliki tampilan terkunci (*visual lock badge*, latar belakang sedikit redup, tanpa grab handle).
    - Saat proses *drag* berlangsung, kolom tujuan yang tidak valid menampilkan indikator kursor dilarang (*not-allowed*) dan tidak menerima highlight drop target.
 3. **Optimistic Updates dengan Rollback Aman:** Jika UI menggunakan update optimistik saat drag-and-drop, state cache React Query wajib di-*snapshot* (`onMutate`) dan di-*rollback* (`onError`) saat server mengembalikan 403 atau 422, disertai pesan error toast yang jelas.
-4. **Invalidasi Cache Menyeluruh:** Setiap mutasi sukses pada task, approval, review, atau sign-off wajib menginvalidasi `TASK_QUERY_KEYS` dan `PROGRESS_QUERY_KEYS` agar angka progres pada Dashboard & Reports langsung sinkron.
+4. **Invalidasi Cache Menyeluruh:** Setiap mutasi sukses pada task, approval, review, sign-off, atau pergantian `activeProjectId` wajib menginvalidasi `TASK_QUERY_KEYS`, `MODULE_QUERY_KEYS`, dan `PROGRESS_QUERY_KEYS` agar seluruh komponen langsung sinkron.
 
 ---
 
@@ -336,3 +434,6 @@ export type Task = z.infer<typeof TaskSchema>;
 | **Pemilihan Akun Demo (`LoginPage.tsx`)** | Menggunakan key `role` sehingga `mock_dev` dan `mock_fajri` saling menimpa. | Menggunakan key `token` unik (`mock_tl`, `mock_pm`, `mock_dev`, `mock_fajri`, `mock_tester`) di `RoleSelector` dan `useLoginForm`. |
 | **Modal Sign-Off (`SignOffModal.tsx`)** | Tombol PM dan TL tercampur tanpa pemisahan peran yang tegas. | Gerbang 1: PM Verify (`PATCH /pm-verify`); Gerbang 2: TL Sign-off (`PATCH /tl-signoff`) hanya aktif setelah Gerbang 1 selesai dan hanya bisa diklik oleh TL. |
 | **Tombol Pembuatan Modul / Task** | Terbuka untuk semua user terautentikasi. | Terkunci hanya untuk peran `TECHNICAL_LEAD` dan `PROJECT_MANAGER` (sesuai HTTP 403 guard di backend). |
+| **`Topbar.tsx` Project Switcher** | Teks dropdown statis `Core Banking - Sprint 1 ⌄` tanpa integrasi API backend. | Komponen dropdown dinamis mengonsumsi `useGetProjectList` (`GET /projects`), menampilkan daftar proyek kanonis D-1 & internal E-4, dan memperbarui `activeProjectId`. |
+| **Guard Eksekusi Proyek D-1** | Tidak ada pengecekan status proyek sebelum input data modul/tugas. | Menghubungkan `GET /projects/{projectId}/guard` sebelum submit pembuatan modul/fitur/task guna mencegah error HTTP 422 `PROJECT_NOT_REGISTERED`. |
+| **Indikator Readiness E-3 (P6)** | Belum ada visualisasi kesiapan kickoff sprint. | Mengambil data dari `GET /projects/{projectId}/execution-readiness` dan menampilkan status kesiapan eksekusi agile di dashboard/topbar. |
