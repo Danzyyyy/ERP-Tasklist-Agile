@@ -18,18 +18,8 @@ export interface ReviewModalProps {
   initialResult?: ReviewResult;
 }
 
-export const ReviewModal = memo<ReviewModalProps>(
-  ({ task, isOpen, onClose, initialReviewType, initialResult }) => {
-    const {
-      register,
-      errors,
-      reviewType,
-      result,
-      setResult,
-      canSubmitCurrentReview,
-      handleSubmit,
-      isPending,
-    } = useReviewForm(task, onClose, initialReviewType, initialResult);
+export const ReviewModal = memo<ReviewModalProps>(({ task, isOpen, onClose, initialReviewType, initialResult }) => {
+  const { register, errors, reviewType, result, setResult, canSubmitCurrentReview, handleSubmit, isPending } = useReviewForm(task, onClose, initialReviewType, initialResult);
 
   if (!task) return null;
 
@@ -42,15 +32,12 @@ export const ReviewModal = memo<ReviewModalProps>(
         <div className="flex items-center gap-2">
           <FileCode2 className="size-5 text-purple-subtle-foreground" />
           <span>Pemeriksaan Kode & Pengujian QA</span>
-          <span className="text-[10px] font-mono font-bold bg-purple-subtle text-purple-subtle-foreground px-2 py-0.5 rounded border border-purple-subtle-border">
-            FTR-K04-05
-          </span>
+          <span className="text-[10px] font-mono font-bold bg-purple-subtle text-purple-subtle-foreground px-2 py-0.5 rounded border border-purple-subtle-border">FTR-K04-05</span>
         </div>
       }
       description={
         <div className="wrap-break-word leading-relaxed">
-          Catat hasil pemeriksaan untuk tugas{" "}
-          <strong className="font-mono text-foreground">{task.task_code}</strong>: "{task.title}".
+          Catat hasil pemeriksaan untuk tugas <strong className="font-mono text-foreground">{task.task_code}</strong>: "{task.title}".
         </div>
       }
       footer={
@@ -58,13 +45,7 @@ export const ReviewModal = memo<ReviewModalProps>(
           <Button variant="outline" onClick={onClose} disabled={isPending}>
             Batal
           </Button>
-          <Button
-            type="submit"
-            form="submit-review-form"
-            variant={result === "REJECTED" ? "destructive" : "primary"}
-            loading={isPending}
-            disabled={!canSubmitCurrentReview}
-          >
+          <Button type="submit" form="submit-review-form" variant={result === "REJECTED" ? "destructive" : "primary"} loading={isPending} disabled={!canSubmitCurrentReview}>
             {result === "REJECTED" ? (
               <>
                 <RotateCcw className="size-3.5 mr-1" />
@@ -143,40 +124,29 @@ export const ReviewModal = memo<ReviewModalProps>(
           <div className="p-3 rounded-lg bg-destructive-subtle border border-destructive-subtle-border text-destructive-subtle-foreground text-[11px] leading-relaxed flex items-start gap-2">
             <RotateCcw className="size-4 text-destructive shrink-0 mt-0.5" />
             <div>
-              <b>Otomasi Alur Rework (Q-05):</b> Kartu tugas ini akan secara otomatis dikembalikan
-              ke kolom <b>DEVELOPMENT</b> dengan label <b>REWORK</b>. Pengembang PIC wajib
+              <b>Otomasi Alur Rework (Q-05):</b> Kartu tugas ini akan secara otomatis dikembalikan ke kolom <b>DEVELOPMENT</b> dengan label <b>REWORK</b>. Pengembang PIC wajib
               memperbaiki temuan sebelum mengajukan kembali.
             </div>
           </div>
         ) : (
           <div className="p-3 rounded-lg bg-success-subtle border border-success-subtle-border text-success-subtle-foreground text-[11px] leading-relaxed flex items-start gap-2">
             <Sparkles className="size-4 text-success shrink-0 mt-0.5" />
-            <div>
-              Pemeriksaan lolos verifikasi. Tugas siap dilanjutkan ke tahap berikutnya dalam siklus
-              agile.
-            </div>
+            <div>Pemeriksaan lolos verifikasi. Tugas siap dilanjutkan ke tahap berikutnya dalam siklus agile.</div>
           </div>
         )}
 
         {/* Notes */}
         <div>
-          <Label required={result === "REJECTED"}>
-            Catatan Temuan / Deskripsi Bug{" "}
-            {result === "REJECTED" ? "(Wajib untuk Rework)" : "(Opsional)"}
-          </Label>
+          <Label required={result === "REJECTED"}>Catatan Temuan / Deskripsi Bug {result === "REJECTED" ? "(Wajib untuk Rework)" : "(Opsional)"}</Label>
           <Textarea
             placeholder={
-              result === "REJECTED"
-                ? "Jelaskan langkah reproduksi bug atau bagian kode yang memerlukan perbaikan..."
-                : "Catatan positif hasil pemeriksaan kode atau pengujian..."
+              result === "REJECTED" ? "Jelaskan langkah reproduksi bug atau bagian kode yang memerlukan perbaikan..." : "Catatan positif hasil pemeriksaan kode atau pengujian..."
             }
             rows={3}
             error={Boolean(errors.notes)}
             {...register("notes")}
           />
-          {errors.notes && (
-            <p className="text-[11px] text-destructive mt-1 font-medium">{errors.notes.message}</p>
-          )}
+          {errors.notes && <p className="text-[11px] text-destructive mt-1 font-medium">{errors.notes.message}</p>}
         </div>
       </form>
     </Modal>

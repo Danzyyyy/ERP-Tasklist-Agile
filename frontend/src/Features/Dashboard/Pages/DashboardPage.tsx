@@ -12,49 +12,8 @@ import ModuleDeliverableCard from "../Components/ModuleDeliverableCard";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
 import { cn } from "@/Utils/cn";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  ShieldCheck,
-  Layers,
-  ArrowUpRight,
-  Activity,
-  Calendar,
-} from "lucide-react";
-
-function getInitials(name?: string | null): string {
-  if (!name || name === "Belum Ditugaskan") return "--";
-  const lower = name.toLowerCase();
-  if (lower.includes("wildan") || lower.includes("tubagus")) return "TW";
-  if (lower.includes("fauzan")) return "FZ";
-  if (lower.includes("ariel")) return "AR";
-  if (lower.includes("fajri")) return "FJ";
-  if (lower.includes("valdric")) return "VD";
-
-  const clean = name.replace(/\([^)]*\)/g, "").trim();
-  const words = clean.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "--";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
-}
-
-function getAvatarBg(initials: string): string {
-  switch (initials) {
-    case "TW":
-      return "bg-indigo-600 text-white";
-    case "FZ":
-      return "bg-emerald-600 text-white";
-    case "AR":
-      return "bg-purple-600 text-white";
-    case "FJ":
-      return "bg-blue-600 text-white";
-    case "VD":
-      return "bg-amber-600 text-white";
-    default:
-      return "bg-slate-600 text-white";
-  }
-}
+import { getInitials, getAvatarBg } from "@/Utils/taskUtils";
+import { AlertTriangle, CheckCircle2, Clock, ShieldCheck, Layers, ArrowUpRight, Activity, Calendar } from "lucide-react";
 
 export const DashboardPage: React.FC = () => {
   useDocumentTitle("Dashboard", "Semua progres, prioritas, dan keputusan tim. Dalam satu workspace.");
@@ -252,18 +211,10 @@ export const DashboardPage: React.FC = () => {
         {/* Hero Banner Card */}
         <div className="rounded-2xl border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Selamat pagi, {user?.name?.split(" ")[0] || "Pengguna"}.
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Semua progres, prioritas, dan keputusan tim. Dalam satu workspace.
-            </p>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Selamat pagi, {user?.name?.split(" ")[0] || "Pengguna"}.</h2>
+            <p className="text-xs text-muted-foreground mt-1">Semua progres, prioritas, dan keputusan tim. Dalam satu workspace.</p>
           </div>
-          <Button
-            type="button"
-            onClick={goToTasks}
-            className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5"
-          >
+          <Button type="button" onClick={goToTasks} className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5">
             <span>Kelola Tasklist</span>
           </Button>
         </div>
@@ -277,47 +228,31 @@ export const DashboardPage: React.FC = () => {
                 {String(activeTasksCount).padStart(2, "0")}
               </span>
             </div>
-            <Button
-              type="button"
-              variant="link"
-              onClick={goToTasks}
-              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
-            >
+            <Button type="button" variant="link" onClick={goToTasks} className="text-xs font-semibold text-primary p-0 h-auto gap-1">
               Lihat semua tugas ↗
             </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             {priorityTasks.map((t) => {
-              const picName =
-                typeof t.pic === "string"
-                  ? t.pic
-                  : t.pic?.name || t.assignee_name || "Belum Ditugaskan";
+              const picName = typeof t.pic === "string" ? t.pic : t.pic?.name || t.assignee_name || "Belum Ditugaskan";
               const initials = getInitials(picName);
-              const isOverdue =
-                t.target_deadline &&
-                new Date(t.target_deadline).getTime() < Date.now() &&
-                t.status !== "DONE";
+              const isOverdue = t.target_deadline && new Date(t.target_deadline).getTime() < Date.now() && t.status !== "DONE";
 
-              const clickTarget =
-                t.status === "DRAFT"
-                  ? goToTasks
-                  : t.status === "CODE_REVIEW" || t.status === "TESTING"
-                  ? () => navigate(ROUTE_PATHS.REVIEWS)
-                  : goToKanban;
+              const clickTarget = t.status === "DRAFT" ? goToTasks : t.status === "CODE_REVIEW" || t.status === "TESTING" ? () => navigate(ROUTE_PATHS.REVIEWS) : goToKanban;
 
               const stageText =
                 t.status === "DRAFT"
                   ? "Menunggu approval"
                   : t.status === "DEVELOPMENT"
-                  ? "In progress"
-                  : t.status === "CODE_REVIEW"
-                  ? "Code review"
-                  : t.status === "TESTING"
-                  ? "QA Testing"
-                  : t.status === "DONE"
-                  ? "Selesai (Done)"
-                  : "Siap dikerjakan →";
+                    ? "In progress"
+                    : t.status === "CODE_REVIEW"
+                      ? "Code review"
+                      : t.status === "TESTING"
+                        ? "QA Testing"
+                        : t.status === "DONE"
+                          ? "Selesai (Done)"
+                          : "Siap dikerjakan →";
 
               return (
                 <div
@@ -333,9 +268,7 @@ export const DashboardPage: React.FC = () => {
                           OVERDUE
                         </Badge>
                       ) : t.target_deadline ? (
-                        <span className="text-[11px] text-muted-foreground">
-                          {t.target_deadline.split("T")[0]}
-                        </span>
+                        <span className="text-[11px] text-muted-foreground">{t.target_deadline.split("T")[0]}</span>
                       ) : null}
                     </div>
 
@@ -343,9 +276,7 @@ export const DashboardPage: React.FC = () => {
                       <h4 className="text-sm font-bold text-foreground line-clamp-1" title={t.title}>
                         {t.title}
                       </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                        {t.module?.name || t.feature?.name || "Modul Proyek"}
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t.module?.name || t.feature?.name || "Modul Proyek"}</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -360,21 +291,12 @@ export const DashboardPage: React.FC = () => {
                       >
                         {t.complexity_weight || "MEDIUM"}
                       </Badge>
-                      <span className="text-xs font-mono text-muted-foreground">
-                        {Number(t.estimated_man_hours) || 0} Jam
-                      </span>
+                      <span className="text-xs font-mono text-muted-foreground">{Number(t.estimated_man_hours) || 0} Jam</span>
                     </div>
                   </div>
 
                   <div className="pt-2 border-t border-border/60 flex items-center justify-between">
-                    <div
-                      className={cn(
-                        "size-6 rounded-full font-bold text-[10px] grid place-items-center",
-                        getAvatarBg(initials),
-                      )}
-                    >
-                      {initials}
-                    </div>
+                    <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center", getAvatarBg(initials))}>{initials}</div>
                     <span
                       className={cn(
                         "text-xs font-medium",
@@ -396,9 +318,7 @@ export const DashboardPage: React.FC = () => {
             {priorityTasks.length === 0 && (
               <div className="col-span-3 p-6 rounded-xl border border-dashed border-border bg-card text-center space-y-1">
                 <p className="text-xs font-semibold text-foreground">Belum ada tugas aktif</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Seluruh tugas telah diselesaikan atau belum dibuat.
-                </p>
+                <p className="text-[11px] text-muted-foreground">Seluruh tugas telah diselesaikan atau belum dibuat.</p>
               </div>
             )}
           </div>
@@ -408,41 +328,22 @@ export const DashboardPage: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground">Modul & Deliverable Proyek</h3>
-            <Button
-              type="button"
-              variant="link"
-              onClick={() => navigate(ROUTE_PATHS.PROJECTS)}
-              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
-            >
+            <Button type="button" variant="link" onClick={() => navigate(ROUTE_PATHS.PROJECTS)} className="text-xs font-semibold text-primary p-0 h-auto gap-1">
               Lihat portfolio proyek ↗
             </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {modules.map((m) => {
-              const featureSummary =
-                m.features && m.features.length > 0
-                  ? m.features.map((f) => f.name).join(" · ")
-                  : "Tugas Mandiri (Tingkat Modul)";
+              const featureSummary = m.features && m.features.length > 0 ? m.features.map((f) => f.name).join(" · ") : "Tugas Mandiri (Tingkat Modul)";
 
-              return (
-                <ModuleDeliverableCard
-                  key={m.id}
-                  moduleId={m.id}
-                  moduleCode={m.code}
-                  moduleName={m.name}
-                  featureSummary={featureSummary}
-                  tlName="Fauzan (TL)"
-                />
-              );
+              return <ModuleDeliverableCard key={m.id} moduleId={m.id} moduleCode={m.code} moduleName={m.name} featureSummary={featureSummary} tlName="Fauzan (TL)" />;
             })}
 
             {modules.length === 0 && (
               <div className="col-span-2 p-6 rounded-xl border border-dashed border-border bg-card text-center space-y-1">
                 <p className="text-xs font-semibold text-foreground">Belum ada modul terdaftar</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Buat modul baru melalui menu Proyek & Deliverable.
-                </p>
+                <p className="text-[11px] text-muted-foreground">Buat modul baru melalui menu Proyek & Deliverable.</p>
               </div>
             )}
           </div>
@@ -453,16 +354,9 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-foreground">Distribusi Status & Kompleksitas</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Rekapitulasi riil status tugas dan alokasi man-hour berdasarkan kompleksitas
-              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">Rekapitulasi riil status tugas dan alokasi man-hour berdasarkan kompleksitas</p>
             </div>
-            <Button
-              type="button"
-              variant="link"
-              onClick={goToKanban}
-              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
-            >
+            <Button type="button" variant="link" onClick={goToKanban} className="text-xs font-semibold text-primary p-0 h-auto gap-1">
               <span>Buka Board</span>
               <ArrowUpRight className="size-3.5" />
             </Button>
@@ -509,9 +403,7 @@ export const DashboardPage: React.FC = () => {
                 <Layers className="size-3.5 text-primary" />
                 Alokasi Beban Jam Man-Hour (Bobot Kompleksitas)
               </span>
-              <span className="font-mono text-muted-foreground">
-                Total: {totalHours} Jam
-              </span>
+              <span className="font-mono text-muted-foreground">Total: {totalHours} Jam</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
               <div className="p-2 rounded-lg bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 flex items-center justify-between">
@@ -519,27 +411,21 @@ export const DashboardPage: React.FC = () => {
                   <span className="font-bold text-rose-700 dark:text-rose-300 text-[11px]">HIGH (Bobot 3×)</span>
                   <p className="text-xs text-muted-foreground mt-0.5">Kompleksitas Tinggi</p>
                 </div>
-                <span className="font-mono font-black text-rose-700 dark:text-rose-300 text-sm">
-                  {complexityBreakdown.high} Jam
-                </span>
+                <span className="font-mono font-black text-rose-700 dark:text-rose-300 text-sm">{complexityBreakdown.high} Jam</span>
               </div>
               <div className="p-2 rounded-lg bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 flex items-center justify-between">
                 <div>
                   <span className="font-bold text-amber-700 dark:text-amber-300 text-[11px]">MEDIUM (Bobot 2×)</span>
                   <p className="text-xs text-muted-foreground mt-0.5">Kompleksitas Menengah</p>
                 </div>
-                <span className="font-mono font-black text-amber-700 dark:text-amber-300 text-sm">
-                  {complexityBreakdown.medium} Jam
-                </span>
+                <span className="font-mono font-black text-amber-700 dark:text-amber-300 text-sm">{complexityBreakdown.medium} Jam</span>
               </div>
               <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
                 <div>
                   <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px]">LOW (Bobot 1×)</span>
                   <p className="text-xs text-muted-foreground mt-0.5">Kompleksitas Standar</p>
                 </div>
-                <span className="font-mono font-black text-slate-700 dark:text-slate-300 text-sm">
-                  {complexityBreakdown.low} Jam
-                </span>
+                <span className="font-mono font-black text-slate-700 dark:text-slate-300 text-sm">{complexityBreakdown.low} Jam</span>
               </div>
             </div>
           </div>
@@ -561,12 +447,7 @@ export const DashboardPage: React.FC = () => {
                 </span>
               )}
             </div>
-            <Button
-              type="button"
-              variant="link"
-              onClick={goToTasks}
-              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
-            >
+            <Button type="button" variant="link" onClick={goToTasks} className="text-xs font-semibold text-primary p-0 h-auto gap-1">
               <span>Lihat Tasklist</span>
               <ArrowUpRight className="size-3.5" />
             </Button>
@@ -586,9 +467,7 @@ export const DashboardPage: React.FC = () => {
                   className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 hover:bg-slate-50/60 dark:hover:bg-slate-900/40 rounded-lg px-2 -mx-2 transition-colors cursor-pointer text-xs"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={cn("size-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 shadow-2xs", avatarBg)}>
-                      {initials}
-                    </div>
+                    <div className={cn("size-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 shadow-2xs", avatarBg)}>{initials}</div>
                     <div className="min-w-0">
                       <p className="font-semibold text-foreground truncate">{t.title}</p>
                       <p className="text-[11px] text-muted-foreground truncate">
@@ -619,11 +498,7 @@ export const DashboardPage: React.FC = () => {
               );
             })}
 
-            {atRiskTasks.length === 0 && (
-              <div className="py-4 text-center text-xs text-muted-foreground">
-                Tidak ada tugas aktif atau tertunda saat ini.
-              </div>
-            )}
+            {atRiskTasks.length === 0 && <div className="py-4 text-center text-xs text-muted-foreground">Tidak ada tugas aktif atau tertunda saat ini.</div>}
           </div>
         </div>
 
@@ -650,32 +525,20 @@ export const DashboardPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
             <div className="p-3 rounded-xl border border-border/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">KODE PROYEK D-1</p>
-              <p className="text-xs font-bold text-foreground truncate">
-                {activeProject?.canonicalCode || activeProjectId}
-              </p>
-              <p className="text-[11px] text-muted-foreground truncate">
-                {activeProject?.clientName || "PT. Anaheim Nimbus Universal"}
-              </p>
+              <p className="text-xs font-bold text-foreground truncate">{activeProject?.canonicalCode || activeProjectId}</p>
+              <p className="text-[11px] text-muted-foreground truncate">{activeProject?.clientName || "PT. Anaheim Nimbus Universal"}</p>
             </div>
 
             <div className="p-3 rounded-xl border border-border/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">KICKOFF MEETING & MOM</p>
-              <p className="text-xs font-bold text-foreground truncate">
-                {readiness?.momId ? "Dokumen MoM Disahkan" : "MoM Terverifikasi"}
-              </p>
-              <p className="text-[11px] text-muted-foreground truncate">
-                ID: {readiness?.kickoffId ? readiness.kickoffId.slice(0, 18) + "..." : "Terjadwal"}
-              </p>
+              <p className="text-xs font-bold text-foreground truncate">{readiness?.momId ? "Dokumen MoM Disahkan" : "MoM Terverifikasi"}</p>
+              <p className="text-[11px] text-muted-foreground truncate">ID: {readiness?.kickoffId ? readiness.kickoffId.slice(0, 18) + "..." : "Terjadwal"}</p>
             </div>
 
             <div className="p-3 rounded-xl border border-border/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">STATUS INTAKE D-1</p>
-              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                {activeProject?.status || "REGISTERED"}
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                PO Diterima · Dokumen Lengkap
-              </p>
+              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{activeProject?.status || "REGISTERED"}</p>
+              <p className="text-[11px] text-muted-foreground">PO Diterima · Dokumen Lengkap</p>
             </div>
           </div>
         </div>
@@ -733,9 +596,7 @@ export const DashboardPage: React.FC = () => {
           {/* Bottom Stage Counts (Dynamic Data) */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <span className="text-base font-extrabold text-blue-600 dark:text-blue-400 font-mono mr-1.5">
-                {String(stageStats.DEVELOPMENT).padStart(2, "0")}
-              </span>
+              <span className="text-base font-extrabold text-blue-600 dark:text-blue-400 font-mono mr-1.5">{String(stageStats.DEVELOPMENT).padStart(2, "0")}</span>
               <span className="text-muted-foreground font-medium">In progress</span>
             </div>
             <div>
@@ -772,12 +633,7 @@ export const DashboardPage: React.FC = () => {
 
           <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">5 anggota tim inti</span>
-            <Button
-              type="button"
-              variant="link"
-              onClick={goToKanban}
-              className="font-semibold text-primary p-0 h-auto gap-1 text-xs"
-            >
+            <Button type="button" variant="link" onClick={goToKanban} className="font-semibold text-primary p-0 h-auto gap-1 text-xs">
               <span>Alokasi Kanban</span>
               <ArrowUpRight className="size-3" />
             </Button>
@@ -810,9 +666,7 @@ export const DashboardPage: React.FC = () => {
               </div>
             ))}
 
-            {dynamicActivities.length === 0 && (
-              <p className="text-xs text-muted-foreground py-2 text-center">Belum ada aktivitas tercatat.</p>
-            )}
+            {dynamicActivities.length === 0 && <p className="text-xs text-muted-foreground py-2 text-center">Belum ada aktivitas tercatat.</p>}
           </div>
         </div>
       </div>

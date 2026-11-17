@@ -16,18 +16,7 @@ import { usePmVerify } from "@/Hooks/usePmVerify";
 import { useTlSignoff } from "@/Hooks/useTlSignoff";
 import { DEMO_DEVELOPERS } from "@/Features/Kanban/Constants/KanbanConstant";
 import { isTaskRework, getTaskReviewLogs, getInitials, getAvatarBg } from "@/Utils/taskUtils";
-import {
-  Check,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  RotateCcw,
-  ShieldCheck,
-  UserCheck,
-  ArrowRight,
-  FileText,
-  Lock,
-} from "lucide-react";
+import { Check, CheckCircle2, Clock, AlertTriangle, RotateCcw, ShieldCheck, UserCheck, ArrowRight, FileText, Lock } from "lucide-react";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 
@@ -46,9 +35,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
   const userId = user?.id;
 
   const [notes, setNotes] = useState("");
-  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string>(
-    task?.assignee_id || DEMO_DEVELOPERS[0].id,
-  );
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string>(task?.assignee_id || DEMO_DEVELOPERS[0].id);
 
   // Mutations
   const submitApprovalMutation = useSubmitApproval(task?.id, () => {
@@ -101,12 +88,8 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
         };
       case "DEVELOPMENT":
         return {
-          title: isRework
-            ? "Perbaikan Revisi Tugas (Rework In Progress)"
-            : "Eksekusi Pengerjaan Tugas (Development)",
-          desc: isRework
-            ? "Tugas dikembalikan dari tahap pengujian. Perbaiki temuan sebelum mengajukan kembali."
-            : "Tugas sedang dalam proses pengerjaan oleh pengembang terkait.",
+          title: isRework ? "Perbaikan Revisi Tugas (Rework In Progress)" : "Eksekusi Pengerjaan Tugas (Development)",
+          desc: isRework ? "Tugas dikembalikan dari tahap pengujian. Perbaiki temuan sebelum mengajukan kembali." : "Tugas sedang dalam proses pengerjaan oleh pengembang terkait.",
           tone: isRework ? "amber" : "blue",
         };
       case "CODE_REVIEW":
@@ -218,12 +201,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
       description={header.desc}
       footer={
         <div className="flex items-center justify-between gap-3 w-full pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-xl"
-          >
+          <Button type="button" variant="outline" onClick={onClose} className="px-4 py-2 text-xs font-semibold rounded-xl">
             Tutup
           </Button>
 
@@ -361,9 +339,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                  {task.task_code}
-                </span>
+                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">{task.task_code}</span>
                 <span className="font-semibold text-xs text-muted-foreground">
                   {task.module?.name || "Modul Utama"} {task.feature?.name ? `· ${task.feature.name}` : ""}
                 </span>
@@ -372,20 +348,12 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             </div>
 
             <div className="text-right shrink-0">
-              <span className="font-mono text-xs font-bold text-primary">
-                {Number(task.estimated_man_hours) || 8} Jam Estimasi
-              </span>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                Tenggat: {task.target_deadline ? task.target_deadline.split("T")[0] : "-"}
-              </p>
+              <span className="font-mono text-xs font-bold text-primary">{Number(task.estimated_man_hours) || 8} Jam Estimasi</span>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Tenggat: {task.target_deadline ? task.target_deadline.split("T")[0] : "-"}</p>
             </div>
           </div>
 
-          {task.description && (
-            <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border/60">
-              {task.description}
-            </p>
-          )}
+          {task.description && <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border/60">{task.description}</p>}
 
           {/* Quick Metrics Badges */}
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
@@ -421,9 +389,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 <span
                   className={cn(
                     "px-2 py-1 rounded text-[10px] font-bold font-mono",
-                    tlApproval?.status === "APPROVED"
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-slate-100 text-slate-600 border border-slate-200",
+                    tlApproval?.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-600 border border-slate-200",
                   )}
                 >
                   {tlApproval?.status || "PENDING"}
@@ -438,9 +404,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 <span
                   className={cn(
                     "px-2 py-1 rounded text-[10px] font-bold font-mono",
-                    pmApproval?.status === "APPROVED"
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-slate-100 text-slate-600 border border-slate-200",
+                    pmApproval?.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-600 border border-slate-200",
                   )}
                 >
                   {pmApproval?.status || "PENDING"}
@@ -451,13 +415,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             {["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
               <div className="space-y-1 pt-2">
                 <Label className="text-xs font-semibold">Catatan Keputusan Approval (Opsional)</Label>
-                <Input
-                  type="text"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Berikan alasan atau catatan persetujuan..."
-                  className="w-full text-xs"
-                />
+                <Input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Berikan alasan atau catatan persetujuan..." className="w-full text-xs" />
               </div>
             )}
           </div>
@@ -470,29 +428,18 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
               <UserCheck className="size-4 text-indigo-600" />
               Tentukan Pengembang Pelaksana (PIC)
             </h4>
-            <p className="text-xs text-muted-foreground">
-              Tugas telah dirilis resmi. Sebelum pengerjaan dimulai, tentukan pengembang yang bertanggung jawab.
-            </p>
+            <p className="text-xs text-muted-foreground">Tugas telah dirilis resmi. Sebelum pengerjaan dimulai, tentukan pengembang yang bertanggung jawab.</p>
 
             <div className="space-y-1.5 pt-1">
               <Label className="text-xs font-semibold">Pilih Pengembang (Developer)</Label>
-              <Select
-                value={selectedAssigneeId}
-                onChange={(e) => setSelectedAssigneeId(e.target.value)}
-                disabled={userRole === "DEVELOPER"}
-                className="w-full text-xs"
-              >
+              <Select value={selectedAssigneeId} onChange={(e) => setSelectedAssigneeId(e.target.value)} disabled={userRole === "DEVELOPER"} className="w-full text-xs">
                 {DEMO_DEVELOPERS.map((dev) => (
                   <option key={dev.id} value={dev.id}>
                     {dev.name} ({dev.role})
                   </option>
                 ))}
               </Select>
-              {userRole === "DEVELOPER" && (
-                <p className="text-[10px] text-muted-foreground">
-                  Sebagai Developer, tugas otomatis ditetapkan ke akun Anda sendiri.
-                </p>
-              )}
+              {userRole === "DEVELOPER" && <p className="text-[10px] text-muted-foreground">Sebagai Developer, tugas otomatis ditetapkan ke akun Anda sendiri.</p>}
             </div>
           </div>
         )}
@@ -519,9 +466,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 <p className="font-semibold text-foreground">Pelaksana Aktif (PIC)</p>
                 <p className="text-muted-foreground mt-0.5">{task.assignee_name || "Ariel (Frontend Dev)"}</p>
               </div>
-              <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-mono font-bold">
-                SEDANG DIKERJAKAN
-              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-mono font-bold">SEDANG DIKERJAKAN</span>
             </div>
           </div>
         )}
@@ -563,9 +508,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
 
             {/* Two-Gate DoD Status */}
             <div className="p-4 rounded-xl border border-border bg-slate-50/50 dark:bg-slate-900/30 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Dua Gerbang Pengesahan (Two-Gate DoD)
-              </h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dua Gerbang Pengesahan (Two-Gate DoD)</h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {/* Gate 1: PM */}
@@ -580,11 +523,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                       <span className="text-[10px] font-bold text-amber-600">PENDING</span>
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    {isPmVerified
-                      ? `Diverifikasi oleh ${task.pm_verified_by || "PM"}`
-                      : "Memerlukan konfirmasi fungsional PM"}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground">{isPmVerified ? `Diverifikasi oleh ${task.pm_verified_by || "PM"}` : "Memerlukan konfirmasi fungsional PM"}</p>
                 </div>
 
                 {/* Gate 2: TL */}
@@ -599,9 +538,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                       <span className="text-[10px] font-bold text-amber-600">MENUNGGU</span>
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    {isTlSigned ? `Disahkan oleh ${task.tl_signed_by || "TL"}` : "Otorisasi penutupan akhir"}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground">{isTlSigned ? `Disahkan oleh ${task.tl_signed_by || "TL"}` : "Otorisasi penutupan akhir"}</p>
                 </div>
               </div>
             </div>
@@ -615,9 +552,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
               <Lock className="size-4" />
               <span>Status Final (Terkunci Permanen Sesuai Kontrak Backend)</span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Tugas ini telah melewati seluruh siklus agile: verifikasi ceklis PM dan otorisasi pengesahan akhir TL.
-            </p>
+            <p className="text-xs text-muted-foreground">Tugas ini telah melewati seluruh siklus agile: verifikasi ceklis PM dan otorisasi pengesahan akhir TL.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-2 border-t border-emerald-200/60">
               <div className="p-2 rounded bg-card border border-border">
@@ -630,9 +565,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
               </div>
               <div className="p-2 rounded bg-card border border-border">
                 <span className="text-[10px] text-muted-foreground">Jam Kerja Aktual</span>
-                <p className="font-semibold text-foreground truncate">
-                  {task.actual_man_hours || task.estimated_man_hours} Jam Selesai
-                </p>
+                <p className="font-semibold text-foreground truncate">{task.actual_man_hours || task.estimated_man_hours} Jam Selesai</p>
               </div>
             </div>
           </div>

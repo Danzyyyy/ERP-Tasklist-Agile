@@ -10,20 +10,10 @@ import { ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react";
 import { cn } from "@/Utils/cn";
 
 export const ModulesPage: React.FC = () => {
-  useDocumentTitle(
-    "Proyek",
-    "Implementasi Core Banking · PT. Anaheim Nimbus Universal",
-  );
+  useDocumentTitle("Proyek", "Implementasi Core Banking · PT. Anaheim Nimbus Universal");
 
-  const {
-    isModuleModalOpen,
-    setIsModuleModalOpen,
-    isFeatureModalOpen,
-    setIsFeatureModalOpen,
-    selectedModuleId,
-    handleOpenAddFeature,
-    handleCloseFeatureModal,
-  } = useModulesOverview();
+  const { isModuleModalOpen, setIsModuleModalOpen, isFeatureModalOpen, setIsFeatureModalOpen, selectedModuleId, handleOpenAddFeature, handleCloseFeatureModal } =
+    useModulesOverview();
 
   const [activeTab, setActiveTab] = useState<"SCHEDULE" | "DELIVERABLES">("SCHEDULE");
 
@@ -32,12 +22,8 @@ export const ModulesPage: React.FC = () => {
       {/* Page Title Card (FigCraft 1:1) */}
       <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            Proyek & Deliverable
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Implementasi Core Banking · PT. Anaheim Nimbus Universal
-          </p>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Proyek & Deliverable</h2>
+          <p className="text-xs text-muted-foreground mt-1">Implementasi Core Banking · PT. Anaheim Nimbus Universal</p>
         </div>
         <Button
           type="button"
@@ -57,9 +43,7 @@ export const ModulesPage: React.FC = () => {
           onClick={() => setActiveTab("SCHEDULE")}
           className={cn(
             "pb-2.5 transition-all relative h-auto rounded-none p-0 hover:bg-transparent",
-            activeTab === "SCHEDULE"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground",
+            activeTab === "SCHEDULE" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
           )}
         >
           Jadwal & Kalender Sprint
@@ -70,9 +54,7 @@ export const ModulesPage: React.FC = () => {
           onClick={() => setActiveTab("DELIVERABLES")}
           className={cn(
             "pb-2.5 transition-all relative h-auto rounded-none p-0 hover:bg-transparent",
-            activeTab === "DELIVERABLES"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground",
+            activeTab === "DELIVERABLES" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
           )}
         >
           Proyek & Deliverable
@@ -84,35 +66,20 @@ export const ModulesPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-bold text-foreground">12 – 18 Oktober 2026</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              UTC+7 · Sprint 1 Workspace
-            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">UTC+7 · Sprint 1 Workspace</p>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
-              <Button
-                type="button"
-                variant="ghost"
-                size="iconSm"
-                className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-              >
+              <Button type="button" variant="ghost" size="iconSm" className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground">
                 <ChevronLeft className="size-4" />
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="iconSm"
-                className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-              >
+              <Button type="button" variant="ghost" size="iconSm" className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground">
                 <ChevronRight className="size-4" />
               </Button>
             </div>
 
-            <Button
-              type="button"
-              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs"
-            >
+            <Button type="button" className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs">
               <Plus className="size-3.5" />
               <span>Jadwal Baru</span>
             </Button>
@@ -123,9 +90,7 @@ export const ModulesPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
           {/* Senin 12 */}
           <div className="space-y-2">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              SENIN
-            </div>
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">SENIN</div>
             <div className="text-lg font-black text-foreground">12</div>
             <div className="p-3 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/40 space-y-2">
               <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-blue-700 dark:text-blue-300">
@@ -141,9 +106,7 @@ export const ModulesPage: React.FC = () => {
 
           {/* Selasa 13 */}
           <div className="space-y-2">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              SELASA
-            </div>
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">SELASA</div>
             <div className="text-lg font-black text-foreground">13</div>
             <div className="p-3 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/40 space-y-2">
               <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300">
@@ -159,9 +122,7 @@ export const ModulesPage: React.FC = () => {
 
           {/* Rabu 14 */}
           <div className="space-y-2">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              RABU
-            </div>
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">RABU</div>
             <div className="text-lg font-black text-foreground">14</div>
             <div className="p-3 rounded-xl border border-purple-200 dark:border-purple-900 bg-purple-50/60 dark:bg-purple-950/40 space-y-2">
               <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-purple-700 dark:text-purple-300">
@@ -177,9 +138,7 @@ export const ModulesPage: React.FC = () => {
 
           {/* Kamis 15 */}
           <div className="space-y-2">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              KAMIS
-            </div>
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">KAMIS</div>
             <div className="text-lg font-black text-foreground">15</div>
             <div className="p-3 rounded-xl border border-dashed border-border text-center py-6">
               <span className="text-xs text-muted-foreground">Tidak ada jadwal</span>
@@ -188,9 +147,7 @@ export const ModulesPage: React.FC = () => {
 
           {/* Jumat 16 */}
           <div className="space-y-2">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              JUMAT
-            </div>
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">JUMAT</div>
             <div className="text-lg font-black text-foreground">16</div>
             <div className="p-3 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/40 space-y-2">
               <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-rose-700 dark:text-rose-300">
@@ -206,9 +163,7 @@ export const ModulesPage: React.FC = () => {
 
           {/* Sabtu 17 */}
           <div className="space-y-2">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              SABTU
-            </div>
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">SABTU</div>
             <div className="text-lg font-black text-foreground">17</div>
             <div className="p-3 rounded-xl border border-dashed border-border text-center py-6">
               <span className="text-xs text-muted-foreground">Tidak ada jadwal</span>
@@ -221,9 +176,7 @@ export const ModulesPage: React.FC = () => {
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-foreground">Module Deliverables</h3>
-          <span className="text-xs text-muted-foreground font-mono">
-            2 modul aktif · 8 tugas · 96 Jam
-          </span>
+          <span className="text-xs text-muted-foreground font-mono">2 modul aktif · 8 tugas · 96 Jam</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -233,27 +186,17 @@ export const ModulesPage: React.FC = () => {
               <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 text-[10px] font-bold font-mono">
                 MOD-01
               </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                Sprint 1 · 25 Okt 2026
-              </span>
+              <span className="text-xs text-muted-foreground font-mono">Sprint 1 · 25 Okt 2026</span>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-foreground">
-                Manajemen Rekening
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Fitur 1.1 Buka Tabungan / Fitur 1.2 Monitoring Saldo
-              </p>
+              <h4 className="text-sm font-bold text-foreground">Manajemen Rekening</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">Fitur 1.1 Buka Tabungan / Fitur 1.2 Monitoring Saldo</p>
             </div>
             <div className="space-y-1.5">
               <Progress value={0} height="h-2" tone="indigo" />
-              <div className="text-right text-xs font-mono text-muted-foreground">
-                0.0%
-              </div>
+              <div className="text-right text-xs font-mono text-muted-foreground">0.0%</div>
             </div>
-            <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">
-              0 / 72 Jam selesai
-            </div>
+            <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">0 / 72 Jam selesai</div>
           </div>
 
           {/* Card 2: MOD-02 */}
@@ -262,40 +205,23 @@ export const ModulesPage: React.FC = () => {
               <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 text-[10px] font-bold font-mono">
                 MOD-02
               </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                Sprint 1 · 28 Okt 2026
-              </span>
+              <span className="text-xs text-muted-foreground font-mono">Sprint 1 · 28 Okt 2026</span>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-foreground">
-                Autentikasi & Keamanan
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                JWT & Otorisasi Peran
-              </p>
+              <h4 className="text-sm font-bold text-foreground">Autentikasi & Keamanan</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">JWT & Otorisasi Peran</p>
             </div>
             <div className="space-y-1.5">
               <Progress value={100} height="h-2" tone="indigo" />
-              <div className="text-right text-xs font-mono text-primary font-bold">
-                100.0%
-              </div>
+              <div className="text-right text-xs font-mono text-primary font-bold">100.0%</div>
             </div>
-            <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">
-              24 / 24 Jam selesai
-            </div>
+            <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">24 / 24 Jam selesai</div>
           </div>
         </div>
       </div>
 
-      <CreateModuleModal
-        isOpen={isModuleModalOpen}
-        onClose={() => setIsModuleModalOpen(false)}
-      />
-      <CreateFeatureModal
-        isOpen={isFeatureModalOpen}
-        onClose={handleCloseFeatureModal}
-        moduleId={selectedModuleId}
-      />
+      <CreateModuleModal isOpen={isModuleModalOpen} onClose={() => setIsModuleModalOpen(false)} />
+      <CreateFeatureModal isOpen={isFeatureModalOpen} onClose={handleCloseFeatureModal} moduleId={selectedModuleId} />
     </div>
   );
 };

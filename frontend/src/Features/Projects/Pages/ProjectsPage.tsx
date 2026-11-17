@@ -30,29 +30,13 @@ import {
 } from "lucide-react";
 
 export const ProjectsPage: React.FC = () => {
-  useDocumentTitle(
-    "Daftar Proyek",
-    "Portofolio Proyek D-1 & Manajemen Deliverable Modul E-4",
-  );
+  useDocumentTitle("Daftar Proyek", "Portofolio Proyek D-1 & Manajemen Deliverable Modul E-4");
 
   const navigate = useNavigate();
-  const {
-    projects,
-    activeProjectId,
-    activeProject,
-    isLoadingProjects,
-    setActiveProjectId,
-  } = useProject();
+  const { projects, activeProjectId, activeProject, isLoadingProjects, setActiveProjectId } = useProject();
 
-  const {
-    isModuleModalOpen,
-    setIsModuleModalOpen,
-    isFeatureModalOpen,
-    setIsFeatureModalOpen,
-    selectedModuleId,
-    handleOpenAddFeature,
-    handleCloseFeatureModal,
-  } = useModulesOverview();
+  const { isModuleModalOpen, setIsModuleModalOpen, isFeatureModalOpen, setIsFeatureModalOpen, selectedModuleId, handleOpenAddFeature, handleCloseFeatureModal } =
+    useModulesOverview();
 
   const { data: rawModules = [], isLoading: isLoadingModules } = useGetModuleList();
 
@@ -69,8 +53,7 @@ export const ProjectsPage: React.FC = () => {
         p.canonicalCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.clientName.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchStatus =
-        statusFilter === "ALL" || p.status === statusFilter;
+      const matchStatus = statusFilter === "ALL" || p.status === statusFilter;
 
       return matchSearch && matchStatus;
     });
@@ -101,9 +84,7 @@ export const ProjectsPage: React.FC = () => {
             <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
               <FolderKanban className="size-5" />
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Portofolio & Daftar Proyek
-            </h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Portofolio & Daftar Proyek</h2>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             Integrasi Modul D-1 (Project Intake) dan Modul E-3 (Execution Readiness). Pilih proyek aktif untuk mengelola tasklist dan sprint agile.
@@ -111,11 +92,7 @@ export const ProjectsPage: React.FC = () => {
         </div>
 
         {activeTab === "MODULES" && (
-          <Button
-            type="button"
-            onClick={() => setIsModuleModalOpen(true)}
-            className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5"
-          >
+          <Button type="button" onClick={() => setIsModuleModalOpen(true)} className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5">
             <Plus className="size-3.5" />
             <span>Tambah Modul Baru</span>
           </Button>
@@ -130,15 +107,11 @@ export const ProjectsPage: React.FC = () => {
           onClick={() => setActiveTab("PROJECTS")}
           className={cn(
             "pb-2.5 transition-all relative flex items-center gap-2 rounded-none h-auto px-0",
-            activeTab === "PROJECTS"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground",
+            activeTab === "PROJECTS" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
           )}
         >
           <span>Daftar Proyek Tersedia</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">
-            {projects.length}
-          </span>
+          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">{projects.length}</span>
         </Button>
 
         <Button
@@ -147,15 +120,11 @@ export const ProjectsPage: React.FC = () => {
           onClick={() => setActiveTab("MODULES")}
           className={cn(
             "pb-2.5 transition-all relative flex items-center gap-2 rounded-none h-auto px-0",
-            activeTab === "MODULES"
-              ? "text-primary border-b-2 border-primary"
-              : "text-muted-foreground hover:text-foreground",
+            activeTab === "MODULES" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
           )}
         >
           <span>Modul & Deliverable ({activeProject?.projectName || activeProjectId})</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">
-            {projectModules.length}
-          </span>
+          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">{projectModules.length}</span>
         </Button>
       </div>
 
@@ -185,9 +154,7 @@ export const ProjectsPage: React.FC = () => {
                   onClick={() => setStatusFilter(st)}
                   className={cn(
                     "px-2.5 py-1 rounded-md text-xs font-medium h-auto",
-                    statusFilter === st
-                      ? "shadow-2xs"
-                      : "bg-muted/50 text-muted-foreground hover:text-foreground",
+                    statusFilter === st ? "shadow-2xs" : "bg-muted/50 text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {st === "ALL" && "Semua"}
@@ -200,9 +167,7 @@ export const ProjectsPage: React.FC = () => {
 
           {/* Project Cards Grid */}
           {isLoadingProjects ? (
-            <div className="py-12 text-center text-xs text-muted-foreground">
-              Memuat daftar proyek dari backend...
-            </div>
+            <div className="py-12 text-center text-xs text-muted-foreground">Memuat daftar proyek dari backend...</div>
           ) : filteredProjects.length === 0 ? (
             <div className="py-12 rounded-2xl border border-dashed border-border text-center space-y-1">
               <p className="text-xs font-semibold text-foreground">Tidak ada proyek yang sesuai</p>
@@ -219,9 +184,7 @@ export const ProjectsPage: React.FC = () => {
                     key={proj.projectId}
                     className={cn(
                       "rounded-2xl border bg-card p-5 space-y-4 transition-all shadow-2xs flex flex-col justify-between",
-                      isActive
-                        ? "border-primary ring-2 ring-primary/20 shadow-md"
-                        : "border-border hover:border-border/80 hover:shadow-xs",
+                      isActive ? "border-primary ring-2 ring-primary/20 shadow-md" : "border-border hover:border-border/80 hover:shadow-xs",
                     )}
                   >
                     <div className="space-y-3.5">
@@ -262,9 +225,7 @@ export const ProjectsPage: React.FC = () => {
                             <Layers className="size-3" />
                             Modul
                           </span>
-                          <p className="text-xs font-bold text-foreground font-mono">
-                            {proj.moduleCount ?? 0} Modul
-                          </p>
+                          <p className="text-xs font-bold text-foreground font-mono">{proj.moduleCount ?? 0} Modul</p>
                         </div>
 
                         <div className="p-2.5 rounded-xl border border-border/70 bg-slate-50/50 dark:bg-slate-900/40 space-y-0.5">
@@ -272,9 +233,7 @@ export const ProjectsPage: React.FC = () => {
                             <ListTodo className="size-3" />
                             Tugas
                           </span>
-                          <p className="text-xs font-bold text-foreground font-mono">
-                            {proj.taskCount ?? 0} Task
-                          </p>
+                          <p className="text-xs font-bold text-foreground font-mono">{proj.taskCount ?? 0} Task</p>
                         </div>
 
                         <div className="p-2.5 rounded-xl border border-border/70 bg-slate-50/50 dark:bg-slate-900/40 space-y-0.5">
@@ -305,18 +264,14 @@ export const ProjectsPage: React.FC = () => {
                             <User className="size-3" />
                             PM:
                           </span>
-                          <span className="text-[11px] font-semibold text-foreground truncate max-w-[160px]">
-                            {proj.pmName || "Belum Ditugaskan"}
-                          </span>
+                          <span className="text-[11px] font-semibold text-foreground truncate max-w-[160px]">{proj.pmName || "Belum Ditugaskan"}</span>
                         </div>
                         <div className="flex items-center justify-between text-muted-foreground">
                           <span className="text-[11px] flex items-center gap-1">
                             <User className="size-3" />
                             AM:
                           </span>
-                          <span className="text-[11px] font-medium text-foreground truncate max-w-[160px]">
-                            {proj.amName || "-"}
-                          </span>
+                          <span className="text-[11px] font-medium text-foreground truncate max-w-[160px]">{proj.amName || "-"}</span>
                         </div>
                         {proj.startDate && (
                           <div className="flex items-center justify-between text-muted-foreground">
@@ -340,12 +295,7 @@ export const ProjectsPage: React.FC = () => {
                             <CheckCircle2 className="size-4 text-emerald-600" />
                             <span>Proyek Aktif Saat Ini</span>
                           </div>
-                          <Button
-                            type="button"
-                            variant="link"
-                            onClick={() => navigate(ROUTE_PATHS.DASHBOARD)}
-                            className="text-xs font-semibold text-primary p-0 h-auto gap-1"
-                          >
+                          <Button type="button" variant="link" onClick={() => navigate(ROUTE_PATHS.DASHBOARD)} className="text-xs font-semibold text-primary p-0 h-auto gap-1">
                             <span>Buka Dashboard</span>
                             <ArrowRight className="size-3.5" />
                           </Button>
@@ -358,8 +308,7 @@ export const ProjectsPage: React.FC = () => {
                             onClick={() => handleSelectProject(proj.projectId, proj.projectName)}
                             className={cn(
                               "w-full h-8.5 rounded-lg text-xs font-semibold gap-1.5 shadow-2xs",
-                              !isRegistered &&
-                                "border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100",
+                              !isRegistered && "border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100",
                             )}
                           >
                             <span>Pilih & Alihkan ke Proyek Ini</span>
@@ -384,38 +333,22 @@ export const ProjectsPage: React.FC = () => {
               <p className="font-bold text-foreground">
                 Daftar Modul untuk Proyek: <span className="text-primary">{activeProject?.projectName || activeProjectId}</span>
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Modul-modul ini terikat dengan proyek aktif. Penambahan modul baru otomatis terdaftar ke proyek ini.
-              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Modul-modul ini terikat dengan proyek aktif. Penambahan modul baru otomatis terdaftar ke proyek ini.</p>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => setIsModuleModalOpen(true)}
-              className="h-8 px-3 rounded-lg text-xs font-semibold gap-1 shadow-xs"
-            >
+            <Button type="button" size="sm" onClick={() => setIsModuleModalOpen(true)} className="h-8 px-3 rounded-lg text-xs font-semibold gap-1 shadow-xs">
               <Plus className="size-3" />
               <span>Tambah Modul</span>
             </Button>
           </div>
 
           {isLoadingModules ? (
-            <div className="py-12 text-center text-xs text-muted-foreground">
-              Memuat data modul...
-            </div>
+            <div className="py-12 text-center text-xs text-muted-foreground">Memuat data modul...</div>
           ) : projectModules.length === 0 ? (
             <div className="py-12 rounded-2xl border border-dashed border-border bg-card text-center space-y-2">
               <Layers className="size-8 text-muted-foreground mx-auto" />
               <p className="text-xs font-semibold text-foreground">Belum ada modul pada proyek ini</p>
-              <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">
-                Proyek ini belum memiliki modul deliverable. Klik tombol di atas untuk membuat modul pertama.
-              </p>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => setIsModuleModalOpen(true)}
-                className="mt-2 h-8 px-4 rounded-lg text-xs font-semibold gap-1.5"
-              >
+              <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">Proyek ini belum memiliki modul deliverable. Klik tombol di atas untuk membuat modul pertama.</p>
+              <Button type="button" size="sm" onClick={() => setIsModuleModalOpen(true)} className="mt-2 h-8 px-4 rounded-lg text-xs font-semibold gap-1.5">
                 <Plus className="size-3.5" />
                 <span>Buat Modul Sekarang</span>
               </Button>
@@ -433,9 +366,7 @@ export const ProjectsPage: React.FC = () => {
                   >
                     <div className="space-y-2.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                          {m.code || "MOD"}
-                        </span>
+                        <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">{m.code || "MOD"}</span>
                         <span className="text-[11px] text-muted-foreground font-mono">
                           {taskCount} Tugas · {featureCount} Fitur
                         </span>
@@ -445,23 +376,16 @@ export const ProjectsPage: React.FC = () => {
                         <h4 className="text-sm font-bold text-foreground line-clamp-1" title={m.name}>
                           {m.name}
                         </h4>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                          {m.description || "Tidak ada deskripsi modul."}
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{m.description || "Tidak ada deskripsi modul."}</p>
                       </div>
 
                       {/* Features list preview */}
                       {featureCount > 0 && (
                         <div className="pt-2 border-t border-border/60">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-                            Fitur-fitur Modul:
-                          </p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Fitur-fitur Modul:</p>
                           <div className="flex flex-wrap gap-1.5">
                             {m.features?.map((f) => (
-                              <span
-                                key={f.id}
-                                className="px-2 py-0.5 rounded-md text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium"
-                              >
+                              <span key={f.id} className="px-2 py-0.5 rounded-md text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
                                 {f.name}
                               </span>
                             ))}
@@ -471,12 +395,7 @@ export const ProjectsPage: React.FC = () => {
                     </div>
 
                     <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs">
-                      <Button
-                        type="button"
-                        variant="link"
-                        onClick={() => handleOpenAddFeature(m.id)}
-                        className="text-primary font-semibold gap-1 p-0 h-auto text-xs"
-                      >
+                      <Button type="button" variant="link" onClick={() => handleOpenAddFeature(m.id)} className="text-primary font-semibold gap-1 p-0 h-auto text-xs">
                         <Plus className="size-3" />
                         <span>Tambah Fitur</span>
                       </Button>
@@ -500,16 +419,9 @@ export const ProjectsPage: React.FC = () => {
       )}
 
       {/* Modals for Create Module & Feature */}
-      <CreateModuleModal
-        isOpen={isModuleModalOpen}
-        onClose={() => setIsModuleModalOpen(false)}
-      />
+      <CreateModuleModal isOpen={isModuleModalOpen} onClose={() => setIsModuleModalOpen(false)} />
 
-      <CreateFeatureModal
-        isOpen={isFeatureModalOpen}
-        onClose={handleCloseFeatureModal}
-        moduleId={selectedModuleId || ""}
-      />
+      <CreateFeatureModal isOpen={isFeatureModalOpen} onClose={handleCloseFeatureModal} moduleId={selectedModuleId || ""} />
     </div>
   );
 };

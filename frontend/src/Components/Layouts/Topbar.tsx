@@ -151,9 +151,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             aria-label="Notifikasi"
           >
             <Bell className="size-4" />
-            {recentTasks.length > 0 && (
-              <span className="size-2 rounded-full bg-primary ring-2 ring-card absolute top-1.5 right-1.5" />
-            )}
+            {recentTasks.length > 0 && <span className="size-2 rounded-full bg-primary ring-2 ring-card absolute top-1.5 right-1.5" />}
           </Button>
 
           {/* Notif Popover (Real Backend Task Feed) */}
@@ -164,13 +162,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
                   <h4 className="text-sm font-bold text-foreground">Aktivitas Tugas</h4>
                   <p className="text-[11px] text-muted-foreground">{recentTasks.length} tugas terdaftar</p>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsNotifOpen(false)}
-                  className="text-xs text-muted-foreground hover:text-primary h-auto p-1"
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={() => setIsNotifOpen(false)} className="text-xs text-muted-foreground hover:text-primary h-auto p-1">
                   Tutup
                 </Button>
               </div>
@@ -189,13 +181,9 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
                       }}
                       className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs hover:border-primary/50 cursor-pointer transition-all"
                     >
-                      <div className="size-7 rounded-full bg-primary text-white font-bold text-[10px] grid place-items-center shrink-0">
-                        {initial}
-                      </div>
+                      <div className="size-7 rounded-full bg-primary text-white font-bold text-[10px] grid place-items-center shrink-0">{initial}</div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-foreground text-xs leading-tight truncate">
-                          {t.title}
-                        </p>
+                        <p className="font-semibold text-foreground text-xs leading-tight truncate">{t.title}</p>
                         <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">
                           {t.task_code} · {t.status} · {assignee}
                         </p>
@@ -204,11 +192,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
                   );
                 })}
 
-                {recentTasks.length === 0 && (
-                  <p className="text-xs text-muted-foreground py-3 text-center">
-                    Belum ada aktivitas tugas tercatat.
-                  </p>
-                )}
+                {recentTasks.length === 0 && <p className="text-xs text-muted-foreground py-3 text-center">Belum ada aktivitas tugas tercatat.</p>}
               </div>
 
               <Button
@@ -247,9 +231,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             className="flex items-center gap-2 sm:gap-2.5 px-2.5 h-[42px] rounded-lg border border-border bg-card hover:bg-muted/70 transition-all text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer shadow-2xs"
             aria-label="Menu Pengguna"
           >
-            <div className="size-[34px] rounded-full bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-              {userInitials}
-            </div>
+            <div className="size-[34px] rounded-full bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">{userInitials}</div>
 
             <div className="hidden sm:block text-left">
               <div className="flex items-center gap-1.5 leading-none">

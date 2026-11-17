@@ -6,20 +6,7 @@ import { useSubmitReview } from "@/Hooks/useSubmitReview";
 import { usePmVerify } from "@/Hooks/usePmVerify";
 import { useTlSignoff } from "@/Hooks/useTlSignoff";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import {
-  Check,
-  Clock,
-  RefreshCw,
-  AlertCircle,
-  ShieldAlert,
-  CheckCircle2,
-  Lock,
-  Unlock,
-  ShieldCheck,
-  ArrowRight,
-  UserCheck,
-  RotateCcw,
-} from "lucide-react";
+import { Check, Clock, RefreshCw, AlertCircle, ShieldAlert, CheckCircle2, Lock, Unlock, ShieldCheck, ArrowRight, UserCheck, RotateCcw } from "lucide-react";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
 import { Label } from "@/Components/Elements/Label";
@@ -29,23 +16,12 @@ import { toast } from "sonner";
 import type { Task } from "@/Types/task";
 
 export const ReviewsPage: React.FC = () => {
-  useDocumentTitle(
-    "Pemeriksaan & Pengujian",
-    "Pemeriksaan kualitas kode, verifikasi kelayakan PM, dan otorisasi pengesahan akhir TL (Definition of Done).",
-  );
+  useDocumentTitle("Pemeriksaan & Pengujian", "Pemeriksaan kualitas kode, verifikasi kelayakan PM, dan otorisasi pengesahan akhir TL (Definition of Done).");
 
   const { user } = useAuth();
   const userRole = user?.role || "PROJECT_MANAGER";
 
-  const {
-    tab,
-    setTab,
-    tabCounts,
-    relevantTasks,
-    refetch,
-    isLoading,
-    getEmptyMessage,
-  } = useReviewsOverview();
+  const { tab, setTab, tabCounts, relevantTasks, refetch, isLoading, getEmptyMessage } = useReviewsOverview();
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [reviewDecision, setReviewDecision] = useState<"PASS" | "REVISE">("PASS");
@@ -161,25 +137,15 @@ export const ReviewsPage: React.FC = () => {
       <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase bg-primary/10 px-2 py-0.5 rounded">
-              QUALITY GATE · FTR-K04-05 & FTR-K04-06
-            </span>
+            <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase bg-primary/10 px-2 py-0.5 rounded">QUALITY GATE · FTR-K04-05 & FTR-K04-06</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            Pemeriksaan Kualitas & Otorisasi DoD
-          </h2>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Pemeriksaan Kualitas & Otorisasi DoD</h2>
           <p className="text-xs text-muted-foreground mt-1">
             Pencatatan review kode, pengujian QA, verifikasi kelayakan PM, dan otorisasi pengesahan akhir TL (Definition of Done).
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            onClick={handleRefresh}
-            disabled={isLoading}
-            loading={isLoading}
-            className="h-9 px-4 rounded-lg text-xs font-semibold gap-1.5 shrink-0 shadow-xs"
-          >
+          <Button type="button" onClick={handleRefresh} disabled={isLoading} loading={isLoading} className="h-9 px-4 rounded-lg text-xs font-semibold gap-1.5 shrink-0 shadow-xs">
             <RefreshCw className={cn("size-3.5", isLoading && "animate-spin")} />
             <span>Segarkan Antrean</span>
           </Button>
@@ -202,9 +168,7 @@ export const ReviewsPage: React.FC = () => {
               onClick={() => setTab(t.id as any)}
               className={cn(
                 "pb-2.5 transition-all rounded-none h-auto px-0 whitespace-nowrap",
-                tab === t.id
-                  ? "text-primary border-b-2 border-primary font-bold"
-                  : "text-muted-foreground hover:text-foreground font-semibold",
+                tab === t.id ? "text-primary border-b-2 border-primary font-bold" : "text-muted-foreground hover:text-foreground font-semibold",
               )}
             >
               {t.label}
@@ -212,9 +176,7 @@ export const ReviewsPage: React.FC = () => {
           ))}
         </div>
 
-        <span className="text-xs text-muted-foreground font-mono self-end sm:self-auto pb-1">
-          {relevantTasks.length} tugas dalam antrean saat ini
-        </span>
+        <span className="text-xs text-muted-foreground font-mono self-end sm:self-auto pb-1">{relevantTasks.length} tugas dalam antrean saat ini</span>
       </div>
 
       {/* 2-Column Split (Left ~35%, Right ~65%) */}
@@ -241,13 +203,13 @@ export const ReviewsPage: React.FC = () => {
                   onClick={() => setSelectedTaskId(t.id)}
                   className={cn(
                     "p-4 rounded-2xl border transition-all cursor-pointer space-y-2 shadow-2xs",
-                    isSelected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-border bg-card hover:border-primary/40",
+                    isSelected ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card hover:border-primary/40",
                   )}
                 >
                   <div className="text-[11px] font-mono text-muted-foreground flex items-center justify-between">
-                    <span>{taskCode} · {modCode}</span>
+                    <span>
+                      {taskCode} · {modCode}
+                    </span>
                     <span className="font-sans font-bold">{Number(t.estimated_man_hours) || 0} Jam</span>
                   </div>
                   <h4 className="text-sm font-bold text-foreground line-clamp-1">{t.title}</h4>
@@ -284,12 +246,8 @@ export const ReviewsPage: React.FC = () => {
 
             {/* Verified Delivery Info Card */}
             <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-2 shadow-xl">
-              <span className="font-mono text-[10px] font-bold text-indigo-400 tracking-wider uppercase block">
-                TWO-GATE QUALITY ASSURANCE
-              </span>
-              <h4 className="text-sm font-bold leading-snug">
-                Dua tahap otorisasi. Satu standar kualitas.
-              </h4>
+              <span className="font-mono text-[10px] font-bold text-indigo-400 tracking-wider uppercase block">TWO-GATE QUALITY ASSURANCE</span>
+              <h4 className="text-sm font-bold leading-snug">Dua tahap otorisasi. Satu standar kualitas.</h4>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Gerbang 1 (Verifikasi kelayakan PM) dan Gerbang 2 (Otorisasi penutupan TL) wajib lengkap sebelum tugas resmi berstatus DONE.
               </p>
@@ -307,15 +265,14 @@ export const ReviewsPage: React.FC = () => {
                   {currentTask.task_code || "#TSK"} / {currentTask.module?.code || "MOD"}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded border border-primary/20 bg-primary/10 text-primary text-[10px] font-bold font-mono">
-                    {currentTask.status}
-                  </span>
+                  <span className="px-2 py-0.5 rounded border border-primary/20 bg-primary/10 text-primary text-[10px] font-bold font-mono">{currentTask.status}</span>
                 </div>
               </div>
 
               <h3 className="text-xl font-bold text-foreground">{currentTask.title}</h3>
               <p className="text-xs text-muted-foreground">
-                PIC: {typeof currentTask.pic === "string" ? currentTask.pic : currentTask.pic?.name || currentTask.assignee_name || "Belum Ditugaskan"} · {Number(currentTask.estimated_man_hours) || 0} Jam · Tenggat: {currentTask.target_deadline ? currentTask.target_deadline.split("T")[0] : "-"}
+                PIC: {typeof currentTask.pic === "string" ? currentTask.pic : currentTask.pic?.name || currentTask.assignee_name || "Belum Ditugaskan"} ·{" "}
+                {Number(currentTask.estimated_man_hours) || 0} Jam · Tenggat: {currentTask.target_deadline ? currentTask.target_deadline.split("T")[0] : "-"}
               </p>
             </div>
 
@@ -328,8 +285,8 @@ export const ReviewsPage: React.FC = () => {
                   currentTask.status === "CODE_REVIEW"
                     ? "border-primary bg-primary/5 ring-1 ring-primary"
                     : currentTask.status === "TESTING" || currentTask.status === "DONE"
-                    ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30"
-                    : "border-border bg-card",
+                      ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30"
+                      : "border-border bg-card",
                 )}
               >
                 {currentTask.status === "TESTING" || currentTask.status === "DONE" ? (
@@ -339,9 +296,7 @@ export const ReviewsPage: React.FC = () => {
                 )}
                 <div>
                   <h5 className="text-xs font-bold text-foreground">1. Code Review</h5>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
-                    {currentTask.status === "CODE_REVIEW" ? "Menunggu review TL/PM" : "Disetujui"}
-                  </p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{currentTask.status === "CODE_REVIEW" ? "Menunggu review TL/PM" : "Disetujui"}</p>
                 </div>
               </div>
 
@@ -352,15 +307,11 @@ export const ReviewsPage: React.FC = () => {
                   currentTask.status === "TESTING"
                     ? "border-primary bg-primary/5 ring-1 ring-primary"
                     : currentTask.status === "DONE"
-                    ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30"
-                    : "border-border bg-card opacity-60",
+                      ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30"
+                      : "border-border bg-card opacity-60",
                 )}
               >
-                {currentTask.status === "DONE" ? (
-                  <Check className="size-4 text-emerald-600 shrink-0" />
-                ) : (
-                  <Clock className="size-4 text-muted-foreground shrink-0" />
-                )}
+                {currentTask.status === "DONE" ? <Check className="size-4 text-emerald-600 shrink-0" /> : <Clock className="size-4 text-muted-foreground shrink-0" />}
                 <div>
                   <h5 className="text-xs font-bold text-foreground">2. QA Testing</h5>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -373,16 +324,10 @@ export const ReviewsPage: React.FC = () => {
               <div
                 className={cn(
                   "p-3 rounded-xl border flex items-center gap-2.5",
-                  currentTask.status === "DONE"
-                    ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 ring-1 ring-emerald-500"
-                    : "border-border bg-card opacity-60",
+                  currentTask.status === "DONE" ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 ring-1 ring-emerald-500" : "border-border bg-card opacity-60",
                 )}
               >
-                {currentTask.status === "DONE" ? (
-                  <Check className="size-4 text-emerald-600 shrink-0" />
-                ) : (
-                  <Clock className="size-4 text-muted-foreground shrink-0" />
-                )}
+                {currentTask.status === "DONE" ? <Check className="size-4 text-emerald-600 shrink-0" /> : <Clock className="size-4 text-muted-foreground shrink-0" />}
                 <div>
                   <h5 className="text-xs font-bold text-foreground">3. Pengesahan Selesai</h5>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -400,9 +345,7 @@ export const ReviewsPage: React.FC = () => {
                     <ShieldCheck className="size-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
-                      Definition of Done Telah Terpenuhi (Terminal State)
-                    </h4>
+                    <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">Definition of Done Telah Terpenuhi (Terminal State)</h4>
                     <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
                       Tugas ini telah disahkan dan terkunci permanen. Seluruh kriteria penerimaan dan uji kualitas telah dipenuhi.
                     </p>
@@ -416,9 +359,7 @@ export const ReviewsPage: React.FC = () => {
                       Gerbang 1: Verifikasi Kelayakan PM
                     </span>
                     <p className="font-bold text-foreground">{currentTask.pm_verified_by || "Project Manager"}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground">
-                      {currentTask.pm_verified_at ? currentTask.pm_verified_at.split("T")[0] : "Terverifikasi"}
-                    </p>
+                    <p className="text-[10px] font-mono text-muted-foreground">{currentTask.pm_verified_at ? currentTask.pm_verified_at.split("T")[0] : "Terverifikasi"}</p>
                   </div>
 
                   <div className="p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 bg-card space-y-1">
@@ -427,9 +368,7 @@ export const ReviewsPage: React.FC = () => {
                       Gerbang 2: Otorisasi Akhir TL
                     </span>
                     <p className="font-bold text-foreground">{currentTask.tl_signed_by || "Technical Lead"}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground">
-                      {currentTask.tl_signed_at ? currentTask.tl_signed_at.split("T")[0] : "Disahkan"}
-                    </p>
+                    <p className="text-[10px] font-mono text-muted-foreground">{currentTask.tl_signed_at ? currentTask.tl_signed_at.split("T")[0] : "Disahkan"}</p>
                   </div>
                 </div>
               </div>
@@ -439,9 +378,7 @@ export const ReviewsPage: React.FC = () => {
                 {/* Left Sub: Review Form & Decision */}
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <h4 className="text-xs font-bold text-foreground">
-                      Pemeriksaan {currentTask.status === "CODE_REVIEW" ? "Code Review" : "QA Testing"}
-                    </h4>
+                    <h4 className="text-xs font-bold text-foreground">Pemeriksaan {currentTask.status === "CODE_REVIEW" ? "Code Review" : "QA Testing"}</h4>
 
                     <div className="grid grid-cols-2 gap-2">
                       <Button
@@ -508,9 +445,7 @@ export const ReviewsPage: React.FC = () => {
                           loading={submitReviewMutation.isPending}
                           className="w-full h-9 rounded-xl text-xs font-semibold shadow-2xs"
                         >
-                          {reviewDecision === "PASS"
-                            ? "Loloskan Code Review (Maju ke Testing)"
-                            : "Tolak & Kembalikan ke Development (Rework)"}
+                          {reviewDecision === "PASS" ? "Loloskan Code Review (Maju ke Testing)" : "Tolak & Kembalikan ke Development (Rework)"}
                         </Button>
                       )}
 
@@ -520,14 +455,9 @@ export const ReviewsPage: React.FC = () => {
                           variant={reviewDecision === "PASS" ? "secondary" : "destructive"}
                           onClick={reviewDecision === "PASS" ? handlePassTesting : handleRejectToDevelopment}
                           loading={submitReviewMutation.isPending}
-                          className={cn(
-                            "w-full h-9 rounded-xl text-xs font-semibold shadow-2xs",
-                            reviewDecision === "PASS" && "bg-cyan-600 hover:bg-cyan-700 text-white",
-                          )}
+                          className={cn("w-full h-9 rounded-xl text-xs font-semibold shadow-2xs", reviewDecision === "PASS" && "bg-cyan-600 hover:bg-cyan-700 text-white")}
                         >
-                          {reviewDecision === "PASS"
-                            ? "Catat Lolos QA Testing"
-                            : "Tolak & Kembalikan ke Development (Rework)"}
+                          {reviewDecision === "PASS" ? "Catat Lolos QA Testing" : "Tolak & Kembalikan ke Development (Rework)"}
                         </Button>
                       )}
                     </div>
@@ -538,9 +468,7 @@ export const ReviewsPage: React.FC = () => {
                 <div className="space-y-3.5">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold text-foreground">Verifikasi & Otorisasi DoD</h4>
-                    <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[9px] font-bold font-mono">
-                      FTR-K04-06
-                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[9px] font-bold font-mono">FTR-K04-06</span>
                   </div>
 
                   {/* Gerbang 1: PM Verification Card */}
@@ -577,17 +505,12 @@ export const ReviewsPage: React.FC = () => {
                       disabled={isPmVerified || !canPmVerify}
                       className={cn(
                         "w-full h-8.5 rounded-lg text-xs font-semibold shadow-2xs",
-                        isPmVerified && "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 cursor-default",
+                        isPmVerified &&
+                          "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 cursor-default",
                       )}
                     >
                       <Check className="size-3.5" />
-                      <span>
-                        {isPmVerified
-                          ? "Kelayakan PM Telah Disahkan ✓"
-                          : canPmVerify
-                          ? "Validasi Verifikasi Kelayakan (PM)"
-                          : "Hanya PM yang Berwenang Memvalidasi"}
-                      </span>
+                      <span>{isPmVerified ? "Kelayakan PM Telah Disahkan ✓" : canPmVerify ? "Validasi Verifikasi Kelayakan (PM)" : "Hanya PM yang Berwenang Memvalidasi"}</span>
                     </Button>
                   </div>
 
@@ -595,7 +518,13 @@ export const ReviewsPage: React.FC = () => {
                   <div className="p-3.5 rounded-xl border border-border bg-card space-y-2.5 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                        {isTlSigned ? <CheckCircle2 className="size-3 text-emerald-600" /> : isPmVerified ? <Unlock className="size-3 text-purple-600" /> : <Lock className="size-3 text-muted-foreground" />}
+                        {isTlSigned ? (
+                          <CheckCircle2 className="size-3 text-emerald-600" />
+                        ) : isPmVerified ? (
+                          <Unlock className="size-3 text-purple-600" />
+                        ) : (
+                          <Lock className="size-3 text-muted-foreground" />
+                        )}
                         Gerbang 2: Otorisasi Sign-Off TL
                       </span>
                       {isTlSigned ? (
@@ -620,8 +549,8 @@ export const ReviewsPage: React.FC = () => {
                       {isTlSigned
                         ? `Disahkan oleh: ${currentTask.tl_signed_by || "Technical Lead"}. Tugas resmi berstatus DONE.`
                         : isPmVerified
-                        ? "Gerbang 1 telah diverifikasi PM. Technical Lead dapat melakukan otorisasi penutupan tiket."
-                        : "Gerbang 2 terkunci. Memerlukan verifikasi kelayakan PM (Gerbang 1) terlebih dahulu."}
+                          ? "Gerbang 1 telah diverifikasi PM. Technical Lead dapat melakukan otorisasi penutupan tiket."
+                          : "Gerbang 2 terkunci. Memerlukan verifikasi kelayakan PM (Gerbang 1) terlebih dahulu."}
                     </p>
 
                     <Button
@@ -635,10 +564,10 @@ export const ReviewsPage: React.FC = () => {
                         isTlSigned
                           ? "bg-emerald-600 text-white cursor-default"
                           : !isPmVerified
-                          ? "bg-muted text-muted-foreground cursor-not-allowed"
-                          : canTlSignoff
-                          ? "bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
-                          : "bg-muted text-muted-foreground cursor-not-allowed",
+                            ? "bg-muted text-muted-foreground cursor-not-allowed"
+                            : canTlSignoff
+                              ? "bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+                              : "bg-muted text-muted-foreground cursor-not-allowed",
                       )}
                     >
                       <CheckCircle2 className="size-3.5" />
@@ -646,10 +575,10 @@ export const ReviewsPage: React.FC = () => {
                         {isTlSigned
                           ? "Tugas Telah Di-Sign-off (DONE)"
                           : !isPmVerified
-                          ? "Terkunci (Menunggu Gerbang 1 PM)"
-                          : canTlSignoff
-                          ? "Otorisasi Sign-Off & Sahkan ke DONE"
-                          : "Hanya TL yang Berwenang Melakukan Sign-off"}
+                            ? "Terkunci (Menunggu Gerbang 1 PM)"
+                            : canTlSignoff
+                              ? "Otorisasi Sign-Off & Sahkan ke DONE"
+                              : "Hanya TL yang Berwenang Melakukan Sign-off"}
                       </span>
                     </Button>
                   </div>
@@ -719,9 +648,7 @@ export const ReviewsPage: React.FC = () => {
           <div className="lg:col-span-8 rounded-2xl border border-dashed border-border bg-card p-12 text-center space-y-3">
             <ShieldAlert className="size-8 text-muted-foreground mx-auto" />
             <h4 className="text-sm font-bold text-foreground">Tidak Ada Tugas yang Dipilih</h4>
-            <p className="text-xs text-muted-foreground">
-              Pilih salah satu tugas dari antrean sebelah kiri untuk meninjau detail pemeriksaan dan otorisasi.
-            </p>
+            <p className="text-xs text-muted-foreground">Pilih salah satu tugas dari antrean sebelah kiri untuk meninjau detail pemeriksaan dan otorisasi.</p>
           </div>
         )}
       </div>
