@@ -1,6 +1,7 @@
 // src/Features/Tasks/Components/TaskRatioBanner.tsx
 import React, { memo } from "react";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
+import { Progress } from "@/Components/Elements/Progress";
 
 export interface TaskRatioBannerProps {
   doneHours: number;
@@ -24,7 +25,7 @@ export const TaskRatioBanner = memo<TaskRatioBannerProps>(
             <span className="font-mono text-xs font-bold text-foreground tracking-wide">
               DELIVERABLE PROGRESS · FTR-K04-07
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold">
+            <span className="px-2 py-0.5 rounded-full bg-primary-subtle text-primary border border-primary-subtle-border text-[10px] font-bold">
               AKTIF
             </span>
           </div>
@@ -40,12 +41,7 @@ export const TaskRatioBanner = memo<TaskRatioBannerProps>(
 
         {/* Progress Bar & Subtitle */}
         <div className="space-y-1.5">
-          <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${percent}%` }}
-            />
-          </div>
+          <Progress value={progressPercentage} height="h-2" tone="primary" animatedShine={false} />
           <div className="text-right text-xs text-muted-foreground font-medium">
             {completedTasks} / {totalTasks} tugas Done
           </div>

@@ -89,7 +89,7 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
                     "flex items-center justify-between px-3 h-[38px] rounded-lg text-sm transition-colors group",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/90 dark:text-slate-300 dark:hover:bg-slate-800/80 font-medium",
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted font-medium",
                   )
                 }
               >
@@ -99,7 +99,7 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
                       <Icon
                         className={cn(
                           "size-4.5 shrink-0 transition-colors",
-                          isActive ? "text-primary-foreground stroke-[2.2]" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 stroke-[2]",
+                          isActive ? "text-primary-foreground stroke-[2.2]" : "text-muted-foreground group-hover:text-foreground stroke-[2]",
                         )}
                       />
                       <span className="truncate text-[13px]">{item.label}</span>
@@ -109,7 +109,7 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
                       <span
                         className={cn(
                           "px-2 py-0.5 rounded-md font-mono text-[11px] leading-tight min-w-5 text-center",
-                          isActive ? "bg-indigo-900/40 text-primary-foreground font-bold" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-semibold",
+                          isActive ? "bg-primary-foreground/20 text-primary-foreground font-bold" : "bg-muted text-muted-foreground font-semibold",
                         )}
                       >
                         {item.badge}

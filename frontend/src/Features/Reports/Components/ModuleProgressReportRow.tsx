@@ -1,6 +1,7 @@
 // src/Features/Reports/Components/ModuleProgressReportRow.tsx
 import React from "react";
 import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
+import { Progress } from "@/Components/Elements/Progress";
 
 export interface ModuleProgressReportRowProps {
   moduleId: string;
@@ -29,19 +30,14 @@ export const ModuleProgressReportRow: React.FC<ModuleProgressReportRowProps> = (
         <span
           className={
             percentage === 100
-              ? "font-mono text-emerald-600 dark:text-emerald-400 font-bold"
+              ? "font-mono text-success font-bold"
               : "font-mono text-muted-foreground"
           }
         >
           {isLoading ? "Menghitung..." : `${doneHours} / ${totalHours} Jam · ${percentage.toFixed(1)}%`}
         </span>
       </div>
-      <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary rounded-full transition-all duration-500"
-          style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
-        />
-      </div>
+      <Progress value={percentage} height="h-2" tone="primary" animatedShine={false} />
     </div>
   );
 };

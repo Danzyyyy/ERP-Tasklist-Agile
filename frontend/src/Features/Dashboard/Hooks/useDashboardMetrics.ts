@@ -1,6 +1,7 @@
 // src/Features/Dashboard/Hooks/useDashboardMetrics.ts
 import { useMemo } from "react";
 import type { Task, ComplexityWeight, TaskStatus } from "@/Types/task";
+import { isTaskRework } from "@/Utils/taskUtils";
 
 export interface TeamMemberWorkload {
   id: string;
@@ -206,6 +207,18 @@ export function useDashboardMetrics(tasks: Task[], progressPercentage = 0) {
     return { radius, circumference, strokeDashoffset };
   }, [progressPercentage]);
 
+  // 9. KPI Stats
+  const kpiStats = useMemo(() => {
+    const sprintActiveCount = tasks.filter((t) => t.status !== "DONE" && t.status !== "DRAFT").length;
+    const draftCount = tasks.filter((t) => t.status === "DRAFT").length;
+    const reworkCount = tasks.filter((t) => isTaskRework(t)).length;
+    return {
+      sprintActiveCount,
+      draftCount,
+      reworkCount,
+    };
+  }, [tasks]);
+
   return {
     activeTasksCount,
     priorityTasks,
@@ -215,6 +228,7 @@ export function useDashboardMetrics(tasks: Task[], progressPercentage = 0) {
     teamWorkload,
     dynamicActivities,
     donutMetrics,
+    kpiStats,
   };
 }
 

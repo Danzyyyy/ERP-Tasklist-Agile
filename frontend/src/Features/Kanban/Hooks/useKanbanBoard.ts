@@ -194,11 +194,56 @@ export function useKanbanBoard() {
     handleTransition(task, targetStatus);
   };
 
+  // Group tasks by column status
+  const columnTasksMap = useMemo(() => {
+    const map: Record<string, Task[]> = {
+      RELEASED: [],
+      DEVELOPMENT: [],
+      CODE_REVIEW: [],
+      TESTING: [],
+      DONE: [],
+    };
+    filteredTasks.forEach((t) => {
+      if (map[t.status]) {
+        map[t.status].push(t);
+      }
+    });
+    return map;
+  }, [filteredTasks]);
+
+  // Sprint execution metrics
+  const sprintMetrics = useMemo(() => {
+    const now = Date.now();
+    let inProgressCount = 0;
+    let doneCount = 0;
+    let overdueCount = 0;
+
+    filteredTasks.forEach((t) => {
+      if (t.status === "DEVELOPMENT" || t.status === "CODE_REVIEW") {
+        inProgressCount++;
+      } else if (t.status === "DONE") {
+        doneCount++;
+      }
+      if (t.target_deadline && t.status !== "DONE" && new Date(t.target_deadline).getTime() < now) {
+        overdueCount++;
+      }
+    });
+
+    return {
+      totalTasksCount: filteredTasks.length,
+      inProgressCount,
+      doneCount,
+      overdueCount,
+    };
+  }, [filteredTasks]);
+
   return {
     userRole: role,
     tasks,
     modules,
     filteredTasks,
+    columnTasksMap,
+    sprintMetrics,
     filters,
     setFilter,
     isLoading,

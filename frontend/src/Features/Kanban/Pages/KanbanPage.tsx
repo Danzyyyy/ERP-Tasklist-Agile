@@ -11,8 +11,9 @@ import ReviewModal from "@/Components/Modals/ReviewModal";
 import SignOffModal from "@/Components/Modals/SignOffModal";
 import { Button } from "@/Components/Elements/Button";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
+import { getAvatarBg } from "@/Utils/taskUtils";
+import { cn } from "@/Utils/cn";
 import { Plus, RefreshCw } from "lucide-react";
-import type { Task } from "@/Types/task";
 
 export const KanbanPage: React.FC = () => {
   useDocumentTitle(
@@ -24,6 +25,8 @@ export const KanbanPage: React.FC = () => {
     userRole,
     modules,
     filteredTasks,
+    columnTasksMap,
+    sprintMetrics,
     filters,
     setFilter,
     canCreateTask,
@@ -47,19 +50,6 @@ export const KanbanPage: React.FC = () => {
     signOffTask,
     setSignOffTask,
   } = useKanbanBoard();
-
-  // Filter tasks per 5 columns matching backend SOP-08
-  const getTasksForColumn = (colId: string): Task[] => {
-    return filteredTasks.filter((t) => t.status === colId);
-  };
-
-  const totalTasksCount = filteredTasks.length;
-  const inProgressCount = filteredTasks.filter((t) => t.status === "DEVELOPMENT" || t.status === "CODE_REVIEW").length;
-  const doneCount = filteredTasks.filter((t) => t.status === "DONE").length;
-  const overdueCount = filteredTasks.filter((t) => {
-    if (!t.target_deadline || t.status === "DONE") return false;
-    return new Date(t.target_deadline).getTime() < Date.now();
-  }).length;
 
   return (
     <div className="space-y-4">
@@ -117,7 +107,7 @@ export const KanbanPage: React.FC = () => {
           <div key={col.id} className="w-[280px] sm:w-[300px] shrink-0">
             <KanbanColumn
               column={col}
-              tasks={getTasksForColumn(col.id)}
+              tasks={columnTasksMap[col.id] || []}
               userRole={userRole}
               draggedFromStatus={draggedTask?.status ?? null}
               onSelectTask={setSelectedTask}
@@ -139,35 +129,35 @@ export const KanbanPage: React.FC = () => {
           <h4 className="text-xs font-bold text-foreground">Status Pelaksana & Beban Kerja (PIC)</h4>
           <div className="flex flex-wrap items-center gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <div className="size-6 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center">
+              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("TW"))}>
                 TW
               </div>
               <span className="font-semibold text-foreground">Tubagus Wildan · PM</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="size-6 rounded-full bg-emerald-600 text-white font-bold text-[10px] grid place-items-center">
+              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("FZ"))}>
                 FZ
               </div>
               <span className="font-semibold text-foreground">Fauzan · TL</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="size-6 rounded-full bg-purple-600 text-white font-bold text-[10px] grid place-items-center">
+              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("AR"))}>
                 AR
               </div>
               <span className="font-semibold text-foreground">Ariel · FE (24h)</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="size-6 rounded-full bg-blue-600 text-white font-bold text-[10px] grid place-items-center">
+              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("FJ"))}>
                 FJ
               </div>
               <span className="font-semibold text-foreground">Muhamad Fajri · BE (72h)</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="size-6 rounded-full bg-amber-600 text-white font-bold text-[10px] grid place-items-center">
+              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("VD"))}>
                 VD
               </div>
               <span className="font-semibold text-foreground">Valdric · QA</span>
@@ -181,25 +171,25 @@ export const KanbanPage: React.FC = () => {
           <div className="grid grid-cols-4 gap-2 pt-1 text-center">
             <div>
               <div className="text-lg font-black text-foreground font-mono">
-                {String(totalTasksCount).padStart(2, "0")}
+                {String(sprintMetrics.totalTasksCount).padStart(2, "0")}
               </div>
               <div className="text-[10px] text-muted-foreground mt-0.5">Total tugas</div>
             </div>
             <div>
-              <div className="text-lg font-black text-blue-600 dark:text-blue-400 font-mono">
-                {String(inProgressCount).padStart(2, "0")}
+              <div className="text-lg font-black text-primary font-mono">
+                {String(sprintMetrics.inProgressCount).padStart(2, "0")}
               </div>
               <div className="text-[10px] text-muted-foreground mt-0.5">In progress</div>
             </div>
             <div>
-              <div className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono">
-                {String(doneCount).padStart(2, "0")}
+              <div className="text-lg font-black text-success font-mono">
+                {String(sprintMetrics.doneCount).padStart(2, "0")}
               </div>
               <div className="text-[10px] text-muted-foreground mt-0.5">Selesai</div>
             </div>
             <div>
-              <div className="text-lg font-black text-rose-600 dark:text-rose-400 font-mono">
-                {String(overdueCount).padStart(2, "0")}
+              <div className="text-lg font-black text-destructive font-mono">
+                {String(sprintMetrics.overdueCount).padStart(2, "0")}
               </div>
               <div className="text-[10px] text-muted-foreground mt-0.5">Overdue</div>
             </div>

@@ -50,7 +50,7 @@ export const KanbanColumn = memo<KanbanColumnProps>(
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "flex-1 min-w-[260px] rounded-2xl border border-border bg-slate-50/70 dark:bg-slate-900/40 p-3 flex flex-col justify-between transition-colors shadow-2xs",
+          "flex-1 min-w-[260px] rounded-2xl border border-border bg-muted/30 p-3 flex flex-col justify-between transition-colors shadow-2xs",
           isOver && "border-primary ring-2 ring-primary/20 bg-primary/5",
         )}
       >

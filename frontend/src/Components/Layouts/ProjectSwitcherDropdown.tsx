@@ -77,12 +77,12 @@ export const ProjectSwitcherDropdown = memo(() => {
                         {proj.canonicalCode || proj.projectId}
                       </span>
                       {isRegistered ? (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-success-subtle text-success-subtle-foreground border border-success-subtle-border">
                           <ShieldCheck className="size-2.5" />
                           Reg
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-warning-subtle text-warning-subtle-foreground border border-warning-subtle-border">
                           <AlertCircle className="size-2.5" />
                           Review
                         </span>

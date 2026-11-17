@@ -8,15 +8,18 @@ export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   showLabel?: boolean;
   animatedShine?: boolean;
   height?: string;
-  tone?: "indigo" | "emerald" | "amber" | "blue";
+  tone?: "indigo" | "emerald" | "amber" | "blue" | "primary" | "success" | "warning";
   ref?: React.Ref<HTMLDivElement>;
 }
 
 const toneClasses = {
-  indigo: "bg-[#4f46e5] text-white",
-  emerald: "bg-[#10b981] text-white",
-  amber: "bg-[#f59e0b] text-white",
-  blue: "bg-[#0284c7] text-white",
+  indigo: "bg-primary text-primary-foreground",
+  primary: "bg-primary text-primary-foreground",
+  emerald: "bg-success text-success-foreground",
+  success: "bg-success text-success-foreground",
+  amber: "bg-warning text-warning-foreground",
+  warning: "bg-warning text-warning-foreground",
+  blue: "bg-primary text-primary-foreground",
 };
 
 export const Progress = memo<ProgressProps>(
@@ -37,7 +40,7 @@ export const Progress = memo<ProgressProps>(
       <div
         ref={ref}
         className={cn(
-          "w-full overflow-hidden rounded-full bg-[#f1f5f9] border border-border/40 relative shadow-inner",
+          "w-full overflow-hidden rounded-full bg-muted border border-border/40 relative shadow-inner",
           height,
           className,
         )}

@@ -163,7 +163,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
                         setIsNotifOpen(false);
                         navigate(ROUTE_PATHS.TASKS);
                       }}
-                      className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs hover:border-primary/50 cursor-pointer transition-all"
+                      className="p-2.5 rounded-xl bg-muted/40 border border-border/80 flex items-start gap-2.5 text-xs hover:border-primary/50 cursor-pointer transition-all"
                     >
                       <div className="size-7 rounded-full bg-primary text-white font-bold text-[10px] grid place-items-center shrink-0">{initial}</div>
                       <div className="flex-1 min-w-0">

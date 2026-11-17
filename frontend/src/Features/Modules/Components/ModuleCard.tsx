@@ -7,6 +7,7 @@ import { Badge } from "@/Components/Elements/Badge";
 import { Skeleton } from "@/Components/Elements/Skeleton";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { formatManHours } from "@/Utils/formatters";
+import { calculateTasksProgress } from "@/Utils/taskUtils";
 import type { Module, Task } from "@/Types/task";
 import { Plus, ArrowRight, Info } from "lucide-react";
 
@@ -20,10 +21,7 @@ export interface ModuleCardProps {
 export const ModuleCard = memo<ModuleCardProps>(({ module: mod, tasks, canManage, onAddFeature }) => {
   const navigate = useNavigate();
   const moduleTasks = tasks.filter((t) => t.module_id === mod.id);
-  const moduleHours = moduleTasks.reduce(
-    (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-    0,
-  );
+  const { totalHours: moduleHours } = calculateTasksProgress(moduleTasks);
   const features = mod.features || [];
 
   return (
@@ -110,10 +108,7 @@ export const ModuleCard = memo<ModuleCardProps>(({ module: mod, tasks, canManage
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {features.map((ftr) => {
               const ftrTasks = tasks.filter((t) => t.feature_id === ftr.id);
-              const ftrHours = ftrTasks.reduce(
-                (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-                0,
-              );
+              const { totalHours: ftrHours } = calculateTasksProgress(ftrTasks);
 
               return (
                 <div

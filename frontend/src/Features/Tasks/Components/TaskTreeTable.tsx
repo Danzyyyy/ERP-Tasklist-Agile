@@ -38,7 +38,7 @@ export const TaskTreeTable = memo<TaskTreeTableProps>(
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="border-b border-border bg-slate-50/50 dark:bg-slate-900/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-muted/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3 px-3 w-10 text-center text-muted-foreground font-mono">
                   #
                 </th>

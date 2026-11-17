@@ -3,19 +3,17 @@ import React, { memo } from "react";
 import { Card } from "@/Components/Elements/Card";
 import { Skeleton } from "@/Components/Elements/Skeleton";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
-import { isTaskRework } from "@/Utils/taskUtils";
-import type { DeliverableProgress, Task } from "@/Types/task";
+import type { DeliverableProgress } from "@/Types/task";
 import { TrendingUp, Clock, ShieldAlert, RotateCcw } from "lucide-react";
 
 export interface KPICardsProps {
   metrics: DeliverableProgress;
-  tasks: Task[];
+  sprintActiveCount?: number;
+  draftCount?: number;
+  reworkCount?: number;
 }
 
-export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
-  const activeTasks = tasks.filter((t) => t.status !== "DONE" && t.status !== "DRAFT");
-  const draftApprovals = tasks.filter((t) => t.status === "DRAFT");
-
+export const KPICards = memo<KPICardsProps>(({ metrics, sprintActiveCount = 0, draftCount = 0, reworkCount = 0 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {/* KPI 1 */}
@@ -51,7 +49,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
         </div>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black text-foreground font-mono">
-            {activeTasks.length}
+            {sprintActiveCount}
           </span>
           <span className="text-xs text-muted-foreground font-medium">Tugas</span>
         </div>
@@ -72,7 +70,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
         </div>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black text-warning-subtle-foreground font-mono">
-            {draftApprovals.length}
+            {draftCount}
           </span>
           <span className="text-xs text-muted-foreground font-medium">Draft</span>
         </div>
@@ -93,7 +91,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
         </div>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black text-destructive-subtle-foreground font-mono">
-            {tasks.filter((t) => isTaskRework(t)).length}
+            {reworkCount}
           </span>
           <span className="text-xs text-muted-foreground font-medium">Tugas</span>
         </div>

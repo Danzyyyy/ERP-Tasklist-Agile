@@ -63,15 +63,15 @@ const DashboardInner = memo(() => {
               <span
                 className={cn(
                   "size-2 rounded-full shrink-0",
-                  activeProject?.status === "REGISTERED" ? "bg-emerald-500" : "bg-amber-500",
+                  activeProject?.status === "REGISTERED" ? "bg-success" : "bg-warning",
                 )}
               />
               <span
                 className={cn(
                   "font-mono",
                   activeProject?.status === "REGISTERED"
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-amber-600 dark:text-amber-400",
+                    ? "text-success"
+                    : "text-warning",
                 )}
               >
                 {activeProject?.canonicalCode || activeProjectId} · {activeProject?.status || "REGISTERED"}
@@ -89,8 +89,8 @@ const DashboardInner = memo(() => {
           <div className="flex items-center gap-2">
             <span>Modul E-4: Tasklist & Eksekusi Agile</span>
             <span>·</span>
-            <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-              <span className="size-2 rounded-full bg-emerald-500" />
+            <span className="flex items-center gap-1.5 text-success font-medium">
+              <span className="size-2 rounded-full bg-success" />
               All systems operational
             </span>
           </div>

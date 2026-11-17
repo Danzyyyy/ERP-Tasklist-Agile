@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
+import { Progress } from "@/Components/Elements/Progress";
 import { cn } from "@/Utils/cn";
 
 export interface ModuleDeliverableCardProps {
@@ -25,7 +26,7 @@ export const ModuleDeliverableCard = memo<ModuleDeliverableCardProps>(
     const percentage = progress?.progressPercentage ?? 0;
     const totalTasks = progress?.totalTasks ?? 0;
     const completedTasks = progress?.completedTasks ?? 0;
-    const activeTasks = Math.max(0, totalTasks - completedTasks);
+    const activeTasks = totalTasks > completedTasks ? totalTasks - completedTasks : 0;
 
     return (
       <div
@@ -50,12 +51,7 @@ export const ModuleDeliverableCard = memo<ModuleDeliverableCardProps>(
           </div>
 
           <div className="space-y-1.5">
-            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
-              />
-            </div>
+            <Progress value={percentage} height="h-1.5" tone="primary" animatedShine={false} />
             <div className="flex items-center justify-between text-[11px] font-mono">
               <span className="text-muted-foreground">
                 {isLoading ? "Menghitung..." : `${formatManHours(doneHours)} / ${formatManHours(totalHours)} Jam`}

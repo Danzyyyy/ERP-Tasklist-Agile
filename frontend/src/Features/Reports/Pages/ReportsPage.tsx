@@ -36,13 +36,13 @@ export const ReportsPage: React.FC = () => {
   const getStageColor = (status: string) => {
     switch (status) {
       case "CODE_REVIEW":
-        return "text-purple-600 dark:text-purple-400";
+        return "text-purple-subtle-foreground";
       case "TESTING":
-        return "text-cyan-600 dark:text-cyan-400";
+        return "text-cyan-subtle-foreground";
       case "DEVELOPMENT":
-        return "text-blue-600 dark:text-blue-400";
+        return "text-primary";
       case "RELEASED":
-        return "text-emerald-600 dark:text-emerald-400";
+        return "text-success";
       default:
         return "text-muted-foreground";
     }
@@ -194,7 +194,7 @@ export const ReportsPage: React.FC = () => {
                   <span
                     className={`font-mono ${
                       entry.done > 0 && entry.done === entry.total
-                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                        ? "text-success font-bold"
                         : "text-muted-foreground"
                     }`}
                   >
@@ -213,7 +213,7 @@ export const ReportsPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-foreground">Weekly Cycle Rollover (SOP-08 & Q-08)</h3>
-              <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold font-mono">
+              <span className="px-2 py-0.5 rounded-full bg-primary-subtle text-primary border border-primary-subtle-border text-[10px] font-bold font-mono">
                 {activeTasks.length} TUGAS AKTIF
               </span>
             </div>
