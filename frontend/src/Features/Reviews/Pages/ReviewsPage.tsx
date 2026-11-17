@@ -202,7 +202,7 @@ export const ReviewsPage: React.FC = () => {
         <div className="lg:col-span-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground">Antrean Pemeriksaan</h3>
-            <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold font-mono">
+            <span className="px-2 py-0.5 rounded-full bg-primary-subtle text-primary border border-primary-subtle-border text-xs font-bold font-mono">
               {String(relevantTasks.length).padStart(2, "0")}
             </span>
           </div>
@@ -236,16 +236,16 @@ export const ReviewsPage: React.FC = () => {
                       variant="outline"
                       className={cn(
                         "text-[10px] font-bold font-mono uppercase px-2 py-0.5",
-                        t.status === "CODE_REVIEW" && "border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300",
-                        t.status === "TESTING" && "border-cyan-200 dark:border-cyan-900 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300",
-                        t.status === "DONE" && "border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300",
-                        !["CODE_REVIEW", "TESTING", "DONE"].includes(t.status) && "border-muted text-muted-foreground bg-muted/30",
+                        t.status === "CODE_REVIEW" && "border-purple-subtle-border bg-purple-subtle text-purple-subtle-foreground",
+                        t.status === "TESTING" && "border-cyan-subtle-border bg-cyan-subtle text-cyan-subtle-foreground",
+                        t.status === "DONE" && "border-success-subtle-border bg-success-subtle text-success-subtle-foreground",
+                        !["CODE_REVIEW", "TESTING", "DONE"].includes(t.status) && "border-border text-muted-foreground bg-muted",
                       )}
                     >
                       {t.status.replace("_", " ")}
                     </Badge>
                     {t.is_pm_verified && (
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                      <span className="text-[10px] text-success font-bold flex items-center gap-1">
                         <Check className="size-3" /> PM Verified
                       </span>
                     )}
@@ -262,10 +262,10 @@ export const ReviewsPage: React.FC = () => {
             )}
 
             {/* Verified Delivery Info Card */}
-            <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-2 shadow-xl">
-              <span className="font-mono text-[10px] font-bold text-indigo-400 tracking-wider uppercase block">TWO-GATE QUALITY ASSURANCE</span>
+            <div className="p-5 rounded-2xl bg-card border border-border text-card-foreground space-y-2 shadow-xs">
+              <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase block">TWO-GATE QUALITY ASSURANCE</span>
               <h4 className="text-sm font-bold leading-snug">Dua tahap otorisasi. Satu standar kualitas.</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Gerbang 1 (Verifikasi kelayakan PM) dan Gerbang 2 (Otorisasi penutupan TL) wajib lengkap sebelum tugas resmi berstatus DONE.
               </p>
             </div>
@@ -302,12 +302,12 @@ export const ReviewsPage: React.FC = () => {
                   currentTask.status === "CODE_REVIEW"
                     ? "border-primary bg-primary/5 ring-1 ring-primary"
                     : currentTask.status === "TESTING" || currentTask.status === "DONE"
-                      ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30"
+                      ? "border-success-subtle-border bg-success-subtle/40 text-success-subtle-foreground"
                       : "border-border bg-card",
                 )}
               >
                 {currentTask.status === "TESTING" || currentTask.status === "DONE" ? (
-                  <Check className="size-4 text-emerald-600 shrink-0" />
+                  <Check className="size-4 text-success shrink-0" />
                 ) : (
                   <Clock className="size-4 text-primary shrink-0" />
                 )}
@@ -324,11 +324,11 @@ export const ReviewsPage: React.FC = () => {
                   currentTask.status === "TESTING"
                     ? "border-primary bg-primary/5 ring-1 ring-primary"
                     : currentTask.status === "DONE"
-                      ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30"
+                      ? "border-success-subtle-border bg-success-subtle/40 text-success-subtle-foreground"
                       : "border-border bg-card opacity-60",
                 )}
               >
-                {currentTask.status === "DONE" ? <Check className="size-4 text-emerald-600 shrink-0" /> : <Clock className="size-4 text-muted-foreground shrink-0" />}
+                {currentTask.status === "DONE" ? <Check className="size-4 text-success shrink-0" /> : <Clock className="size-4 text-muted-foreground shrink-0" />}
                 <div>
                   <h5 className="text-xs font-bold text-foreground">2. QA Testing</h5>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -341,10 +341,10 @@ export const ReviewsPage: React.FC = () => {
               <div
                 className={cn(
                   "p-3 rounded-xl border flex items-center gap-2.5",
-                  currentTask.status === "DONE" ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 ring-1 ring-emerald-500" : "border-border bg-card opacity-60",
+                  currentTask.status === "DONE" ? "border-success bg-success-subtle text-success-subtle-foreground ring-1 ring-success" : "border-border bg-card opacity-60",
                 )}
               >
-                {currentTask.status === "DONE" ? <Check className="size-4 text-emerald-600 shrink-0" /> : <Clock className="size-4 text-muted-foreground shrink-0" />}
+                {currentTask.status === "DONE" ? <Check className="size-4 text-success shrink-0" /> : <Clock className="size-4 text-muted-foreground shrink-0" />}
                 <div>
                   <h5 className="text-xs font-bold text-foreground">3. Pengesahan Selesai</h5>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -356,32 +356,32 @@ export const ReviewsPage: React.FC = () => {
 
             {/* CASE A: TASK IS DONE -> SHOW SEALED DoD CERTIFICATE */}
             {currentTask.status === "DONE" ? (
-              <div className="p-6 rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-4">
+              <div className="p-6 rounded-2xl border border-success-subtle-border bg-success-subtle/40 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-full bg-emerald-600 text-white grid place-items-center shrink-0 shadow-md">
+                  <div className="size-10 rounded-full bg-success text-success-foreground grid place-items-center shrink-0 shadow-md">
                     <ShieldCheck className="size-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">Definition of Done Telah Terpenuhi (Terminal State)</h4>
-                    <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    <h4 className="text-sm font-bold text-foreground">Definition of Done Telah Terpenuhi (Terminal State)</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       Tugas ini telah disahkan dan terkunci permanen. Seluruh kriteria penerimaan dan uji kualitas telah dipenuhi.
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-                  <div className="p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 bg-card space-y-1">
+                  <div className="p-3 rounded-xl border border-success-subtle-border bg-card space-y-1">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                      <UserCheck className="size-3 text-emerald-600" />
+                      <UserCheck className="size-3 text-success" />
                       Gerbang 1: Verifikasi Kelayakan PM
                     </span>
                     <p className="font-bold text-foreground">{currentTask.pm_verified_by || "Project Manager"}</p>
                     <p className="text-[10px] font-mono text-muted-foreground">{currentTask.pm_verified_at ? currentTask.pm_verified_at.split("T")[0] : "Terverifikasi"}</p>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 bg-card space-y-1">
+                  <div className="p-3 rounded-xl border border-success-subtle-border bg-card space-y-1">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                      <CheckCircle2 className="size-3 text-emerald-600" />
+                      <CheckCircle2 className="size-3 text-success" />
                       Gerbang 2: Otorisasi Akhir TL
                     </span>
                     <p className="font-bold text-foreground">{currentTask.tl_signed_by || "Technical Lead"}</p>
@@ -405,11 +405,11 @@ export const ReviewsPage: React.FC = () => {
                         className={cn(
                           "h-auto py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-semibold transition-all",
                           reviewDecision === "PASS"
-                            ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500"
+                            ? "border-success bg-success-subtle text-success-subtle-foreground ring-1 ring-success"
                             : "border-border bg-card text-muted-foreground hover:bg-muted",
                         )}
                       >
-                        <CheckCircle2 className="size-3.5 text-emerald-600" />
+                        <CheckCircle2 className="size-3.5 text-success" />
                         <span>Disetujui (Pass)</span>
                       </Button>
 
@@ -420,11 +420,11 @@ export const ReviewsPage: React.FC = () => {
                         className={cn(
                           "h-auto py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-semibold transition-all",
                           reviewDecision === "REVISE"
-                            ? "border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500"
+                            ? "border-destructive bg-destructive-subtle text-destructive-subtle-foreground ring-1 ring-destructive"
                             : "border-border bg-card text-muted-foreground hover:bg-muted",
                         )}
                       >
-                        <RotateCcw className="size-3.5 text-rose-600" />
+                        <RotateCcw className="size-3.5 text-destructive" />
                         <span>Perlu Revisi (Rework)</span>
                       </Button>
                     </div>
@@ -433,7 +433,7 @@ export const ReviewsPage: React.FC = () => {
                       <div className="flex items-center justify-between text-[11px]">
                         <Label
                           required={reviewDecision === "REVISE"}
-                          className={cn("font-bold mb-0", reviewDecision === "REVISE" ? "text-rose-600 dark:text-rose-400" : "text-foreground")}
+                          className={cn("font-bold mb-0", reviewDecision === "REVISE" ? "text-destructive" : "text-foreground")}
                         >
                           {reviewDecision === "REVISE" ? "Alasan Penolakan / Catatan Revisi" : "Catatan Hasil Pengujian (Opsional)"}
                         </Label>
@@ -496,12 +496,12 @@ export const ReviewsPage: React.FC = () => {
                         Gerbang 1: Verifikasi Kelayakan PM
                       </span>
                       {isPmVerified ? (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-success-subtle text-success-subtle-foreground border border-success-subtle-border flex items-center gap-1">
                           <Check className="size-2.5" />
                           TERVERIFIKASI
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-warning-subtle text-warning-subtle-foreground border border-warning-subtle-border flex items-center gap-1">
                           <Clock className="size-2.5" />
                           MENUNGGU PM
                         </span>
@@ -523,7 +523,7 @@ export const ReviewsPage: React.FC = () => {
                       className={cn(
                         "w-full h-8.5 rounded-lg text-xs font-semibold shadow-2xs",
                         isPmVerified &&
-                          "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 cursor-default",
+                          "bg-success-subtle text-success-subtle-foreground border border-success-subtle-border cursor-default",
                       )}
                     >
                       <Check className="size-3.5" />
@@ -536,26 +536,26 @@ export const ReviewsPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                         {isTlSigned ? (
-                          <CheckCircle2 className="size-3 text-emerald-600" />
+                          <CheckCircle2 className="size-3 text-success" />
                         ) : isPmVerified ? (
-                          <Unlock className="size-3 text-purple-600" />
+                          <Unlock className="size-3 text-primary" />
                         ) : (
                           <Lock className="size-3 text-muted-foreground" />
                         )}
                         Gerbang 2: Otorisasi Sign-Off TL
                       </span>
                       {isTlSigned ? (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-success-subtle text-success-subtle-foreground border border-success-subtle-border flex items-center gap-1">
                           <Check className="size-2.5" />
                           DONE
                         </span>
                       ) : isPmVerified ? (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-purple-subtle text-purple-subtle-foreground border border-purple-subtle-border flex items-center gap-1">
                           <Unlock className="size-2.5" />
                           SIAP DISAHKAN
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-muted text-muted-foreground border border-border flex items-center gap-1">
                           <Lock className="size-2.5" />
                           TERKUNCI
                         </span>
@@ -579,11 +579,11 @@ export const ReviewsPage: React.FC = () => {
                       className={cn(
                         "w-full h-8.5 rounded-lg text-xs font-semibold shadow-2xs",
                         isTlSigned
-                          ? "bg-emerald-600 text-white cursor-default"
+                          ? "bg-success text-success-foreground cursor-default"
                           : !isPmVerified
                             ? "bg-muted text-muted-foreground cursor-not-allowed"
                             : canTlSignoff
-                              ? "bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+                              ? "bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
                               : "bg-muted text-muted-foreground cursor-not-allowed",
                       )}
                     >
@@ -611,7 +611,7 @@ export const ReviewsPage: React.FC = () => {
                   variant="outline"
                   onClick={handleRejectToDevelopment}
                   loading={submitReviewMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors w-full sm:w-auto"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80 transition-colors w-full sm:w-auto"
                 >
                   <span>← Tolak & Kembalikan ke Development (Rework)</span>
                 </Button>
@@ -651,7 +651,7 @@ export const ReviewsPage: React.FC = () => {
                       onClick={handleTlFinalSignoff}
                       loading={tlSignoffMutation.isPending}
                       disabled={!canTlSignoff}
-                      className="px-5 py-2 text-xs font-semibold rounded-xl bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
+                      className="px-5 py-2 text-xs font-semibold rounded-xl w-full sm:w-auto"
                     >
                       <CheckCircle2 className="size-3.5" />
                       <span>Otorisasi Sign-Off Done (TL)</span>
