@@ -142,6 +142,17 @@ export function useCreateTask({
     },
   );
 
+  const incrementManHours = () => {
+    const current = Number(form.getValues("estimated_man_hours")) || 8;
+    form.setValue("estimated_man_hours", Number((current + 1).toFixed(2)), { shouldValidate: true });
+  };
+
+  const decrementManHours = () => {
+    const current = Number(form.getValues("estimated_man_hours")) || 8;
+    const next = Math.max(0.25, Number((current - 1).toFixed(2)));
+    form.setValue("estimated_man_hours", next, { shouldValidate: true });
+  };
+
   return {
     form,
     register: form.register,
@@ -150,6 +161,8 @@ export function useCreateTask({
     watch: form.watch,
     errors: form.formState.errors,
     onSubmit,
+    incrementManHours,
+    decrementManHours,
     isPending: mutation.isPending,
     loading: mutation.isPending,
     reset: form.reset,

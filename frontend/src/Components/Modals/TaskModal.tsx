@@ -18,7 +18,7 @@ export interface TaskModalProps {
 }
 
 export const TaskModal = memo<TaskModalProps>(({ isOpen, onClose, defaultModuleId, defaultFeatureId }) => {
-  const { register, errors, onSubmit, isPending, modules, availableFeatures, setValue, watch } = useCreateTask({
+  const { register, errors, onSubmit, isPending, modules, availableFeatures, setValue, watch, incrementManHours, decrementManHours } = useCreateTask({
     defaultModuleId,
     defaultFeatureId,
     onSuccess: onClose,
@@ -133,10 +133,7 @@ export const TaskModal = memo<TaskModalProps>(({ isOpen, onClose, defaultModuleI
                     type="button"
                     variant="ghost"
                     size="iconSm"
-                    onClick={() => {
-                      const next = Math.max(0.25, Number((manHours - 1).toFixed(2)));
-                      setValue("estimated_man_hours", next, { shouldValidate: true });
-                    }}
+                    onClick={decrementManHours}
                     className="size-6 text-muted-foreground hover:text-foreground"
                   >
                     <Minus className="size-3" />
@@ -146,10 +143,7 @@ export const TaskModal = memo<TaskModalProps>(({ isOpen, onClose, defaultModuleI
                     type="button"
                     variant="ghost"
                     size="iconSm"
-                    onClick={() => {
-                      const next = Number((manHours + 1).toFixed(2));
-                      setValue("estimated_man_hours", next, { shouldValidate: true });
-                    }}
+                    onClick={incrementManHours}
                     className="size-6 text-muted-foreground hover:text-foreground"
                   >
                     <Plus className="size-3" />
@@ -174,10 +168,10 @@ export const TaskModal = memo<TaskModalProps>(({ isOpen, onClose, defaultModuleI
                   onClick={() => setValue("complexity_weight", "LOW", { shouldValidate: true })}
                   className={cn(
                     "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
-                    complexity === "LOW" ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 ring-1 ring-emerald-500" : "border-border bg-card hover:bg-muted/40",
+                    complexity === "LOW" ? "border-success bg-success-subtle ring-1 ring-success" : "border-border bg-card hover:bg-muted/40",
                   )}
                 >
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">LOW</span>
+                  <span className="text-xs font-bold text-success">LOW</span>
                   <span className="text-[10px] text-muted-foreground">Bobot 1×</span>
                 </div>
 
@@ -198,10 +192,10 @@ export const TaskModal = memo<TaskModalProps>(({ isOpen, onClose, defaultModuleI
                   onClick={() => setValue("complexity_weight", "HIGH", { shouldValidate: true })}
                   className={cn(
                     "p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none",
-                    complexity === "HIGH" ? "border-rose-500 bg-rose-50/60 dark:bg-rose-950/40 ring-1 ring-rose-500" : "border-border bg-card hover:bg-muted/40",
+                    complexity === "HIGH" ? "border-destructive bg-destructive-subtle ring-1 ring-destructive" : "border-border bg-card hover:bg-muted/40",
                   )}
                 >
-                  <span className="text-xs font-bold text-rose-700 dark:text-rose-300">HIGH</span>
+                  <span className="text-xs font-bold text-destructive">HIGH</span>
                   <span className="text-[10px] text-muted-foreground">Bobot 3×</span>
                 </div>
               </div>
@@ -209,7 +203,7 @@ export const TaskModal = memo<TaskModalProps>(({ isOpen, onClose, defaultModuleI
             </div>
 
             {/* Bottom Info Banner */}
-            <div className="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 flex items-start gap-2.5 text-xs text-indigo-900 dark:text-indigo-200">
+            <div className="p-3 rounded-xl bg-primary-subtle text-primary-subtle-foreground border border-primary-subtle-border flex items-start gap-2.5 text-xs">
               <Info className="size-4 text-primary shrink-0 mt-0.5" />
               <p className="leading-relaxed text-[11px]">
                 <b>DRAFT LISENSI</b> · Tugas disimpan berstatus <b>DRAFT</b> dan otomatis menginisialisasi catatan <b>Dual-Approval (TL & PM)</b>. Tugas baru muncul di papan
