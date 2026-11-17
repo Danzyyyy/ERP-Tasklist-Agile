@@ -394,9 +394,88 @@ Endpoints berikut mengintegrasikan sistem dengan modul eksternal ERP PT. Anaheim
 
 #### 2. Modul D-1 (Registrasi & Project Intake)
 
-##### `GET /projects/{projectId}`
-- **Deskripsi**: Mengambil detail kanonis proyek dari sistem Intake D-1 (nama proyek, klien, PM, status).
+##### `GET /projects`
+- **Deskripsi**: Mengambil daftar proyek kanonis dari Modul D-1 dan proyek lokal E-4 untuk kebutuhan fitur Project Switcher di Frontend.
 - **Headers**: `Authorization: Bearer <token>`
+- **Query Params (Opsional)**:
+  - `status`: Filter berdasarkan status (contoh: `REGISTERED`, `UNDER_REVIEW`, `ALL`).
+  - `q`: Pencarian nama, kode kanonis, atau nama klien proyek.
+  - `page`: Nomor halaman (default: 1).
+  - `limit`: Jumlah data per halaman (default: 10).
+- **Respon (200 OK)**:
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "projectId": "PROJ-ERP-01",
+      "canonicalCode": "PROJ-ERP-01",
+      "projectName": "ERP Anaheim Nimbus Tasklist & Agile",
+      "clientId": "CLI-001",
+      "clientName": "PT. Anaheim Nimbus Universal",
+      "amName": "Fikri Lazuardi Fadilla (AM)",
+      "pmName": "Sandy Walsh",
+      "startDate": "2026-01-01",
+      "targetEndDate": "2026-12-31",
+      "documentsComplete": true,
+      "poReceived": true,
+      "status": "REGISTERED",
+      "active": true,
+      "moduleCount": 3,
+      "taskCount": 8,
+      "source": "internal_canonical"
+    },
+    {
+      "projectId": "01924b1e-7f32-7a81-9b12-45e8a1234567",
+      "canonicalCode": "202601",
+      "projectName": "Modernisasi Gedung Operasional",
+      "clientId": "CL-001",
+      "clientName": "PT Cakra Infrastruktur",
+      "amName": "Fikri Lazuardi Fadilla (AM)",
+      "pmName": "Sandy Walsh",
+      "status": "REGISTERED",
+      "active": true,
+      "moduleCount": 0,
+      "taskCount": 0,
+      "source": "d1_canonical_seed"
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "page": 1,
+    "limit": 10
+  }
+}
+```
+
+##### `GET /projects/{projectId}`
+- **Deskripsi**: Mengambil detail kanonis proyek dari sistem Intake D-1 / Internal E-4 (nama proyek, klien, PM, status, keaktifan, serta statistik jumlah modul dan tugas).
+- **Headers**: `Authorization: Bearer <token>`
+- **Respon (200 OK)**:
+```json
+{
+  "status": "success",
+  "projectId": "PROJ-ERP-01",
+  "data": {
+    "projectId": "PROJ-ERP-01",
+    "canonicalCode": "PROJ-ERP-01",
+    "projectName": "ERP Anaheim Nimbus Tasklist & Agile",
+    "clientId": "CLI-001",
+    "clientName": "PT. Anaheim Nimbus Universal",
+    "amName": "Fikri Lazuardi Fadilla (AM)",
+    "pmName": "Sandy Walsh",
+    "startDate": "2026-01-01",
+    "targetEndDate": "2026-12-31",
+    "documentsComplete": true,
+    "poReceived": true,
+    "status": "REGISTERED",
+    "active": true,
+    "moduleCount": 3,
+    "taskCount": 8,
+    "source": "internal_canonical"
+  }
+}
+```
 
 ##### `GET /projects/{projectId}/guard`
 - **Deskripsi**: Memvalidasi guard kelayakan proyek (wajib berstatus `REGISTERED` sebelum tugas eksekusi Agile dapat diproses).

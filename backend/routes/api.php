@@ -61,6 +61,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/modules/{moduleId}/progress', [ProgressController::class, 'getModuleProgress']);
 
         // Integrasi Eksternal: Modul E-3 (Execution Readiness - Prioritas P6) & Modul D-1 (Project Intake)
+        Route::get('/projects', [ExternalProjectController::class, 'projectsIndex']);
         Route::get('/projects/{projectId}/execution-readiness', [ExternalProjectController::class, 'executionReadiness']);
         Route::get('/projects/{projectId}', [ExternalProjectController::class, 'projectIntake']);
         Route::get('/projects/{projectId}/guard', [ExternalProjectController::class, 'projectGuard']);

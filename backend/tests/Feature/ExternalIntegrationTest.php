@@ -140,5 +140,96 @@ class ExternalIntegrationTest extends TestCase
             ->assertJsonPath('allowed', true)
             ->assertJsonPath('projectStatus', 'REGISTERED');
     }
+
+    /**
+     * Test GET /api/v1/projects (Project switcher list endpoint).
+     */
+    public function test_get_projects_list_endpoint(): void
+    {
+        $response = $this->withHeader('Authorization', 'Bearer mock_tl')
+            ->getJson('/api/v1/projects');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonStructure([
+                'status',
+                'data' => [
+                    '*' => [
+                        'projectId',
+                        'canonicalCode',
+                        'projectName',
+                        'status',
+                        'active',
+                        'moduleCount',
+                        'taskCount',
+                    ],
+                ],
+                'meta',
+            ]);
+
+        // Verify PROJ-ERP-01 is present in the list
+        $projects = $response->json('data');
+        $projectIds = array_column($projects, 'projectId');
+        $this->assertContains('PROJ-ERP-01', $projectIds);
+    }
+
+    /**
+     * Test GET /api/v1/projects with query filters (status & q).
+     */
+    public function test_get_projects_list_with_query_filter(): void
+    {
+        // 1. Filter by status
+        $responseStatus = $this->withHeader('Authorization', 'Bearer mock_tl')
+            ->getJson('/api/v1/projects?status=REGISTERED');
+
+        $responseStatus->assertStatus(200)
+            ->assertJsonPath('status', 'success');
+
+        foreach ($responseStatus->json('data') as $item) {
+            $this->assertEquals('REGISTERED', $item['status']);
+        }
+
+        // 2. Search query filter
+        $responseSearch = $this->withHeader('Authorization', 'Bearer mock_tl')
+            ->getJson('/api/v1/projects?q=Nimbus');
+
+        $responseSearch->assertStatus(200)
+            ->assertJsonPath('status', 'success');
+
+        $data = $responseSearch->json('data');
+        $this->assertNotEmpty($data);
+        $this->assertEquals('PROJ-ERP-01', $data[0]['projectId']);
+    }
+
+    /**
+     * Test GET /api/v1/projects/{projectId} detail for PROJ-ERP-01 with enriched stats.
+     */
+    public function test_get_project_detail_with_stats(): void
+    {
+        $response = $this->withHeader('Authorization', 'Bearer mock_tl')
+            ->getJson('/api/v1/projects/PROJ-ERP-01');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('projectId', 'PROJ-ERP-01')
+            ->assertJsonPath('data.canonicalCode', 'PROJ-ERP-01')
+            ->assertJsonPath('data.status', 'REGISTERED')
+            ->assertJsonPath('data.active', true)
+            ->assertJsonStructure([
+                'status',
+                'projectId',
+                'data' => [
+                    'projectId',
+                    'canonicalCode',
+                    'projectName',
+                    'clientId',
+                    'clientName',
+                    'status',
+                    'active',
+                    'moduleCount',
+                    'taskCount',
+                ],
+            ]);
+    }
 }
 
