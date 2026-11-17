@@ -41,12 +41,6 @@ export const DashboardPage: React.FC = () => {
     donutMetrics,
   } = useDashboardMetrics(tasks, effectiveMetrics.progressPercentage);
 
-  const completedHours = String(effectiveMetrics.completedManHours || 0);
-  const totalHours = String(effectiveMetrics.totalEstimatedManHours || 0);
-  const percent = effectiveMetrics.progressPercentage ? effectiveMetrics.progressPercentage.toFixed(1) : "0.0";
-  const completedCount = effectiveMetrics.completedTasks || 0;
-  const totalCount = effectiveMetrics.totalTasks || 0;
-
   const handleTaskClick = (t: Task) => {
     if (t.status === "DRAFT") {
       goToTasks();
@@ -136,7 +130,7 @@ export const DashboardPage: React.FC = () => {
         <StageComplexityCard
           stageStats={stageStats}
           complexityBreakdown={complexityBreakdown}
-          totalHours={Number(totalHours) || 0}
+          totalHours={effectiveMetrics.totalEstimatedManHours}
           onOpenBoard={goToKanban}
         />
 
@@ -162,11 +156,7 @@ export const DashboardPage: React.FC = () => {
       <div className="lg:col-span-4 space-y-4">
         {/* Ringkasan Sprint Card with Donut Chart */}
         <SprintSummaryCard
-          percent={percent}
-          completedHours={completedHours}
-          totalHours={totalHours}
-          completedCount={completedCount}
-          totalCount={totalCount}
+          metrics={effectiveMetrics}
           stageStats={stageStats}
           donutMetrics={donutMetrics}
         />

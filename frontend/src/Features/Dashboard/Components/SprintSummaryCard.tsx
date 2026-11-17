@@ -1,13 +1,10 @@
 // src/Features/Dashboard/Components/SprintSummaryCard.tsx
 import React, { memo } from "react";
-import type { TaskStatus } from "@/Types/task";
+import type { DeliverableProgress, TaskStatus } from "@/Types/task";
+import { formatPercent, formatManHours } from "@/Utils/formatters";
 
 export interface SprintSummaryCardProps {
-  percent: string;
-  completedHours: string;
-  totalHours: string;
-  completedCount: number;
-  totalCount: number;
+  metrics: DeliverableProgress;
   stageStats: Record<TaskStatus, number>;
   donutMetrics: {
     radius: number;
@@ -18,14 +15,14 @@ export interface SprintSummaryCardProps {
 
 export const SprintSummaryCard = memo<SprintSummaryCardProps>(
   ({
-    percent,
-    completedHours,
-    totalHours,
-    completedCount,
-    totalCount,
+    metrics,
     stageStats,
     donutMetrics,
   }) => {
+    const percent = formatPercent(metrics.progressPercentage);
+    const completedHours = formatManHours(metrics.completedManHours);
+    const totalHours = formatManHours(metrics.totalEstimatedManHours);
+
     return (
       <div className="rounded-2xl border border-border bg-card p-4 space-y-3.5 shadow-2xs">
         <div className="flex items-center justify-between">
@@ -75,7 +72,7 @@ export const SprintSummaryCard = memo<SprintSummaryCardProps>(
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">Jam man-hour selesai</p>
             <p className="text-xs font-semibold text-foreground mt-1">
-              {completedCount} dari {totalCount} tugas telah disahkan
+              {metrics.completedTasks} dari {metrics.totalTasks} tugas telah disahkan
             </p>
           </div>
         </div>
@@ -106,3 +103,4 @@ export const SprintSummaryCard = memo<SprintSummaryCardProps>(
 );
 
 SprintSummaryCard.displayName = "SprintSummaryCard";
+export default SprintSummaryCard;
