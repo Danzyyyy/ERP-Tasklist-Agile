@@ -1,7 +1,8 @@
 // src/Components/Layouts/Topbar.tsx
-import React, { memo, useState, useRef, useEffect } from "react";
+import React, { memo, useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/Hooks/useAuth";
+import { useGetTaskList } from "@/Hooks/useGetTaskList";
 import { ROLE_DETAILS } from "@/Constants/AuthConstant";
 import SidebarTrigger from "./SidebarTrigger";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/Components/Elements/DropdownMenu";
@@ -22,6 +23,16 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
   const { user, role, logout } = useAuth();
   const roleMeta = role ? ROLE_DETAILS[role] : null;
   const canCreateTask = canCreateTaskRole(role);
+  const { data: recentTasks = [] } = useGetTaskList({});
+
+  const userInitials = useMemo(() => {
+    if (!user?.name) return "U";
+    const clean = user.name.replace(/\([^)]*\)/g, "").trim();
+    const parts = clean.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "U";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }, [user?.name]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -135,65 +146,73 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
             aria-label="Notifikasi"
           >
             <Bell className="size-4" />
-            <span className="size-2 rounded-full bg-destructive ring-2 ring-card absolute top-1.5 right-1.5" />
+            {recentTasks.length > 0 && (
+              <span className="size-2 rounded-full bg-primary ring-2 ring-card absolute top-1.5 right-1.5" />
+            )}
           </button>
 
-          {/* Notif Popover (FigCraft Node 13254) */}
+          {/* Notif Popover (Real Backend Task Feed) */}
           {isNotifOpen && (
             <div className="absolute right-0 top-11 w-80 sm:w-96 rounded-2xl border border-border bg-card shadow-2xl p-4 z-50 space-y-3 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between pb-1 border-b border-border/60">
                 <div>
-                  <h4 className="text-sm font-bold text-foreground">Notifikasi</h4>
-                  <p className="text-[11px] text-muted-foreground">3 belum dibaca</p>
+                  <h4 className="text-sm font-bold text-foreground">Aktivitas Tugas</h4>
+                  <p className="text-[11px] text-muted-foreground">{recentTasks.length} tugas terdaftar</p>
                 </div>
-                <button type="button" onClick={() => setIsNotifOpen(false)} className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer">
-                  Tandai semua dibaca
+                <button
+                  type="button"
+                  onClick={() => setIsNotifOpen(false)}
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                >
+                  Tutup
                 </button>
               </div>
 
               <div className="space-y-2">
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs">
-                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">FZ</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-xs leading-tight">Fauzan menyetujui rilis tugas</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-04 · 10 menit lalu</p>
-                  </div>
-                  <span className="size-2 rounded-full bg-primary shrink-0 mt-1" />
-                </div>
+                {recentTasks.slice(0, 4).map((t) => {
+                  const assignee = t.assignee_name || "Belum Ditugaskan";
+                  const initial = assignee.slice(0, 2).toUpperCase();
 
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs">
-                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">FJ</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-xs leading-tight">Fajri memindahkan tugas ke Testing</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-05 · 25 menit lalu</p>
-                  </div>
-                  <span className="size-2 rounded-full bg-primary shrink-0 mt-1" />
-                </div>
+                  return (
+                    <div
+                      key={t.id}
+                      onClick={() => {
+                        setIsNotifOpen(false);
+                        navigate(ROUTE_PATHS.TASKS);
+                      }}
+                      className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs hover:border-primary/50 cursor-pointer transition-all"
+                    >
+                      <div className="size-7 rounded-full bg-primary text-white font-bold text-[10px] grid place-items-center shrink-0">
+                        {initial}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground text-xs leading-tight truncate">
+                          {t.title}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">
+                          {t.task_code} · {t.status} · {assignee}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
 
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border/80 flex items-start gap-2.5 text-xs">
-                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">TW</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-xs leading-tight">Tubagus memverifikasi checklist PM</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-05 · 48 menit lalu</p>
-                  </div>
-                  <span className="size-2 rounded-full bg-primary shrink-0 mt-1" />
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-card border border-border/80 flex items-start gap-2.5 text-xs">
-                  <div className="size-7 rounded-full bg-indigo-600 text-white font-bold text-[10px] grid place-items-center shrink-0">FZ</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-xs leading-tight">Fauzan menyelesaikan final sign-off</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">#TSK-08 · 1 jam lalu</p>
-                  </div>
-                </div>
+                {recentTasks.length === 0 && (
+                  <p className="text-xs text-muted-foreground py-3 text-center">
+                    Belum ada aktivitas tugas tercatat.
+                  </p>
+                )}
               </div>
 
               <button
                 type="button"
-                onClick={() => setIsNotifOpen(false)}
+                onClick={() => {
+                  setIsNotifOpen(false);
+                  navigate(ROUTE_PATHS.TASKS);
+                }}
                 className="w-full py-2 text-center text-xs font-semibold rounded-xl border border-border bg-card hover:bg-muted text-foreground transition-colors cursor-pointer"
               >
-                Lihat semua notifikasi
+                Lihat semua di Tasklist
               </button>
             </div>
           )}
@@ -202,6 +221,7 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
         {/* SlidersHorizontal / Filter Button (FigCraft 1:1) */}
         <button
           type="button"
+          onClick={() => navigate(ROUTE_PATHS.KANBAN)}
           className="size-[34px] rounded-lg border border-border bg-card hover:bg-muted/70 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
           aria-label="Filter Tampilan"
         >
@@ -211,18 +231,20 @@ export const Topbar = memo<TopbarProps>(({ onOpenTaskModal }) => {
         {/* Actions Divider */}
         <div className="h-6 w-px bg-border shrink-0" />
 
-        {/* User Profile & Menu (FigCraft 1:1: TW Alex Morgan / Workspace Owner) */}
+        {/* User Profile & Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger
             className="flex items-center gap-2 sm:gap-2.5 px-2.5 h-[42px] rounded-lg border border-border bg-card hover:bg-muted/70 transition-all text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer shadow-2xs"
             aria-label="Menu Pengguna"
           >
-            <div className="size-[34px] rounded-full bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">TW</div>
+            <div className="size-[34px] rounded-full bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+              {userInitials}
+            </div>
 
             <div className="hidden sm:block text-left">
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                  {user?.name ? user.name.replace(/\s*\([^)]*\)/g, "") : "Alex Morgan"}
+                  {user?.name ? user.name.replace(/\s*\([^)]*\)/g, "") : "Pengguna"}
                 </span>
                 <ChevronDown className="size-3 text-muted-foreground group-hover:text-foreground shrink-0" />
               </div>

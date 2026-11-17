@@ -1,6 +1,7 @@
 // src/Features/Kanban/Components/KanbanFilterBar.tsx
 import React, { memo } from "react";
 import { ChevronDown } from "lucide-react";
+import { useProject } from "@/Contexts/ProjectContext";
 import type { Module } from "@/Types/task";
 
 export interface KanbanFilterBarProps {
@@ -16,7 +17,9 @@ export interface KanbanFilterBarProps {
 }
 
 export const KanbanFilterBar = memo<KanbanFilterBarProps>(
-  ({ modules, filters, setFilter }) => {
+  ({ modules, filters, setFilter, totalActiveCount }) => {
+    const { activeProject } = useProject();
+
     return (
       <div className="bg-card border border-border rounded-xl p-2.5 px-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
         <div className="flex flex-wrap items-center gap-2.5">
@@ -45,9 +48,11 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
               className="appearance-none h-8.5 pl-3 pr-8 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="ALL">Semua PIC</option>
-              <option value="Ariel">Ariel (FE)</option>
-              <option value="Fajri">Fajri (BE)</option>
-              <option value="Fauzan">Fauzan (TL)</option>
+              <option value="Ariel">Ariel (Frontend Dev)</option>
+              <option value="Fajri">Muhamad Fajri (Backend Dev)</option>
+              <option value="Fauzan">Fauzan (Technical Lead)</option>
+              <option value="Tubagus">Tubagus M. Wildan (PM)</option>
+              <option value="Valdric">Valdric (QA Tester)</option>
             </select>
             <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
           </div>
@@ -67,19 +72,16 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
             <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
           </div>
 
-          {/* Count Text */}
+          {/* Count Text (Dynamic Backend Count) */}
           <span className="text-xs text-muted-foreground ml-2 font-medium">
-            6 tugas dirilis · 2 draft
+            {totalActiveCount} tugas di board
           </span>
         </div>
 
-        {/* Sprint 1 Aktif Button */}
-        <button
-          type="button"
-          className="h-8.5 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer ml-auto"
-        >
-          Sprint 1 Aktif
-        </button>
+        {/* Dynamic Project Status Badge */}
+        <div className="h-8.5 px-3.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-bold font-mono flex items-center shadow-2xs ml-auto">
+          {activeProject?.canonicalCode || "PROJ-ERP-01"} · {activeProject?.status || "AKTIF"}
+        </div>
       </div>
     );
   },

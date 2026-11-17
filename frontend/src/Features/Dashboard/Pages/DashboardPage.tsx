@@ -1,5 +1,5 @@
 // src/Features/Dashboard/Pages/DashboardPage.tsx
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import useDashboardOverview from "../Hooks/useDashboardOverview";
 import useGetModuleList from "@/Hooks/useGetModuleList";
@@ -8,6 +8,7 @@ import useExecutionReadiness from "@/Hooks/useExecutionReadiness";
 import { useAuth } from "@/Hooks/useAuth";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
+import ModuleDeliverableCard from "../Components/ModuleDeliverableCard";
 import { cn } from "@/Utils/cn";
 import {
   AlertTriangle,
@@ -62,8 +63,6 @@ export const DashboardPage: React.FC = () => {
   const { effectiveMetrics, tasks, goToTasks, goToKanban } = useDashboardOverview();
   const { data: modules = [] } = useGetModuleList();
   const { data: readiness } = useExecutionReadiness(activeProjectId);
-
-  const [moduleFilter, setModuleFilter] = useState<"ONGOING" | "PENDING">("ONGOING");
 
   const completedHours = effectiveMetrics.completedManHours || 0;
   const totalHours = effectiveMetrics.totalEstimatedManHours || 0;
@@ -239,52 +238,6 @@ export const DashboardPage: React.FC = () => {
     return list.slice(0, 3);
   }, [tasks]);
 
-  // Real Module Deliverables Progress Calculation
-  const moduleDeliverables = useMemo(() => {
-    return modules.map((m) => {
-      const mTasks = tasks.filter((t) => t.module_id === m.id);
-      const mTotalTasks = mTasks.length;
-      const mDoneTasks = mTasks.filter((t) => t.status === "DONE").length;
-      const mTotalHours = mTasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-      const mDoneHours = mTasks
-        .filter((t) => t.status === "DONE")
-        .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-      const mPercent = mTotalHours > 0 ? (mDoneHours / mTotalHours) * 100 : 0;
-      const mActiveTasksCount = mTotalTasks - mDoneTasks;
-
-      let featureSummary = "Tugas Mandiri (Tingkat Modul)";
-      if (m.features && m.features.length > 0) {
-        featureSummary = m.features.map((f) => f.name).join(" · ");
-      }
-
-      return {
-        id: m.id,
-        code: m.code,
-        name: m.name,
-        featureSummary,
-        totalTasks: mTotalTasks,
-        doneTasks: mDoneTasks,
-        activeTasks: mActiveTasksCount,
-        totalHours: mTotalHours,
-        doneHours: mDoneHours,
-        percentage: mPercent,
-        isOngoing: mPercent < 100 && mTotalTasks > 0,
-        hasDraft: mTasks.some((t) => t.status === "DRAFT"),
-      };
-    });
-  }, [modules, tasks]);
-
-  const filteredModules = useMemo(() => {
-    if (moduleFilter === "ONGOING") {
-      const ongoing = moduleDeliverables.filter((m) => m.isOngoing);
-      return ongoing.length > 0 ? ongoing : moduleDeliverables;
-    }
-    const pending = moduleDeliverables.filter(
-      (m) => !m.isOngoing || m.hasDraft || m.totalTasks === 0,
-    );
-    return pending.length > 0 ? pending : moduleDeliverables;
-  }, [moduleDeliverables, moduleFilter]);
-
   // Donut SVG circumference calculation
   const radius = 38;
   const circumference = 2 * Math.PI * radius;
@@ -298,7 +251,7 @@ export const DashboardPage: React.FC = () => {
         <div className="rounded-2xl border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Selamat pagi, {user?.name?.split(" ")[0] || "Wildan"}.
+              Selamat pagi, {user?.name?.split(" ")[0] || "Pengguna"}.
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
               Semua progres, prioritas, dan keputusan tim. Dalam satu workspace.
@@ -446,93 +399,39 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Modul & Deliverable Proyek Section */}
+        {/* Modul & Deliverable Proyek Section (Formula Q-03 Backend Live Consumption) */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground">Modul & Deliverable Proyek</h3>
-            <div className="flex items-center rounded-lg border border-border bg-muted/40 p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setModuleFilter("ONGOING")}
-                className={cn(
-                  "px-3 py-1 rounded-md font-medium transition-all cursor-pointer",
-                  moduleFilter === "ONGOING" ? "bg-card text-foreground font-semibold shadow-2xs" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                Ongoing
-              </button>
-              <button
-                type="button"
-                onClick={() => setModuleFilter("PENDING")}
-                className={cn(
-                  "px-3 py-1 rounded-md font-medium transition-all cursor-pointer",
-                  moduleFilter === "PENDING" ? "bg-card text-foreground font-semibold shadow-2xs" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                Pending / Draft
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTE_PATHS.PROJECTS)}
+              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              Lihat portfolio proyek ↗
+            </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {filteredModules.map((m) => (
-              <div
-                key={m.id}
-                onClick={() => navigate(ROUTE_PATHS.PROJECTS)}
-                className="rounded-xl border border-border bg-card p-4 space-y-3 hover:border-primary/50 transition-all cursor-pointer shadow-2xs flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 text-[10px] font-bold font-mono">
-                      {m.code}
-                    </span>
-                    <span className="text-xs text-muted-foreground font-mono">Sprint 1</span>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-foreground line-clamp-1" title={m.name}>
-                      {m.name}
-                    </h4>
-                    <p
-                      className="text-xs text-muted-foreground mt-0.5 line-clamp-1"
-                      title={m.featureSummary}
-                    >
-                      {m.featureSummary}
-                    </p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, Math.max(0, m.percentage))}%` }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] font-mono">
-                      <span className="text-muted-foreground">
-                        {m.doneHours} / {m.totalHours} Jam
-                      </span>
-                      <span
-                        className={cn(
-                          "font-bold",
-                          m.percentage === 100
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : "text-primary",
-                        )}
-                      >
-                        {m.percentage.toFixed(1)}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
-                    {m.activeTasks} tugas aktif · {m.totalTasks} total
-                  </span>
-                  <span className="font-medium text-foreground">TL: Fauzan</span>
-                </div>
-              </div>
-            ))}
+            {modules.map((m) => {
+              let featureSummary = "Tugas Mandiri (Tingkat Modul)";
+              if (m.features && m.features.length > 0) {
+                featureSummary = m.features.map((f) => f.name).join(" · ");
+              }
 
-            {filteredModules.length === 0 && (
+              return (
+                <ModuleDeliverableCard
+                  key={m.id}
+                  moduleId={m.id}
+                  moduleCode={m.code}
+                  moduleName={m.name}
+                  featureSummary={featureSummary}
+                  tlName="Fauzan (TL)"
+                />
+              );
+            })}
+
+            {modules.length === 0 && (
               <div className="col-span-2 p-6 rounded-xl border border-dashed border-border bg-card text-center space-y-1">
                 <p className="text-xs font-semibold text-foreground">Belum ada modul terdaftar</p>
                 <p className="text-[11px] text-muted-foreground">

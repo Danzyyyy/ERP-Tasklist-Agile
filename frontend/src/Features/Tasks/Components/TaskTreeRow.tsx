@@ -2,8 +2,20 @@
 import React, { memo } from "react";
 import { ChevronDown, ChevronRight, MoreHorizontal, Layers } from "lucide-react";
 import type { Task, Module, Feature } from "@/Types/task";
+import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
 import { getInitials, getAvatarBg } from "@/Utils/taskUtils";
 import { cn } from "@/Utils/cn";
+
+const ModuleHoursCell: React.FC<{ moduleId: string }> = ({ moduleId }) => {
+  const { data: progress, isLoading } = useGetModuleProgress(moduleId);
+  if (isLoading) return <span className="text-muted-foreground font-mono">...</span>;
+  if (!progress) return <span className="text-muted-foreground font-mono">-- Jam</span>;
+  return (
+    <span>
+      {progress.completedManHours} / {progress.totalEstimatedManHours} Jam
+    </span>
+  );
+};
 
 export type TreeItem =
   | { kind: "MODULE"; data: Module; depth: 0; open?: boolean }
@@ -26,11 +38,6 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
     if (item.kind === "MODULE") {
       const mod = item.data;
       const modTasks = mod.tasks || [];
-      const totalH = modTasks.reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
-      const doneH = modTasks
-        .filter((t) => t.status === "DONE")
-        .reduce((sum, t) => sum + (Number(t.estimated_man_hours) || 0), 0);
-      const hoursText = `${doneH.toFixed(0)} / ${totalH.toFixed(0)} Jam`;
 
       return (
         <tr className="bg-slate-50/90 dark:bg-slate-900/70 border-b border-border text-xs font-semibold select-none group">
@@ -60,7 +67,7 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
             </div>
           </td>
           <td className="py-2.5 px-3 text-right font-mono text-xs text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap">
-            {hoursText}
+            <ModuleHoursCell moduleId={mod.id} />
           </td>
         </tr>
       );

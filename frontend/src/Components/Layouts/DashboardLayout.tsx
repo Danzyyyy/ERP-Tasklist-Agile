@@ -6,6 +6,7 @@ import Topbar from "./Topbar";
 import TaskModal from "@/Components/Modals/TaskModal";
 import { SidebarProvider, useSidebar } from "./SidebarContext";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
+import { useProject } from "@/Contexts/ProjectContext";
 import { cn } from "@/Utils/cn";
 import { ChevronRight } from "lucide-react";
 
@@ -22,6 +23,7 @@ const getBreadcrumbTitle = (pathname: string): string => {
 const DashboardInner = memo(() => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const { open, isMobile } = useSidebar();
+  const { activeProject, activeProjectId } = useProject();
   const location = useLocation();
   const currentTitle = getBreadcrumbTitle(location.pathname);
 
@@ -56,19 +58,34 @@ const DashboardInner = memo(() => {
               </span>
             </nav>
 
-            {/* Active Cycle Pill (FigCraft 1:1) */}
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              <span className="size-2 rounded-full bg-emerald-500 shrink-0" />
-              <span>SPRINT 1 AKTIF · 12 – 18 OKT 2026</span>
+            {/* Active Project & Cycle Indicator (Dynamic from Backend D-1 & E-3) */}
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold">
+              <span
+                className={cn(
+                  "size-2 rounded-full shrink-0",
+                  activeProject?.status === "REGISTERED" ? "bg-emerald-500" : "bg-amber-500",
+                )}
+              />
+              <span
+                className={cn(
+                  "font-mono",
+                  activeProject?.status === "REGISTERED"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-amber-600 dark:text-amber-400",
+                )}
+              >
+                {activeProject?.canonicalCode || activeProjectId} · {activeProject?.status || "REGISTERED"}
+                {activeProject?.startDate ? ` (${activeProject.startDate} s/d ${activeProject.targetEndDate || "Selesai"})` : ""}
+              </span>
             </div>
           </div>
 
           <Outlet />
         </main>
 
-        {/* Global Footer (FigCraft 1:1) */}
+        {/* Global Footer */}
         <footer className="mt-auto border-t border-border bg-card px-4 sm:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground shrink-0">
-          <span>© 2026 PT. Anaheim Nimbus Universal</span>
+          <span>© 2026 {activeProject?.clientName || "PT. Anaheim Nimbus Universal"}</span>
           <div className="flex items-center gap-2">
             <span>Modul E-4: Tasklist & Eksekusi Agile</span>
             <span>·</span>

@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { useSidebarNavigation } from "@/Hooks/useSidebarNavigation";
 import { useAuth } from "@/Hooks/useAuth";
+import { useProject } from "@/Contexts/ProjectContext";
 import { Progress } from "@/Components/Elements/Progress";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
 import { cn } from "@/Utils/cn";
@@ -14,9 +15,10 @@ export interface SidebarProps {
 }
 
 export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
-  const { open, openMobile, isMobile, setOpenMobile, metrics, navItems, handleNavClick } =
+  const { open, openMobile, isMobile, setOpenMobile, navItems, handleNavClick } =
     useSidebarNavigation();
   const { logout } = useAuth();
+  const { activeProject } = useProject();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -159,14 +161,14 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
           <div className="flex items-center justify-between py-1">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                AN
+                {activeProject?.clientName ? activeProject.clientName.slice(0, 2).toUpperCase() : "AN"}
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-foreground truncate">
-                  PT. Anaheim Nimbus
+                <p className="text-xs font-bold text-foreground truncate" title={activeProject?.clientName || "PT. Anaheim Nimbus Universal"}>
+                  {activeProject?.clientName || "PT. Anaheim Nimbus Universal"}
                 </p>
                 <p className="text-[10px] text-muted-foreground font-mono truncate">
-                  Universal · Enterprise
+                  {activeProject?.canonicalCode || "ERP Modul E-4"}
                 </p>
               </div>
             </div>

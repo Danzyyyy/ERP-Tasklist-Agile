@@ -5,6 +5,7 @@ import useDashboardOverview from "@/Features/Dashboard/Hooks/useDashboardOvervie
 import { useGetTaskList } from "@/Hooks/useGetTaskList";
 import { useGetDeliverableProgress } from "@/Hooks/useGetDeliverableProgress";
 import useGetModuleList from "@/Hooks/useGetModuleList";
+import ModuleProgressReportRow from "../Components/ModuleProgressReportRow";
 import { RefreshCw, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -135,33 +136,14 @@ export const ReportsPage: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {modules.map((m) => {
-              const moduleTasks = allTasks.filter((t) => t.module_id === m.id);
-              const mTotalHours = moduleTasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-              const mDoneHours = moduleTasks
-                .filter((t) => t.status === "DONE")
-                .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-              const mPercent = mTotalHours > 0 ? ((mDoneHours / mTotalHours) * 100).toFixed(1) : "0.0";
-
-              return (
-                <div key={m.id} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-foreground">
-                      {m.code} — {m.name}
-                    </span>
-                    <span className={Number(mPercent) === 100 ? "font-mono text-emerald-600 dark:text-emerald-400 font-bold" : "font-mono text-muted-foreground"}>
-                      {mDoneHours} / {mTotalHours} Jam · {mPercent}%
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, Math.max(0, Number(mPercent)))}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+            {modules.map((m) => (
+              <ModuleProgressReportRow
+                key={m.id}
+                moduleId={m.id}
+                moduleCode={m.code}
+                moduleName={m.name}
+              />
+            ))}
 
             {modules.length === 0 && (
               <p className="text-xs text-muted-foreground italic">Belum ada modul terdaftar.</p>
