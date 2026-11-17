@@ -2,6 +2,7 @@
 import React, { memo, useState } from "react";
 import { Modal } from "@/Components/Elements/Modal";
 import { Button } from "@/Components/Elements/Button";
+import { Badge } from "@/Components/Elements/Badge";
 import { Input } from "@/Components/Elements/Input";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { Select } from "@/Components/Elements/Select";
@@ -17,7 +18,6 @@ import { useTlSignoff } from "@/Hooks/useTlSignoff";
 import { DEMO_DEVELOPERS } from "@/Features/Kanban/Constants/KanbanConstant";
 import { isTaskRework, getTaskReviewLogs } from "@/Utils/taskUtils";
 import { Check, CheckCircle2, AlertTriangle, RotateCcw, ShieldCheck, UserCheck, ArrowRight, Lock } from "lucide-react";
-import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 
 export interface TaskDetailModalProps {
@@ -215,7 +215,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                   variant="outline"
                   onClick={() => handleApproval("REJECTED")}
                   disabled={submitApprovalMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80"
                 >
                   Tolak Draft
                 </Button>
@@ -224,7 +224,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                   onClick={() => handleApproval("APPROVED")}
                   disabled={submitApprovalMutation.isPending}
                   loading={submitApprovalMutation.isPending}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs"
+                  className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs"
                 >
                   <Check className="size-3.5" />
                   <span>Setujui Rilis ({userRole === "TECHNICAL_LEAD" ? "TL" : "PM"})</span>
@@ -239,7 +239,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 onClick={handleStartDevelopment}
                 disabled={assignTaskMutation.isPending || updateStatusMutation.isPending}
                 loading={assignTaskMutation.isPending || updateStatusMutation.isPending}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs"
+                className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs"
               >
                 <span>Mulai Development</span>
                 <ArrowRight className="size-3.5" />
@@ -253,7 +253,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 onClick={handleRequestCodeReview}
                 disabled={updateStatusMutation.isPending}
                 loading={updateStatusMutation.isPending}
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs"
+                className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs"
               >
                 <span>Ajukan Code Review</span>
                 <ArrowRight className="size-3.5" />
@@ -268,7 +268,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                   variant="outline"
                   onClick={() => handleCodeReviewDecision("REJECTED")}
                   disabled={submitReviewMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center gap-1"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80 flex items-center gap-1"
                 >
                   <RotateCcw className="size-3.5" />
                   <span>Minta Revisi (Rework)</span>
@@ -278,7 +278,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                   onClick={() => handleCodeReviewDecision("PASSED")}
                   disabled={submitReviewMutation.isPending}
                   loading={submitReviewMutation.isPending}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xs flex items-center gap-1.5"
+                  className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5"
                 >
                   <Check className="size-3.5" />
                   <span>Loloskan ke QA Testing</span>
@@ -295,7 +295,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                     variant="outline"
                     onClick={() => handleQaTestDecision("REJECTED")}
                     disabled={submitReviewMutation.isPending}
-                    className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                    className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80"
                   >
                     QA Reject (Rework)
                   </Button>
@@ -307,7 +307,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                     onClick={() => pmVerifyMutation.mutate()}
                     disabled={pmVerifyMutation.isPending}
                     loading={pmVerifyMutation.isPending}
-                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs flex items-center gap-1.5"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5"
                   >
                     <CheckCircle2 className="size-3.5" />
                     <span>Verifikasi Ceklis PM (Gerbang 1)</span>
@@ -321,7 +321,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                     disabled={tlSignoffMutation.isPending || !isPmVerified}
                     loading={tlSignoffMutation.isPending}
                     title={!isPmVerified ? "Menunggu verifikasi ceklis PM sebelum dapat disahkan" : undefined}
-                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs flex items-center gap-1.5"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-success hover:bg-success/90 text-success-foreground shadow-xs flex items-center gap-1.5"
                   >
                     <Check className="size-3.5" />
                     <span>Otorisasi Sign-Off DONE (TL)</span>
@@ -335,7 +335,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
     >
       <div className="space-y-4">
         {/* Core Task Identity Card */}
-        <div className="p-4 rounded-xl border border-border bg-slate-50/50 dark:bg-slate-900/40 space-y-3">
+        <div className="p-4 rounded-xl border border-border bg-card space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -357,15 +357,15 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
 
           {/* Quick Metrics Badges */}
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-            <span className="px-2 py-0.5 rounded border border-border bg-card text-[11px] font-mono">
-              Bobot: <b>{task.complexity_weight}</b>
-            </span>
+            <Badge variant={task.complexity_weight || "LOW"} size="sm">
+              Bobot: {task.complexity_weight}
+            </Badge>
             <span className="px-2 py-0.5 rounded border border-border bg-card text-[11px]">
               PIC: <b>{task.assignee_name || "Belum Ditugaskan"}</b>
             </span>
-            <span className="px-2 py-0.5 rounded border border-border bg-card text-[11px] font-mono uppercase">
-              Status: <b>{task.status}</b>
-            </span>
+            <Badge variant={task.status} size="sm">
+              Status: {task.status}
+            </Badge>
           </div>
         </div>
 
@@ -381,34 +381,24 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg border border-border bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between">
+              <div className="p-3 rounded-lg border border-border bg-muted/30 flex items-center justify-between">
                 <div>
                   <span className="text-[11px] font-semibold text-muted-foreground">Technical Lead (TL)</span>
                   <p className="text-xs font-bold text-foreground">Fauzan</p>
                 </div>
-                <span
-                  className={cn(
-                    "px-2 py-1 rounded text-[10px] font-bold font-mono",
-                    tlApproval?.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-600 border border-slate-200",
-                  )}
-                >
+                <Badge variant={tlApproval?.status === "APPROVED" ? "APPROVED" : "PENDING"}>
                   {tlApproval?.status || "PENDING"}
-                </span>
+                </Badge>
               </div>
 
-              <div className="p-3 rounded-lg border border-border bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between">
+              <div className="p-3 rounded-lg border border-border bg-muted/30 flex items-center justify-between">
                 <div>
                   <span className="text-[11px] font-semibold text-muted-foreground">Project Manager (PM)</span>
                   <p className="text-xs font-bold text-foreground">Tubagus M. Wildan</p>
                 </div>
-                <span
-                  className={cn(
-                    "px-2 py-1 rounded text-[10px] font-bold font-mono",
-                    pmApproval?.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-600 border border-slate-200",
-                  )}
-                >
+                <Badge variant={pmApproval?.status === "APPROVED" ? "APPROVED" : "PENDING"}>
                   {pmApproval?.status || "PENDING"}
-                </span>
+                </Badge>
               </div>
             </div>
 
@@ -423,9 +413,9 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
 
         {/* 2. FASE RELEASED: ASSIGNEE SELECTION */}
         {status === "RELEASED" && (
-          <div className="p-4 rounded-xl border border-indigo-200/80 dark:border-indigo-900/50 bg-indigo-50/20 dark:bg-indigo-950/10 space-y-3">
+          <div className="p-4 rounded-xl border border-primary-subtle-border bg-primary-subtle text-primary-subtle-foreground space-y-3">
             <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <UserCheck className="size-4 text-indigo-600" />
+              <UserCheck className="size-4 text-primary" />
               Tentukan Pengembang Pelaksana (PIC)
             </h4>
             <p className="text-xs text-muted-foreground">Tugas telah dirilis resmi. Sebelum pengerjaan dimulai, tentukan pengembang yang bertanggung jawab.</p>
@@ -448,13 +438,13 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
         {status === "DEVELOPMENT" && (
           <div className="space-y-3">
             {isRework && (
-              <div className="p-4 rounded-xl border border-amber-300 dark:border-amber-900 bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 space-y-2">
+              <div className="p-4 rounded-xl border border-warning-subtle-border bg-warning-subtle text-warning-subtle-foreground space-y-2">
                 <div className="flex items-center gap-2 font-bold text-xs">
-                  <AlertTriangle className="size-4 text-amber-600" />
+                  <AlertTriangle className="size-4 text-warning" />
                   <span>Perhatian: Tugas dalam Status Rework (Revisi Pengujian)</span>
                 </div>
                 {reviewLogs.find((l) => l.result === "REJECTED")?.notes && (
-                  <p className="text-xs bg-card/60 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <p className="text-xs bg-card/60 p-2.5 rounded-lg border border-warning-subtle-border">
                     Catatan Review: "<b>{reviewLogs.find((l) => l.result === "REJECTED")?.notes}</b>"
                   </p>
                 )}
@@ -466,7 +456,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 <p className="font-semibold text-foreground">Pelaksana Aktif (PIC)</p>
                 <p className="text-muted-foreground mt-0.5">{task.assignee_name || "Ariel (Frontend Dev)"}</p>
               </div>
-              <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-mono font-bold">SEDANG DIKERJAKAN</span>
+              <Badge variant="DEVELOPMENT">SEDANG DIKERJAKAN</Badge>
             </div>
           </div>
         )}
@@ -494,7 +484,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             {/* QA Testing Section */}
             <div className="p-4 rounded-xl border border-border bg-card space-y-3">
               <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-cyan-600" />
+                <ShieldCheck className="size-4 text-primary" />
                 Pengujian QA Tester
               </h4>
               <Textarea
@@ -507,35 +497,35 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             </div>
 
             {/* Two-Gate DoD Status */}
-            <div className="p-4 rounded-xl border border-border bg-slate-50/50 dark:bg-slate-900/30 space-y-3">
+            <div className="p-4 rounded-xl border border-border bg-card space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dua Gerbang Pengesahan (Two-Gate DoD)</h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {/* Gate 1: PM */}
-                <div className="p-3 rounded-lg border border-border bg-card space-y-1">
+                <div className="p-3 rounded-lg border border-border bg-muted/30 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-muted-foreground">Gerbang 1: Ceklis PM</span>
                     {isPmVerified ? (
-                      <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
+                      <span className="text-[10px] font-bold text-success flex items-center gap-0.5">
                         <Check className="size-3" /> VERIFIED
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold text-amber-600">PENDING</span>
+                      <span className="text-[10px] font-bold text-warning">PENDING</span>
                     )}
                   </div>
                   <p className="text-[11px] text-muted-foreground">{isPmVerified ? `Diverifikasi oleh ${task.pm_verified_by || "PM"}` : "Memerlukan konfirmasi fungsional PM"}</p>
                 </div>
 
                 {/* Gate 2: TL */}
-                <div className="p-3 rounded-lg border border-border bg-card space-y-1">
+                <div className="p-3 rounded-lg border border-border bg-muted/30 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-muted-foreground">Gerbang 2: Sign-Off TL</span>
                     {isTlSigned ? (
-                      <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
+                      <span className="text-[10px] font-bold text-success flex items-center gap-0.5">
                         <Check className="size-3" /> SIGNED
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold text-amber-600">MENUNGGU</span>
+                      <span className="text-[10px] font-bold text-warning">MENUNGGU</span>
                     )}
                   </div>
                   <p className="text-[11px] text-muted-foreground">{isTlSigned ? `Disahkan oleh ${task.tl_signed_by || "TL"}` : "Otorisasi penutupan akhir"}</p>
@@ -547,14 +537,14 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
 
         {/* 6. FASE DONE: LOCKED TERMINAL VIEW */}
         {status === "DONE" && (
-          <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-3">
-            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+          <div className="p-4 rounded-xl border border-success-subtle-border bg-success-subtle/40 space-y-3">
+            <div className="flex items-center gap-2 text-success font-bold text-xs">
               <Lock className="size-4" />
               <span>Status Final (Terkunci Permanen Sesuai Kontrak Backend)</span>
             </div>
             <p className="text-xs text-muted-foreground">Tugas ini telah melewati seluruh siklus agile: verifikasi ceklis PM dan otorisasi pengesahan akhir TL.</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-2 border-t border-emerald-200/60">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-2 border-t border-success-subtle-border">
               <div className="p-2 rounded bg-card border border-border">
                 <span className="text-[10px] text-muted-foreground">Verifikasi PM</span>
                 <p className="font-semibold text-foreground truncate">{task.pm_verified_by || "Wildan (PM)"}</p>
