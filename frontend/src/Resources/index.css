@@ -1,17 +1,22 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-@theme {
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
   --font-sans:
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  /* FigCraft Anaheim Radius Tokens (Crisp 2pt Scale: 4 / 6 / 8 / 12 / 9999) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
 
-  /* Shadcn Core Tokens */
+  /* FigCraft Anaheim Semantic Core Tokens */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -24,6 +29,7 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-subtle: var(--primary-subtle);
 
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -36,14 +42,16 @@
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-subtle: var(--destructive-subtle);
 
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Shadcn Sidebar Tokens */
+  /* FigCraft Anaheim Sidebar Tokens */
   --color-sidebar: var(--sidebar-background);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
@@ -51,30 +59,36 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Status Colors */
+  /* FigCraft Anaheim Status Tokens */
+  --color-status-dev-bg: var(--status-dev-bg);
+  --color-status-dev-text: var(--status-dev-text);
+  --color-status-review-bg: var(--status-review-bg);
+  --color-status-review-text: var(--status-review-text);
+  --color-status-done-bg: var(--status-done-bg);
+  --color-status-done-text: var(--status-done-text);
+  --color-status-rework-bg: var(--status-rework-bg);
+  --color-status-rework-text: var(--status-rework-text);
+  --color-status-testing-bg: var(--status-testing-bg);
+  --color-status-testing-text: var(--status-testing-text);
+
+  /* Compatibility & Subtle Palette Tokens */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-info: var(--info);
-  --color-info-foreground: var(--info-foreground);
-
-  /* Subtle Palette Tokens for Badges, Tag Pills, and Light Surfaces */
-  --color-primary-subtle: var(--primary-subtle);
-  --color-primary-subtle-border: var(--primary-subtle-border);
-  --color-primary-subtle-foreground: var(--primary-subtle-foreground);
-
   --color-success-subtle: var(--success-subtle);
   --color-success-subtle-border: var(--success-subtle-border);
   --color-success-subtle-foreground: var(--success-subtle-foreground);
 
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-warning-subtle: var(--warning-subtle);
   --color-warning-subtle-border: var(--warning-subtle-border);
   --color-warning-subtle-foreground: var(--warning-subtle-foreground);
 
-  --color-destructive-subtle: var(--destructive-subtle);
   --color-destructive-subtle-border: var(--destructive-subtle-border);
   --color-destructive-subtle-foreground: var(--destructive-subtle-foreground);
+
+  --color-primary-subtle-border: var(--primary-subtle-border);
+  --color-primary-subtle-foreground: var(--primary-subtle-foreground);
 
   --color-purple-subtle: var(--purple-subtle);
   --color-purple-subtle-border: var(--purple-subtle-border);
@@ -85,11 +99,11 @@
   --color-cyan-subtle-foreground: var(--cyan-subtle-foreground);
 
   /* Charts */
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  --color-chart-1: #4f46e5;
+  --color-chart-2: #7c3aed;
+  --color-chart-3: #0284c7;
+  --color-chart-4: #059669;
+  --color-chart-5: #d97706;
 
   /* Animations */
   --animate-shine: shine 3s infinite;
@@ -139,161 +153,176 @@
 }
 
 :root {
-  /* Shadcn Semantic Light Theme */
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* =========================================================================
+     FigCraft Anaheim Design Kit Tokens (1:1 Exact from anaheim-ui-ux.figcraft)
+     ========================================================================= */
+  
+  /* Core Brand Tokens */
+  --primary: #4f46e5;                    /* brand/primary */
+  --primary-hover: #4338ca;              /* brand/primary-hover */
+  --primary-subtle: #eef2ff;             /* brand/primary-subtle */
+  --primary-foreground: #ffffff;         /* text/inverse */
+  --primary-subtle-border: #c7d2fe;
+  --primary-subtle-foreground: #4338ca;
 
-  --card: #ffffff;
+  /* Surfaces */
+  --background: #f8fafc;                 /* surface/body */
+  --foreground: #0f172a;                 /* text/primary */
+  --card: #ffffff;                       /* surface/card */
   --card-foreground: #0f172a;
-
   --popover: #ffffff;
   --popover-foreground: #0f172a;
-
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --primary-hover: #1d4ed8;
-
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-
-  --accent: #f8fafc;
+  --muted: #f1f5f9;                      /* surface/muted */
+  --muted-foreground: #475569;           /* text/secondary */
+  --secondary: #f1f5f9;                  /* surface/muted */
+  --secondary-foreground: #0f172a;
+  --accent: #f1f5f9;
   --accent-foreground: #0f172a;
 
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  --border: #e2e8f0;
+  /* Borders & Controls */
+  --border: #e2e8f0;                     /* border/default */
   --input: #e2e8f0;
-  --ring: #2563eb;
-  --radius: 0.75rem;
+  --ring: #4f46e5;
+  --radius: 6px;                         /* radius/md */
 
-  /* Shadcn Sidebar (Deep Navy Theme) */
-  --sidebar-background: #0c1322;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #1d4ed8;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #3b82f6;
+  /* Sidebar (FigCraft Specimen 22: Crisp White Light Surface) */
+  --sidebar-background: #ffffff;         /* surface/card (white) */
+  --sidebar-foreground: #0f172a;         /* text/primary (slate-900) */
+  --sidebar-muted: #64748b;              /* text/secondary (slate-500) */
+  --sidebar-primary: #4f46e5;            /* brand/primary (indigo-600) */
+  --sidebar-primary-foreground: #ffffff; /* text/inverse */
+  --sidebar-accent: #f1f5f9;             /* surface/muted (slate-100) */
+  --sidebar-accent-foreground: #0f172a;  /* text/primary */
+  --sidebar-border: #e2e8f0;             /* border/default */
+  --sidebar-ring: #4f46e5;
 
-  /* Status Tokens */
+  /* Semantic Status Tokens (FigCraft Status Tokens) */
+  --status-dev-bg: #eef2ff;              /* status/dev-bg */
+  --status-dev-text: #4338ca;            /* status/dev-text */
+  --status-review-bg: #faf5ff;          /* status/review-bg */
+  --status-review-text: #6b21a8;        /* status/review-text */
+  --status-done-bg: #ecfdf5;            /* status/done-bg */
+  --status-done-text: #065f46;          /* status/done-text */
+  --status-rework-bg: #fef2f2;          /* status/rework-bg */
+  --status-rework-text: #991b1b;        /* status/rework-text */
+  --status-testing-bg: #f0f9ff;         /* status/testing-bg */
+  --status-testing-text: #0369a1;       /* status/testing-text */
+
+  /* Functional Status (Success, Warning, Destructive) */
   --success: #10b981;
   --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #ffffff;
-  --info: #0284c7;
-  --info-foreground: #ffffff;
-
-  /* Subtle Surfaces (Badges, Tags, Pills, Highlights) */
-  --primary-subtle: #eff6ff;
-  --primary-subtle-border: #bfdbfe;
-  --primary-subtle-foreground: #1d4ed8;
-
   --success-subtle: #ecfdf5;
   --success-subtle-border: #a7f3d0;
-  --success-subtle-foreground: #047857;
+  --success-subtle-foreground: #065f46;
 
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
   --warning-subtle: #fffbeb;
   --warning-subtle-border: #fde68a;
   --warning-subtle-foreground: #b45309;
 
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
   --destructive-subtle: #fef2f2;
   --destructive-subtle-border: #fecaca;
-  --destructive-subtle-foreground: #b91c1c;
+  --destructive-subtle-foreground: #991b1b;
 
   --purple-subtle: #faf5ff;
   --purple-subtle-border: #e9d5ff;
-  --purple-subtle-foreground: #7e22ce;
+  --purple-subtle-foreground: #6b21a8;
 
-  --cyan-subtle: #ecfeff;
-  --cyan-subtle-border: #a5f3fc;
-  --cyan-subtle-foreground: #0e7490;
-
-  /* Charts */
-  --chart-1: #2563eb;
-  --chart-2: #8b5cf6;
-  --chart-3: #06b6d4;
-  --chart-4: #10b981;
-  --chart-5: #f59e0b;
+  --cyan-subtle: #f0f9ff;
+  --cyan-subtle-border: #bae6fd;
+  --cyan-subtle-foreground: #0369a1;
 }
 
 .dark {
-  /* Shadcn Semantic Dark Theme */
-  --background: #090d16;
-  --foreground: #f8fafc;
-
-  --card: #0c1322;
-  --card-foreground: #f8fafc;
-
-  --popover: #0c1322;
-  --popover-foreground: #f8fafc;
-
-  --primary: #3b82f6;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-subtle: rgba(79, 70, 229, 0.15);
   --primary-foreground: #ffffff;
-  --primary-hover: #2563eb;
+  --primary-subtle-border: rgba(99, 102, 241, 0.3);
+  --primary-subtle-foreground: #a5b4fc;
 
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-
-  --muted: #1e293b;
+  --background: #0b0f17;
+  --foreground: #f8fafc;
+  --card: #111827;
+  --card-foreground: #f8fafc;
+  --popover: #111827;
+  --popover-foreground: #f8fafc;
+  --muted: #1f2937;
   --muted-foreground: #94a3b8;
-
-  --accent: #1e293b;
+  --secondary: #1f2937;
+  --secondary-foreground: #f8fafc;
+  --accent: #1f2937;
   --accent-foreground: #f8fafc;
 
-  --destructive: #f87171;
-  --destructive-foreground: #ffffff;
+  --border: #1f2937;
+  --input: #1f2937;
+  --ring: #6366f1;
 
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #3b82f6;
-
-  /* Dark Sidebar */
-  --sidebar-background: #070b12;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #3b82f6;
+  --sidebar-background: #090d16;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-muted: #64748b;
+  --sidebar-primary: #6366f1;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #3b82f6;
+  --sidebar-accent: #111827;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1f2937;
+  --sidebar-ring: #6366f1;
 
-  /* Dark Status Tokens */
-  --success: #34d399;
-  --success-foreground: #090d16;
-  --warning: #fbbf24;
-  --warning-foreground: #090d16;
-  --info: #38bdf8;
-  --info-foreground: #090d16;
+  --status-dev-bg: rgba(79, 70, 229, 0.2);
+  --status-dev-text: #a5b4fc;
+  --status-review-bg: rgba(124, 58, 237, 0.2);
+  --status-review-text: #d8b4fe;
+  --status-done-bg: rgba(16, 185, 129, 0.2);
+  --status-done-text: #6ee7b7;
+  --status-rework-bg: rgba(239, 68, 68, 0.2);
+  --status-rework-text: #fca5a5;
+  --status-testing-bg: rgba(2, 132, 199, 0.2);
+  --status-testing-text: #7dd3fc;
 
-  /* Dark Subtle Surfaces */
-  --primary-subtle: rgba(37, 99, 235, 0.15);
-  --primary-subtle-border: rgba(59, 130, 246, 0.3);
-  --primary-subtle-foreground: #93c5fd;
-
+  --success: #10b981;
+  --success-foreground: #ffffff;
   --success-subtle: rgba(16, 185, 129, 0.15);
   --success-subtle-border: rgba(16, 185, 129, 0.3);
   --success-subtle-foreground: #6ee7b7;
 
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
   --warning-subtle: rgba(245, 158, 11, 0.15);
   --warning-subtle-border: rgba(245, 158, 11, 0.3);
   --warning-subtle-foreground: #fcd34d;
 
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
   --destructive-subtle: rgba(239, 68, 68, 0.15);
   --destructive-subtle-border: rgba(239, 68, 68, 0.3);
   --destructive-subtle-foreground: #fca5a5;
 
-  --purple-subtle: rgba(139, 92, 246, 0.15);
-  --purple-subtle-border: rgba(139, 92, 246, 0.3);
+  --purple-subtle: rgba(124, 58, 237, 0.15);
+  --purple-subtle-border: rgba(124, 58, 237, 0.3);
   --purple-subtle-foreground: #d8b4fe;
 
-  --cyan-subtle: rgba(6, 182, 212, 0.15);
-  --cyan-subtle-border: rgba(6, 182, 212, 0.3);
-  --cyan-subtle-foreground: #67e8f9;
+  --cyan-subtle: rgba(2, 132, 199, 0.15);
+  --cyan-subtle-border: rgba(2, 132, 199, 0.3);
+  --cyan-subtle-foreground: #7dd3fc;
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {

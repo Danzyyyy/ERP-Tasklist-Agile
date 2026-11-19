@@ -1,23 +1,23 @@
 // src/Features/Dashboard/Components/KPICards.tsx
 import React, { memo } from "react";
 import { Card } from "@/Components/Elements/Card";
+import { Skeleton } from "@/Components/Elements/Skeleton";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
-import type { DeliverableProgress, Task } from "@/Types/task";
+import type { DeliverableProgress } from "@/Types/task";
 import { TrendingUp, Clock, ShieldAlert, RotateCcw } from "lucide-react";
 
 export interface KPICardsProps {
   metrics: DeliverableProgress;
-  tasks: Task[];
+  sprintActiveCount?: number;
+  draftCount?: number;
+  reworkCount?: number;
 }
 
-export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
-  const activeTasks = tasks.filter((t) => t.status !== "DONE" && t.status !== "DRAFT");
-  const draftApprovals = tasks.filter((t) => t.status === "DRAFT");
-
+export const KPICards = memo<KPICardsProps>(({ metrics, sprintActiveCount = 0, draftCount = 0, reworkCount = 0 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {/* KPI 1 */}
-      <Card className="p-4 border-border hover:border-primary/50 transition-all">
+      <Card interactive="primary">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Progres Deliverable
@@ -38,7 +38,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
       </Card>
 
       {/* KPI 2 */}
-      <Card className="p-4 border-border hover:border-primary/50 transition-all">
+      <Card interactive="primary">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Tugas Aktif di Sprint
@@ -49,7 +49,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
         </div>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black text-foreground font-mono">
-            {activeTasks.length}
+            {sprintActiveCount}
           </span>
           <span className="text-xs text-muted-foreground font-medium">Tugas</span>
         </div>
@@ -59,7 +59,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
       </Card>
 
       {/* KPI 3 */}
-      <Card className="p-4 border-border hover:border-warning/50 transition-all">
+      <Card interactive="warning">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Antrean Dual-Approval
@@ -70,7 +70,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
         </div>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black text-warning-subtle-foreground font-mono">
-            {draftApprovals.length}
+            {draftCount}
           </span>
           <span className="text-xs text-muted-foreground font-medium">Draft</span>
         </div>
@@ -80,7 +80,7 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
       </Card>
 
       {/* KPI 4 */}
-      <Card className="p-4 border-border hover:border-destructive/50 transition-all">
+      <Card interactive="destructive">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Tugas Rework / Bug
@@ -91,12 +91,12 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
         </div>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black text-destructive-subtle-foreground font-mono">
-            {tasks.filter((t) => t.rework).length}
+            {reworkCount}
           </span>
           <span className="text-xs text-muted-foreground font-medium">Tugas</span>
         </div>
         <span className="text-[11px] text-muted-foreground block mt-1">
-          Otomasi pembalikan alur rework (Q-05)
+          Otomasi pengembalian alur revisi
         </span>
       </Card>
     </div>
@@ -104,4 +104,23 @@ export const KPICards = memo<KPICardsProps>(({ metrics, tasks }) => {
 });
 
 KPICards.displayName = "KPICards";
+
+// SKELETON COMPANION: Dimensi & Grid Identik (CLS = 0)
+export const KPICardsSkeleton: React.FC = () => {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {Array.from({ length: 4 }).map((_, idx) => (
+        <Card key={idx}>
+          <div className="flex items-center justify-between mb-2">
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="size-8 rounded-lg" />
+          </div>
+          <Skeleton className="h-8 w-20 my-1" />
+          <Skeleton className="h-3 w-36 mt-1" />
+        </Card>
+      ))}
+    </div>
+  );
+};
+
 export default KPICards;

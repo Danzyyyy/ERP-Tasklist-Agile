@@ -4,6 +4,7 @@ export const ROUTE_PATHS = {
   HOME: "/",
   LOGIN: "/auth/login",
   DASHBOARD: "/dashboard",
+  PROJECTS: "/dashboard/projects",
   MODULES: "/dashboard/modules",
   TASKS: "/dashboard/tasks",
   KANBAN: "/dashboard/kanban",

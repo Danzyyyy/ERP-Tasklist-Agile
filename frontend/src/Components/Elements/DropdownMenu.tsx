@@ -1,4 +1,5 @@
 // src/Components/Elements/DropdownMenu.tsx
+// Anaheim Design Kit — Specimen 04: Dropdown Menu (FigCraft 1:1 CVA Implementation)
 import React, {
   createContext,
   useContext,
@@ -8,6 +9,7 @@ import React, {
   memo,
   type ReactNode,
 } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/Utils/cn";
 
 interface DropdownMenuContextType {
@@ -55,12 +57,31 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   );
 };
 
-export interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+const dropdownTriggerVariants = cva(
+  "inline-flex items-center cursor-pointer select-none transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+  {
+    variants: {
+      variant: {
+        unstyled: "justify-center p-0 h-auto bg-transparent border-0",
+        outline:
+          "h-9 px-3 rounded-md border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted/70 hover:border-[#cbd5e1] shadow-2xs group",
+        card: "gap-2 sm:gap-2.5 px-2.5 h-[42px] rounded-lg border border-border bg-card hover:bg-muted/70 text-left shadow-2xs group",
+      },
+    },
+    defaultVariants: {
+      variant: "unstyled",
+    },
+  },
+);
+
+export interface DropdownMenuTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof dropdownTriggerVariants> {
   asChild?: boolean;
 }
 
 export const DropdownMenuTrigger = memo<DropdownMenuTriggerProps>(
-  ({ className, children, onClick, ...props }) => {
+  ({ className, variant, asChild: _asChild, children, onClick, ...props }) => {
     const context = useContext(DropdownMenuContext);
     if (!context) {
       throw new Error("DropdownMenuTrigger must be used within DropdownMenu");
@@ -78,7 +99,7 @@ export const DropdownMenuTrigger = memo<DropdownMenuTriggerProps>(
         aria-haspopup="true"
         aria-expanded={context.open}
         onClick={handleClick}
-        className={cn("inline-flex items-center justify-center cursor-pointer", className)}
+        className={cn(dropdownTriggerVariants({ variant }), className)}
         {...props}
       >
         {children}
@@ -89,7 +110,7 @@ export const DropdownMenuTrigger = memo<DropdownMenuTriggerProps>(
 DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 
 export interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  align?: "left" | "right" | "center";
+  align?: "left" | "right" | "center" | "start" | "end";
   sideOffset?: number;
 }
 
@@ -102,7 +123,6 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
       throw new Error("DropdownMenuContent must be used within DropdownMenu");
     }
 
-    // Handle outside click and Escape key
     useEffect(() => {
       if (!context.open) return;
 
@@ -136,6 +156,7 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
 
     if (!context.open) return null;
 
+    const normalizedAlign = align === "start" ? "left" : align === "end" ? "right" : align;
     const alignmentClasses = {
       left: "left-0 origin-top-left",
       right: "right-0 origin-top-right",
@@ -148,8 +169,8 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
         role="menu"
         aria-orientation="vertical"
         className={cn(
-          "absolute z-50 mt-1.5 min-w-47.5 rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl transition-all animate-[pop_0.15s_ease]",
-          alignmentClasses[align],
+          "absolute z-50 mt-1.5 min-w-[180px] rounded-lg border border-border bg-card p-1.5 text-card-foreground shadow-xl transition-all animate-pop",
+          alignmentClasses[normalizedAlign],
           className,
         )}
         {...props}
@@ -164,11 +185,23 @@ DropdownMenuContent.displayName = "DropdownMenuContent";
 export interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
   disabled?: boolean;
   destructive?: boolean;
+  selected?: boolean;
+  comfortable?: boolean;
   inset?: boolean;
 }
 
 export const DropdownMenuItem = memo<DropdownMenuItemProps>(
-  ({ className, disabled, destructive, inset, children, onClick, ...props }) => {
+  ({
+    className,
+    disabled,
+    destructive,
+    selected = false,
+    comfortable = false,
+    inset,
+    children,
+    onClick,
+    ...props
+  }) => {
     const context = useContext(DropdownMenuContext);
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -181,10 +214,14 @@ export const DropdownMenuItem = memo<DropdownMenuItemProps>(
       <div
         role="menuitem"
         aria-disabled={disabled}
+        aria-selected={selected || undefined}
         onClick={handleClick}
         className={cn(
-          "relative flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none select-none cursor-pointer transition-colors",
-          "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+          "relative flex items-center gap-2 rounded-sm px-2.5 text-xs font-medium outline-none select-none cursor-pointer transition-colors duration-150",
+          comfortable ? "py-2" : "py-1.5",
+          selected
+            ? "bg-primary-subtle text-primary-subtle-foreground font-semibold"
+            : "text-foreground hover:bg-muted focus:bg-muted",
           destructive &&
             "text-destructive hover:bg-destructive-subtle hover:text-destructive-subtle-foreground focus:bg-destructive-subtle",
           disabled && "pointer-events-none opacity-50 cursor-not-allowed",
@@ -200,20 +237,17 @@ export const DropdownMenuItem = memo<DropdownMenuItemProps>(
 );
 DropdownMenuItem.displayName = "DropdownMenuItem";
 
-export interface DropdownMenuLabelProps extends React.HTMLAttributes<HTMLDivElement> {
-  inset?: boolean;
-}
-
-export const DropdownMenuLabel = memo<DropdownMenuLabelProps>(({ className, inset, ...props }) => (
-  <div
-    className={cn(
-      "px-2.5 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider",
-      inset && "pl-8",
-      className,
-    )}
-    {...props}
-  />
-));
+export const DropdownMenuLabel = memo<React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }) => (
+    <div
+      className={cn(
+        "px-2.5 py-1.5 text-[10.5px] font-bold text-muted-foreground uppercase tracking-wider",
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
 DropdownMenuLabel.displayName = "DropdownMenuLabel";
 
 export const DropdownMenuSeparator = memo<React.HTMLAttributes<HTMLDivElement>>(
@@ -235,3 +269,5 @@ export const DropdownMenuShortcut = memo<React.HTMLAttributes<HTMLSpanElement>>(
   ),
 );
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
+
+export default DropdownMenu;

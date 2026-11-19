@@ -1,6 +1,8 @@
 // src/Components/Elements/Modal.tsx
+// Anaheim Design Kit — Specimen 14: Dialog Containers (FigCraft 1:1 Implementation)
 import React, { memo, useEffect } from "react";
 import { cn } from "@/Utils/cn";
+import { Button } from "./Button";
 import { X } from "lucide-react";
 
 export interface ModalProps {
@@ -10,7 +12,8 @@ export interface ModalProps {
   description?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl";
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
+  className?: string;
 }
 
 const maxWidthMap = {
@@ -19,10 +22,14 @@ const maxWidthMap = {
   lg: "max-w-lg",
   xl: "max-w-xl",
   "2xl": "max-w-2xl",
+  "3xl": "max-w-3xl",
+  "4xl": "max-w-4xl",
+  "5xl": "max-w-5xl",
+  full: "max-w-6xl",
 };
 
 export const Modal = memo<ModalProps>(
-  ({ isOpen, onClose, title, description, children, footer, maxWidth = "md" }) => {
+  ({ isOpen, onClose, title, description, children, footer, maxWidth = "md", className }) => {
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape" && isOpen) {
@@ -43,24 +50,25 @@ export const Modal = memo<ModalProps>(
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-        {/* Backdrop */}
+        {/* Backdrop (FigCraft 50% dark slate with blur) */}
         <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-xs transition-opacity animate-fade"
+          className="fixed inset-0 bg-[#0f172a]/50 backdrop-blur-xs transition-opacity animate-fade"
           onClick={onClose}
         />
 
-        {/* Modal Dialog */}
+        {/* Modal Dialog (FigCraft 12px radius, white card surface) */}
         <div
           role="dialog"
           aria-modal="true"
           className={cn(
-            "relative z-10 w-full overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl transition-all animate-pop my-auto",
+            "relative z-10 w-full overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-2xl transition-all animate-pop my-auto",
             maxWidthMap[maxWidth],
+            className,
           )}
         >
           {/* Header */}
           {(title || description) && (
-            <div className="flex items-start justify-between gap-3 border-b border-border/70 p-5 pb-4">
+            <div className="flex items-start justify-between gap-3 border-b border-border/80 p-5 pb-4">
               <div className="min-w-0 flex-1">
                 {title && (
                   <div className="text-base font-bold text-foreground leading-snug">{title}</div>
@@ -71,23 +79,26 @@ export const Modal = memo<ModalProps>(
                   </div>
                 )}
               </div>
-              <button
+              <Button
                 type="button"
+                variant="ghostMuted"
+                size="iconSm"
                 onClick={onClose}
-                className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 -mr-1 -mt-1 cursor-pointer"
+                className="-mr-1 -mt-1"
+                aria-label="Tutup"
               >
                 <X className="size-4" />
                 <span className="sr-only">Tutup</span>
-              </button>
+              </Button>
             </div>
           )}
 
           {/* Content */}
-          <div className="max-h-[80vh] overflow-y-auto p-5">{children}</div>
+          <div className="max-h-[75vh] overflow-y-auto p-5">{children}</div>
 
           {/* Footer */}
           {footer && (
-            <div className="flex items-center justify-end gap-2 border-t border-border/70 bg-muted/40 p-4 px-5">
+            <div className="flex items-center justify-end gap-2.5 border-t border-border/80 bg-background p-4 px-5">
               {footer}
             </div>
           )}

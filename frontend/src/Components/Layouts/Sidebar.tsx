@@ -1,112 +1,51 @@
 // src/Components/Layouts/Sidebar.tsx
 import React, { memo } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
-import { useTasks } from "@/Features/Tasks/Hooks/useTasks";
-import useDeliverableProgress from "@/Features/Dashboard/Hooks/useDeliverableProgress";
-import { Progress } from "@/Components/Elements/Progress";
-import { formatPercent, formatManHours } from "@/Utils/formatters";
-import { useSidebar } from "./SidebarContext";
+import { useSidebarNavigation } from "@/Hooks/useSidebarNavigation";
+import { useAuth } from "@/Hooks/useAuth";
 import { cn } from "@/Utils/cn";
-import {
-  LayoutGrid,
-  Folder,
-  ListChecks,
-  Columns3,
-  ClipboardCheck,
-  BarChart2,
-  FolderKanban,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { Button } from "@/Components/Elements/Button";
+import { X, Plus, LogOut } from "lucide-react";
 
-export const Sidebar = memo(() => {
-  const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
-  const { data: tasks = [] } = useTasks();
-  const { data: metrics } = useDeliverableProgress();
+export interface SidebarProps {
+  onOpenTaskModal?: () => void;
+}
 
-  const reviewTestingCount = tasks.filter((t) => {
-    const hasReviewLogs = Boolean(
-      (t.reviewLogs && t.reviewLogs.length > 0) ||
-      ((t as any).review_logs && (t as any).review_logs.length > 0),
-    );
-    const isSignOff = Boolean(
-      t.status === "TESTING" || t.status === "DONE" || t.is_pm_verified || t.is_tl_signed,
-    );
-    return (
-      t.status === "CODE_REVIEW" ||
-      t.status === "TESTING" ||
-      Boolean(t.rework) ||
-      hasReviewLogs ||
-      isSignOff
-    );
-  }).length;
+export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
+  const { open, openMobile, isMobile, setOpenMobile, navItems, handleNavClick } =
+    useSidebarNavigation();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-  const NAV_ITEMS = [
-    {
-      to: ROUTE_PATHS.DASHBOARD,
-      label: "Dashboard",
-      icon: LayoutGrid,
-    },
-    {
-      to: ROUTE_PATHS.MODULES,
-      label: "Proyek",
-      icon: Folder,
-    },
-    {
-      to: ROUTE_PATHS.TASKS,
-      label: "Tasklist",
-      icon: ListChecks,
-    },
-    {
-      to: ROUTE_PATHS.KANBAN,
-      label: "Agile Board",
-      icon: Columns3,
-    },
-    {
-      to: ROUTE_PATHS.REVIEWS,
-      label: "Review & Testing",
-      icon: ClipboardCheck,
-      badge: reviewTestingCount > 0 ? reviewTestingCount : undefined,
-    },
-    {
-      to: ROUTE_PATHS.REPORTS,
-      label: "Laporan",
-      icon: BarChart2,
-    },
-  ];
-
-  const handleNavClick = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTE_PATHS.LOGIN);
   };
 
   return (
     <>
-      {/* Mobile Backdrop Overlay (Shadcn Sheet pattern) */}
+      {/* Mobile Backdrop Overlay */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300 md:hidden",
+          "fixed inset-0 z-40 bg-foreground/60 backdrop-blur-xs transition-opacity duration-300 md:hidden",
           openMobile ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         )}
         onClick={() => setOpenMobile(false)}
         aria-hidden="true"
       />
 
-      {/* Sidebar Panel */}
+      {/* Sidebar Panel (FigCraft 1:1 Crisp 240px White Surface) */}
       <aside
         className={cn(
-          "fixed left-0 top-0 bottom-0 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col select-none transition-all duration-300 ease-in-out",
-          // Mobile Sheet styling
+          "fixed left-0 top-0 bottom-0 bg-card text-foreground border-r border-border flex flex-col select-none transition-all duration-300 ease-in-out",
           isMobile
             ? cn(
                 "z-50 w-72 shadow-2xl",
                 openMobile ? "translate-x-0" : "-translate-x-full pointer-events-none",
               )
-            : // Desktop Collapsible styling
-              cn(
-                "z-30 w-64",
+            : cn(
+                "z-30 w-[240px]",
                 open
                   ? "translate-x-0 opacity-100 pointer-events-auto"
                   : "-translate-x-full opacity-0 pointer-events-none",
@@ -114,38 +53,41 @@ export const Sidebar = memo(() => {
         )}
         aria-label="Sidebar Navigasi"
       >
-        {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border bg-sidebar/90">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-sidebar-primary grid place-items-center text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/20 shrink-0">
-              <FolderKanban className="size-4" />
+        {/* Brand Header (FigCraft 1:1: H 72px, ANAHEIM / Workspace Proyek · v1.0) */}
+        <div className="h-[72px] flex items-center justify-between px-4 border-b border-border bg-card shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="size-8 rounded-md bg-primary grid place-items-center text-primary-foreground shadow-xs font-black text-sm shrink-0">
+              A
             </div>
             <div className="min-w-0">
-              <h1 className="text-xs font-bold tracking-tight text-sidebar-foreground truncate">
-                PT. Anaheim Nimbus Universal
+              <h1 className="text-xs font-bold tracking-wider uppercase text-foreground leading-tight truncate">
+                ANAHEIM
               </h1>
-              <p className="text-[10px] text-sidebar-foreground/60 font-mono truncate">
-                ERP Modul E-4
+              <p className="text-[10.5px] text-muted-foreground leading-tight truncate">
+                Workspace Proyek · v1.0
               </p>
             </div>
           </div>
 
-          {/* Close button for Mobile Sheet */}
           {isMobile && (
-            <button
+            <Button
               type="button"
+              variant="ghostMuted"
+              size="iconSm"
               onClick={() => setOpenMobile(false)}
-              className="size-8 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent grid place-items-center cursor-pointer shrink-0 transition-colors"
               aria-label="Tutup Sidebar"
             >
               <X className="size-4" />
-            </button>
+            </Button>
           )}
         </div>
 
-        {/* Navigation List - Clean & Simple */}
+        {/* Primary Navigation (FigCraft SidebarNavItem: No Trailing Count Badge) */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
+          <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            WORKSPACE
+          </div>
+          {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
@@ -155,56 +97,56 @@ export const Sidebar = memo(() => {
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    "flex items-center gap-2.5 px-3 h-[38px] rounded-md text-sm transition-colors group",
                     isActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm font-semibold"
-                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
+                      ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted font-medium",
                   )
                 }
               >
-                <div className="flex items-center gap-3 truncate">
-                  <Icon className="size-4.5 shrink-0 stroke-[2.2]" />
-                  <span className="truncate text-[13px]">{item.label}</span>
-                </div>
-
-                {item.badge !== undefined && (
-                  <span className="px-2 py-0.5 rounded-md bg-white text-rose-600 font-extrabold text-[11px] leading-tight shadow-xs min-w-5 text-center">
-                    {item.badge}
-                  </span>
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      className={cn(
+                        "size-4 shrink-0 transition-colors",
+                        isActive
+                          ? "text-primary-foreground stroke-[2.2]"
+                          : "text-muted-foreground group-hover:text-foreground stroke-[2]",
+                      )}
+                    />
+                    <span className="truncate text-[13px]">{item.label}</span>
+                  </>
                 )}
               </NavLink>
             );
           })}
         </nav>
 
-        {/* Mini Deliverable Progress Widget */}
-        <div className="p-3 m-3 rounded-xl bg-sidebar-accent border border-sidebar-border space-y-2">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-sidebar-foreground font-bold flex items-center gap-1.5">
-              <Sparkles className="size-3 text-sidebar-ring" />
-              Deliverable Sprint
-            </span>
-            <span className="font-mono text-xs font-extrabold text-sidebar-ring">
-              {formatPercent(metrics?.progressPercentage || 0)}
-            </span>
-          </div>
+        {/* Sidebar Footer (FigCraft 1:1: + Tambah Task + Red Keluar Button) */}
+        <div className="px-3 pb-3.5 pt-3 border-t border-border shrink-0 space-y-2">
+          <Button
+            type="button"
+            variant="primary"
+            size="default"
+            onClick={onOpenTaskModal}
+            className="w-full"
+          >
+            <Plus className="size-3.5 shrink-0" />
+            <span>Tambah Task</span>
+          </Button>
 
-          <Progress
-            value={metrics?.progressPercentage || 0}
-            height="h-2"
-            tone="blue"
-            animatedShine={false}
-          />
-
-          <div className="flex items-center justify-between text-[9px] text-sidebar-foreground/60 font-mono">
-            <span>
-              {formatManHours(metrics?.completedManHours || 0)} /{" "}
-              {formatManHours(metrics?.totalEstimatedManHours || 0)}
-            </span>
-            <span>
-              {metrics?.completedTasks || 0}/{metrics?.totalTasks || 0} Done
-            </span>
-          </div>
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            align="between"
+            onClick={handleLogout}
+            className="w-full"
+            title="Keluar dari akun"
+          >
+            <span>Keluar</span>
+            <LogOut className="size-3.5 shrink-0" />
+          </Button>
         </div>
       </aside>
     </>

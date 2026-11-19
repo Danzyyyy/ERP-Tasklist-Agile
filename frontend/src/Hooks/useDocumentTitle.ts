@@ -1,7 +1,7 @@
 // src/Hooks/useDocumentTitle.ts
 import { useEffect } from "react";
 
-const BASE_TITLE = "ERP Modul E-4 — PT. Anaheim Nimbus Universal";
+const BASE_TITLE = "Anaheim ERP — PT. Anaheim Nimbus Universal";
 
 export function useDocumentTitle(title?: string, description?: string) {
   useEffect(() => {

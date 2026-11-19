@@ -1,302 +1,374 @@
 // src/Features/Reports/Pages/ReportsPage.tsx
-import React, { useMemo } from "react";
-import useDeliverableProgress from "@/Features/Dashboard/Hooks/useDeliverableProgress";
-import { useTasks } from "@/Features/Tasks/Hooks/useTasks";
-import useModules from "@/Features/Modules/Hooks/useModules";
-import DeliverableProgressCard from "@/Features/Dashboard/Components/DeliverableProgressCard";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
+import useDashboardOverview from "@/Features/Dashboard/Hooks/useDashboardOverview";
+import { useGetTaskList } from "@/Hooks/useGetTaskList";
+import {
+  useGetDeliverableProgress,
+  DEFAULT_DELIVERABLE_METRICS,
+} from "@/Hooks/useGetDeliverableProgress";
+import useGetModuleList from "@/Hooks/useGetModuleList";
+import ModuleProgressReportRow from "../Components/ModuleProgressReportRow";
+import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
+import { Button } from "@/Components/Elements/Button";
 import { Card } from "@/Components/Elements/Card";
 import { Badge } from "@/Components/Elements/Badge";
-import { Button } from "@/Components/Elements/Button";
-import { formatManHours } from "@/Utils/formatters";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
-import {
-  FileSpreadsheet,
-  Download,
-  BarChart3,
-  PieChart as PieChartIcon,
-  CheckCircle2,
-} from "lucide-react";
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeader,
+  DataTableRow,
+} from "@/Components/Elements/DataTable";
+import { ROUTE_PATHS } from "@/Constants/RouteConstant";
+import { getAvatarTone, getInitials, getTaskAssigneeName, isTaskRework } from "@/Utils/taskUtils";
+import { cn } from "@/Utils/cn";
+import { RefreshCw, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 
 export const ReportsPage: React.FC = () => {
   useDocumentTitle(
-    "Laporan Progres & SLA",
-    "Analisis akumulasi man-hour kerja riil, grafik distribusi modul, dan pelacakan rasio progres deliverable Formula Q-03.",
+    "Laporan Eksekutif",
+    "Ringkasan capaian deliverable berdasarkan rasio jam kerja selesai dan pemantauan risiko tenggat.",
   );
-  const { data: metrics } = useDeliverableProgress();
-  const { data: tasks = [] } = useTasks();
-  const { data: modules = [] } = useModules();
 
-  const effectiveMetrics = useMemo(() => {
-    if (metrics && metrics.totalTasks > 0) return metrics;
+  const navigate = useNavigate();
+  const { goToTasks } = useDashboardOverview();
+  const { data: progress = DEFAULT_DELIVERABLE_METRICS, refetch: refetchProgress } =
+    useGetDeliverableProgress();
+  const { data: allTasks = [], refetch: refetchTasks } = useGetTaskList({});
+  const { data: modules = [] } = useGetModuleList();
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.status === "DONE").length;
-    const totalEstimatedManHours = tasks.reduce(
-      (acc, t) => acc + (Number(t.estimated_man_hours) || 0),
-      0,
-    );
-    const completedManHours = tasks
-      .filter((t) => t.status === "DONE")
-      .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-    const actualManHoursSpent = tasks.reduce(
-      (acc, t) => acc + (Number(t.actual_man_hours_spent) || 0),
-      0,
-    );
-    const progressPercentage =
-      totalEstimatedManHours > 0 ? (completedManHours / totalEstimatedManHours) * 100 : 0.0;
-    const tasksAtRiskOrOverdue = tasks.filter((t) => {
-      if (t.status === "DONE") return false;
-      if (!t.target_deadline) return false;
-      return new Date(t.target_deadline) < new Date();
-    }).length;
+  const handleRefresh = async () => {
+    await Promise.all([refetchProgress(), refetchTasks()]);
+    toast.success("Data laporan dan kalkulasi progres deliverable berhasil diperbarui.");
+  };
 
-    return {
-      totalTasks,
-      completedTasks,
-      totalEstimatedManHours,
-      completedManHours,
-      actualManHoursSpent,
-      progressPercentage,
-      tasksAtRiskOrOverdue,
-      calculatedAt: new Date().toISOString(),
-    };
-  }, [metrics, tasks]);
+  const doneHours = progress.completedManHours;
+  const totalHours = progress.totalEstimatedManHours;
+  const progressPercent = progress.progressPercentage.toFixed(1);
 
-  // Progress by Module Data for Bar Chart
-  const moduleChartData = useMemo(() => {
-    return modules.map((mod) => {
-      // Find all tasks under this module
-      const modTasks = tasks.filter((t) => t.module_id === mod.id);
-      const totalHours = modTasks.reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
-      const doneHours = modTasks
-        .filter((t) => t.status === "DONE")
-        .reduce((acc, t) => acc + (Number(t.estimated_man_hours) || 0), 0);
+  const activeTasks = allTasks.filter((t) => t.status !== "DONE");
+  const remainingEstimatedHours = activeTasks.reduce(
+    (sum, t) => sum + (Number(t.estimated_man_hours) || 0),
+    0,
+  );
 
-      return {
-        name: mod.code,
-        fullName: mod.name,
-        Total: totalHours,
-        Done: doneHours,
-      };
-    });
-  }, [modules, tasks]);
+  const getStageLabel = (status: string, isRework?: boolean) => {
+    if (status === "DEVELOPMENT" && isRework) return "Development · Rework";
+    switch (status) {
+      case "CODE_REVIEW":
+        return "Code Review";
+      case "TESTING":
+        return "Testing · Menunggu PM";
+      case "DEVELOPMENT":
+        return "In Development";
+      case "RELEASED":
+        return "Released";
+      case "DRAFT":
+        return "Draft · PM Pending";
+      case "DONE":
+        return "Done";
+      default:
+        return status;
+    }
+  };
 
-  // Complexity Distribution Data for Pie Chart
-  const complexityChartData = useMemo(() => {
-    const counts = { LOW: 0, MEDIUM: 0, HIGH: 0 };
-    tasks.forEach((t) => {
-      if (counts[t.complexity_weight as keyof typeof counts] !== undefined) {
-        counts[t.complexity_weight as keyof typeof counts] += Number(t.estimated_man_hours) || 0;
-      }
-    });
-
-    return [
-      { name: "Low Complexity (Q-01)", value: counts.LOW, color: "#10b981" },
-      { name: "Medium Complexity (Q-01)", value: counts.MEDIUM, color: "#f59e0b" },
-      { name: "High Complexity (Q-01)", value: counts.HIGH, color: "#ef4444" },
-    ].filter((item) => item.value > 0);
-  }, [tasks]);
-
-  const handleExport = () => {
-    toast.success("Laporan deliverable sprint berhasil diunduh (Format JSON / CSV disiapkan).");
+  const getStageBadgeVariant = (status: string, isRework?: boolean) => {
+    if (status === "DEVELOPMENT" && isRework) return "REWORK";
+    return status;
   };
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+      {/* Page Title Card (FigCraft 1:1) */}
+      <Card
+        size="md"
+        padding="lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-subtle-foreground bg-primary-subtle px-2 py-0.5 rounded border border-primary-subtle-border">
-            DELIVERABLE ANALYTICS & AUDIT / FTR-K04-07
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Laporan Eksekutif &amp; Matriks Deliverable
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Ringkasan capaian deliverable berdasarkan rasio jam kerja selesai dan pemantauan risiko tenggat.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleRefresh}
+          >
+            <RefreshCw className="size-3.5" />
+            <span>Segarkan Kalkulasi</span>
+          </Button>
+          <Button
+            type="button"
+            onClick={goToTasks}
+            className="shrink-0"
+          >
+            <span>Kelola Tasklist</span>
+            <ArrowRight className="size-3.5" />
+          </Button>
+        </div>
+      </Card>
+
+      {/* Deliverable Progress Summary Banner */}
+      <Card
+        size="md"
+        padding="relaxed"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      >
+        <div>
+          <span className="font-mono text-[10.5px] font-bold text-primary tracking-wider uppercase block">
+            RINGKASAN DELIVERABLE PROYEK
           </span>
-          <h1 className="text-xl font-extrabold text-foreground tracking-tight mt-1.5 flex items-center gap-2">
-            <span>Pelaporan Progres Deliverable & Audit Sprint</span>
-          </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Integrasi metrik real-time untuk modul pelaporan (E-5) dan pengawasan proyek (D-3, D-4).
+            Rasio jam kerja selesai dibanding total estimasi. Realisasi aktual:{" "}
+            {progress.actualManHoursSpent.toFixed(1)} Jam · {progress.tasksAtRiskOrOverdue} Risiko H-1.
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          onClick={handleExport}
-          className="text-foreground text-xs self-start sm:self-auto"
-        >
-          <Download className="size-3.5 mr-1 text-primary" />
-          Ekspor Laporan (SLA)
-        </Button>
-      </div>
-
-      {/* Hero Metric */}
-      <DeliverableProgressCard metrics={effectiveMetrics} />
-
-      {/* Visual Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Module Burnout Bar Chart */}
-        <Card className="p-4 border-slate-200 bg-white">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <BarChart3 className="size-4 text-blue-600" />
-              <span>Akumulasi Man-Hour per Modul (Total vs Done)</span>
-            </h3>
-            <span className="text-[10px] text-slate-400 font-mono">Satuan: Jam Kerja</span>
+        <div className="flex flex-col sm:items-end gap-1">
+          <Badge variant="default" size="sm">
+            RASIO REAL-TIME
+          </Badge>
+          <div className="font-mono tabular-nums text-base sm:text-lg font-black text-primary">
+            {doneHours.toFixed(1)} JAM DONE / {totalHours.toFixed(1)} TOTAL JAM × 100% ={" "}
+            {progressPercent}%
           </div>
-
-          <div className="h-64 w-full">
-            {moduleChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={moduleChartData}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                >
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                      fontSize: "11px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Bar dataKey="Total" fill="#93c5fd" radius={[4, 4, 0, 0]} name="Total Jam" />
-                  <Bar
-                    dataKey="Done"
-                    fill="#2563eb"
-                    radius={[4, 4, 0, 0]}
-                    name="Jam Selesai (Done)"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full grid place-items-center text-xs text-slate-400">
-                Belum ada data modul untuk grafik
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* Complexity Weight Pie Chart */}
-        <Card className="p-4 border-slate-200 bg-white">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <PieChartIcon className="size-4 text-amber-600" />
-              <span>Proporsi Beban Kerja Berdasarkan Bobot (Q-01)</span>
-            </h3>
-            <span className="text-[10px] text-slate-400 font-mono">Man-Hour Total</span>
-          </div>
-
-          <div className="h-64 w-full flex items-center justify-center">
-            {complexityChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={complexityChartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={4}
-                    dataKey="value"
-                  >
-                    {complexityChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                      fontSize: "11px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-xs text-slate-400">Belum ada data bobot untuk grafik</div>
-            )}
-          </div>
-        </Card>
-      </div>
-
-      {/* Deliverable Audit Table */}
-      <Card className="p-4 border-slate-200 bg-white">
-        <h3 className="text-xs font-bold text-slate-900 mb-3 flex items-center gap-1.5">
-          <FileSpreadsheet className="size-4 text-emerald-600" />
-          <span>Matriks Verifikasi Deliverable Sprint 1 (Kelompok 4 / Kelas E)</span>
-        </h3>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
-                <th className="p-2.5">Kode Tugas</th>
-                <th className="p-2.5">Judul Deliverable</th>
-                <th className="p-2.5">Bobot</th>
-                <th className="p-2.5">Estimasi Jam</th>
-                <th className="p-2.5">Status Kanban</th>
-                <th className="p-2.5">Ceklis PM (DoD)</th>
-                <th className="p-2.5">Otorisasi TL (DONE)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.map((task) => (
-                <tr key={task.id} className="border-b border-border/70 hover:bg-muted/50">
-                  <td className="p-2.5 font-mono font-bold text-primary">{task.task_code}</td>
-                  <td className="p-2.5 font-medium text-foreground">{task.title}</td>
-                  <td className="p-2.5">
-                    <Badge variant={task.complexity_weight as any} size="sm">
-                      {task.complexity_weight}
-                    </Badge>
-                  </td>
-                  <td className="p-2.5 font-mono font-bold text-slate-700">
-                    {formatManHours(task.estimated_man_hours)}
-                  </td>
-                  <td className="p-2.5">
-                    <Badge variant={task.status as any} size="sm" dot>
-                      {task.status}
-                    </Badge>
-                  </td>
-                  <td className="p-2.5">
-                    {task.is_pm_verified ? (
-                      <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                        <CheckCircle2 className="size-3 text-emerald-600" />
-                        Terverifikasi
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 text-[11px]">-</span>
-                    )}
-                  </td>
-                  <td className="p-2.5">
-                    {task.is_tl_signed ? (
-                      <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                        <CheckCircle2 className="size-3 text-emerald-600" />
-                        Disahkan (DoD)
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 text-[11px]">-</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
+      </Card>
+
+      {/* 2-Column Split: Progres Modul & Alokasi Man-Hour PIC */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card size="md" padding="relaxed" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">Perbandingan Progres per Modul</h3>
+            <span className="text-[10px] font-mono text-muted-foreground font-bold uppercase">
+              {modules.length} MODUL AKTIF
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {modules.map((m) => (
+              <ModuleProgressReportRow
+                key={m.id}
+                moduleId={m.id}
+                moduleCode={m.code}
+                moduleName={m.name}
+              />
+            ))}
+
+            {modules.length === 0 && (
+              <p className="text-xs text-muted-foreground italic">Belum ada modul terdaftar.</p>
+            )}
+          </div>
+        </Card>
+
+        <Card size="md" padding="relaxed" className="space-y-3.5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">Alokasi &amp; Realisasi Man-Hour PIC</h3>
+            <span className="text-[10px] font-mono text-muted-foreground font-bold uppercase">
+              DONE / ESTIMASI
+            </span>
+          </div>
+
+          <div className="space-y-2.5 text-xs">
+            {(() => {
+              const picMap: Record<string, { name: string; total: number; done: number }> = {};
+              allTasks.forEach((t) => {
+                const picName = getTaskAssigneeName(t);
+                if (!picMap[picName]) {
+                  picMap[picName] = { name: picName, total: 0, done: 0 };
+                }
+                const hrs = Number(t.estimated_man_hours) || 0;
+                picMap[picName].total += hrs;
+                if (t.status === "DONE") {
+                  picMap[picName].done += hrs;
+                }
+              });
+
+              const entries = Object.values(picMap);
+              if (entries.length === 0) {
+                return <p className="text-xs text-muted-foreground italic">Belum ada tugas.</p>;
+              }
+
+              return entries.map((entry, idx) => (
+                <div
+                  key={entry.name}
+                  className={cn(
+                    "flex items-center justify-between py-1",
+                    idx < entries.length - 1 && "border-b border-border/50",
+                  )}
+                >
+                  <span className="font-medium text-foreground">{entry.name}</span>
+                  <span
+                    className={cn(
+                      "font-mono tabular-nums",
+                      entry.done > 0 && entry.done === entry.total
+                        ? "text-success font-bold"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {entry.done.toFixed(1)} / {entry.total.toFixed(1)} Jam
+                  </span>
+                </div>
+              ));
+            })()}
+          </div>
+        </Card>
+      </div>
+
+      {/* Active Tasks & H-1 Risk Audit Card using Live Design Kit DataTable + DataTableRow */}
+      <Card size="md" padding="relaxed" className="space-y-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground">
+                Tugas Belum Selesai &amp; Audit Risiko H-1
+              </h3>
+              <Badge variant="primary" size="sm">
+                {activeTasks.length} TUGAS AKTIF
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {remainingEstimatedHours.toFixed(1)} Jam estimasi tersisa
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={goToTasks}
+            >
+              Buka Tasklist
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => navigate(ROUTE_PATHS.KANBAN)}
+            >
+              Buka Agile Board →
+            </Button>
+          </div>
+        </div>
+
+        {/* Standard DataTable Primitive (Card MD Base + DataTableRow) */}
+        <DataTable>
+          <DataTableHeader>
+            <DataTableRow rowType="header">
+              <DataTableHead>TUGAS &amp; MODUL</DataTableHead>
+              <DataTableHead className="w-48">TAHAPAN SAAT INI</DataTableHead>
+              <DataTableHead align="right" className="w-28">
+                EST / AKTUAL
+              </DataTableHead>
+              <DataTableHead className="w-48">PIC PELAKSANA</DataTableHead>
+              <DataTableHead align="right" className="w-32">
+                TENGGAT H-1
+              </DataTableHead>
+            </DataTableRow>
+          </DataTableHeader>
+          <DataTableBody>
+            {activeTasks.map((t) => {
+              const hasPic = Boolean(t.assignee_name);
+              const picLabel = getTaskAssigneeName(t);
+              const picInitial = hasPic ? getInitials(picLabel) : "";
+              const picTone = hasPic ? getAvatarTone(picInitial) : "slate";
+
+              const estHrs = Number(t.estimated_man_hours) || 0;
+              const actHrs = Number(t.actual_man_hours) || 0;
+
+              const dlDate = t.target_deadline ? new Date(t.target_deadline) : null;
+              const isValidDl = dlDate !== null && !Number.isNaN(dlDate.getTime());
+              const isUrgent =
+                isValidDl && dlDate.getTime() - Date.now() <= 24 * 60 * 60 * 1000;
+              const dlText = isValidDl
+                ? isUrgent
+                  ? `${dlDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })} · H-1!`
+                  : dlDate.toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                : "—";
+
+              return (
+                <DataTableRow key={t.id}>
+                  <DataTableCell>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-mono tabular-nums text-[11px] font-semibold text-primary shrink-0 w-14">
+                        {t.task_code || "TSK"}
+                      </span>
+                      <span className="font-medium text-foreground truncate">{t.title}</span>
+                      {t.module?.code && (
+                        <span className="text-[11px] text-muted-foreground shrink-0">
+                          ({t.module.code})
+                        </span>
+                      )}
+                    </div>
+                  </DataTableCell>
+
+                  <DataTableCell>
+                    <Badge variant={getStageBadgeVariant(t.status, isTaskRework(t))} size="sm">
+                      {getStageLabel(t.status, isTaskRework(t))}
+                    </Badge>
+                  </DataTableCell>
+
+                  <DataTableCell align="right" tabular nowrap weight="medium">
+                    {estHrs.toFixed(1)} / {actHrs.toFixed(1)} h
+                  </DataTableCell>
+
+                  <DataTableCell>
+                    {hasPic ? (
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Avatar size="xs" borderless>
+                          <AvatarFallback appearance="solid" tone={picTone}>
+                            {picInitial}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-foreground truncate">{picLabel}</span>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">Belum Ditugaskan</span>
+                    )}
+                  </DataTableCell>
+
+                  <DataTableCell
+                    align="right"
+                    tabular
+                    nowrap
+                    weight={isUrgent ? "bold" : "normal"}
+                    tone={isUrgent ? "destructive" : "muted"}
+                  >
+                    {dlText}
+                  </DataTableCell>
+                </DataTableRow>
+              );
+            })}
+
+            {activeTasks.length === 0 && (
+              <DataTableRow>
+                <td
+                  colSpan={5}
+                  className="py-6 text-center text-xs text-muted-foreground italic"
+                >
+                  Seluruh tugas telah berstatus selesai. Tidak ada tugas aktif tersisa.
+                </td>
+              </DataTableRow>
+            )}
+          </DataTableBody>
+        </DataTable>
+
+        <p className="text-[11px] text-muted-foreground pt-0.5">
+          Data progres dihitung otomatis secara real-time berdasarkan status penyelesaian tugas pada proyek aktif.
+        </p>
       </Card>
     </div>
   );

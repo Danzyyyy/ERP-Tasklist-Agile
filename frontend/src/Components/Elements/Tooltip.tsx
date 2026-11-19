@@ -1,4 +1,5 @@
 // src/Components/Elements/Tooltip.tsx
+// Anaheim Design Kit — Specimen 09: Tooltip & Skeleton Loading (FigCraft 1:1 Implementation)
 import React, { createContext, useContext, useState, memo, type ReactNode } from "react";
 import { cn } from "@/Utils/cn";
 
@@ -38,7 +39,7 @@ export const TooltipContent = memo<React.HTMLAttributes<HTMLDivElement>>(
       <div
         role="tooltip"
         className={cn(
-          "absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-50 overflow-hidden rounded-md bg-slate-900 px-2.5 py-1 text-[10px] font-medium text-white shadow-md animate-[fade_0.15s_ease] whitespace-nowrap",
+          "absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-50 overflow-hidden rounded-md bg-[#0f172a] px-2.5 py-1 text-[11px] font-medium text-white shadow-md animate-fade whitespace-nowrap pointer-events-none",
           className,
         )}
         {...props}
@@ -49,3 +50,5 @@ export const TooltipContent = memo<React.HTMLAttributes<HTMLDivElement>>(
   },
 );
 TooltipContent.displayName = "TooltipContent";
+
+export default Tooltip;

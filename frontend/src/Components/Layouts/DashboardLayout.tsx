@@ -1,33 +1,93 @@
 // src/Components/Layouts/DashboardLayout.tsx
 import React, { memo, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-import TaskModal from "@/Features/Tasks/Components/TaskModal";
+import TaskModal from "@/Components/Modals/TaskModal";
 import { SidebarProvider, useSidebar } from "./SidebarContext";
+import { ROUTE_PATHS } from "@/Constants/RouteConstant";
+import { useProject } from "@/Contexts/ProjectContext";
 import { cn } from "@/Utils/cn";
+import { ChevronRight } from "lucide-react";
+
+const getBreadcrumbTitle = (pathname: string): string => {
+  if (pathname === ROUTE_PATHS.DASHBOARD || pathname === `${ROUTE_PATHS.DASHBOARD}/`) return "Dashboard";
+  if (pathname.startsWith(ROUTE_PATHS.PROJECTS) || pathname.startsWith(ROUTE_PATHS.MODULES)) return "Proyek";
+  if (pathname.startsWith(ROUTE_PATHS.TASKS)) return "Tasklist";
+  if (pathname.startsWith(ROUTE_PATHS.KANBAN)) return "Agile Board";
+  if (pathname.startsWith(ROUTE_PATHS.REVIEWS)) return "Review & Testing";
+  if (pathname.startsWith(ROUTE_PATHS.REPORTS)) return "Laporan";
+  return "Dashboard";
+};
 
 const DashboardInner = memo(() => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const { open, isMobile } = useSidebar();
+  const { activeProject, activeProjectId } = useProject();
+  const location = useLocation();
+  const currentTitle = getBreadcrumbTitle(location.pathname);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex font-sans">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar with Quick Action wire-up */}
+      <Sidebar onOpenTaskModal={() => setIsTaskModalOpen(true)} />
 
       {/* Main Content Area: dynamic margin responds to desktop toggle & mobile viewport */}
       <div
         className={cn(
           "flex-1 flex flex-col min-h-screen w-full transition-[margin] duration-300 ease-in-out min-w-0",
-          !isMobile && open ? "md:ml-64" : "md:ml-0",
+          !isMobile && open ? "md:ml-[240px]" : "md:ml-0",
         )}
       >
         <Topbar onOpenTaskModal={() => setIsTaskModalOpen(true)} />
 
-        <main className="flex-1 p-3.5 sm:p-6 max-w-7xl w-full mx-auto">
+        <main className="flex-1 w-full min-w-0 pt-4 pb-6 px-4 sm:px-8 space-y-4">
+          {/* FigCraft 1:1: Context Meta Strip */}
+          <div className="flex items-center justify-between py-1 text-xs mb-1">
+            {/* Breadcrumb Trail */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs">
+              <Link
+                to={ROUTE_PATHS.DASHBOARD}
+                className="text-muted-foreground hover:text-foreground font-medium transition-colors"
+              >
+                Workspace
+              </Link>
+              <ChevronRight className="size-3.5 text-muted-foreground/60 shrink-0" />
+              <span className="font-semibold text-foreground">
+                {currentTitle}
+              </span>
+            </nav>
+
+            {/* Active Project & Cycle Indicator */}
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold">
+              <span
+                className={cn(
+                  "size-2 rounded-full shrink-0",
+                  activeProject?.status === "REGISTERED" ? "bg-success" : "bg-warning",
+                )}
+              />
+              <span
+                className={cn(
+                  "font-mono",
+                  activeProject?.status === "REGISTERED"
+                    ? "text-success"
+                    : "text-warning",
+                )}
+              >
+                {activeProject?.canonicalCode || activeProjectId} · {activeProject?.status || "REGISTERED"}
+                {activeProject?.startDate ? ` (${activeProject.startDate} s/d ${activeProject.targetEndDate || "Selesai"})` : ""}
+              </span>
+            </div>
+          </div>
+
           <Outlet />
         </main>
+
+        {/* Global Footer */}
+        <footer className="mt-auto border-t border-border bg-card px-4 sm:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground shrink-0">
+          <span>© 2026 {activeProject?.clientName || "PT. Anaheim Nimbus Universal"}</span>
+          <span>Anaheim ERP · Tasklist &amp; Eksekusi Agile</span>
+        </footer>
       </div>
 
       {/* Global Task Creation Modal */}
