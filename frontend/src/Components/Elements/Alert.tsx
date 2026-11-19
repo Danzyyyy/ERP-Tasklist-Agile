@@ -5,23 +5,31 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/Utils/cn";
 
 export const alertVariants = cva(
-  "relative w-full rounded-lg border p-3.5 sm:p-4 text-xs [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-2px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:size-4 [&>svg]:shrink-0 transition-colors shadow-2xs",
+  "relative w-full rounded-lg border text-xs [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-2px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:size-4 [&>svg]:shrink-0 transition-colors shadow-2xs",
   {
     variants: {
       variant: {
         default: "bg-card text-foreground border-border [&>svg]:text-foreground",
         destructive:
-          "bg-[#fef2f2] text-[#991b1b] border-[#fecaca] [&>svg]:text-[#991b1b]",
+          "bg-destructive-subtle text-destructive-subtle-foreground border-destructive-subtle-border [&>svg]:text-destructive-subtle-foreground",
         warning:
-          "bg-[#fffbeb] text-[#92400e] border-[#fde68a] [&>svg]:text-[#92400e]",
+          "bg-warning-subtle text-warning-subtle-foreground border-warning-subtle-border [&>svg]:text-warning-subtle-foreground",
         success:
-          "bg-[#ecfdf5] text-[#065f46] border-[#a7f3d0] [&>svg]:text-[#065f46]",
+          "bg-success-subtle text-success-subtle-foreground border-success-subtle-border [&>svg]:text-success-subtle-foreground",
+        successSoft:
+          "bg-success-subtle/40 text-foreground border-success-subtle-border [&>svg]:text-success",
         info:
-          "bg-[#f0f9ff] text-[#0369a1] border-[#bae6fd] [&>svg]:text-[#0369a1]",
+          "bg-cyan-subtle text-cyan-subtle-foreground border-cyan-subtle-border [&>svg]:text-cyan-subtle-foreground",
+      },
+      size: {
+        sm: "p-3",
+        default: "p-3.5 sm:p-4",
+        lg: "p-5 sm:p-6",
       },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   },
 );
@@ -32,8 +40,8 @@ export interface AlertProps
   ref?: React.Ref<HTMLDivElement>;
 }
 
-export const Alert = memo<AlertProps>(({ className, variant, children, ref, ...props }) => (
-  <div ref={ref} role="alert" className={cn(alertVariants({ variant }), className)} {...props}>
+export const Alert = memo<AlertProps>(({ className, variant, size, children, ref, ...props }) => (
+  <div ref={ref} role="alert" className={cn(alertVariants({ variant, size }), className)} {...props}>
     {children}
   </div>
 ));

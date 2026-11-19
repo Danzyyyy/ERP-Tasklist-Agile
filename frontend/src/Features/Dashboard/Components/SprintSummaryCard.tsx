@@ -1,5 +1,8 @@
 // src/Features/Dashboard/Components/SprintSummaryCard.tsx
 import React, { memo } from "react";
+import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
+import { Separator } from "@/Components/Elements/Separator";
 import type { DeliverableProgress, TaskStatus } from "@/Types/task";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
 
@@ -24,12 +27,12 @@ export const SprintSummaryCard = memo<SprintSummaryCardProps>(
     const totalHours = formatManHours(metrics.totalEstimatedManHours);
 
     return (
-      <div className="rounded-2xl border border-border bg-card p-4 space-y-3.5 shadow-2xs">
+      <Card size="md" className="space-y-3.5">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-foreground">Ringkasan Sprint</h3>
-          <span className="px-2 py-0.5 rounded-full bg-success-subtle text-success-subtle-foreground border border-success-subtle-border text-[10px] font-bold">
+          <Badge variant="success" size="sm">
             LIVE
-          </span>
+          </Badge>
         </div>
 
         {/* Donut and Man-hour Summary */}
@@ -77,7 +80,7 @@ export const SprintSummaryCard = memo<SprintSummaryCardProps>(
           </div>
         </div>
 
-        <div className="h-px bg-border" />
+        <Separator />
 
         {/* Bottom Stage Counts */}
         <div className="grid grid-cols-2 gap-3 text-xs">
@@ -97,7 +100,7 @@ export const SprintSummaryCard = memo<SprintSummaryCardProps>(
             <span className="text-muted-foreground font-medium">Review & Gate</span>
           </div>
         </div>
-      </div>
+      </Card>
     );
   },
 );

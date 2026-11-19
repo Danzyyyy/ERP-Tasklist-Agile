@@ -1,6 +1,7 @@
 // src/Features/Kanban/Components/AssigneeModal.tsx
 import React, { memo } from "react";
 import { Modal } from "@/Components/Elements/Modal";
+import { Alert } from "@/Components/Elements/Alert";
 import { Button } from "@/Components/Elements/Button";
 import { Select } from "@/Components/Elements/Select";
 import { Label } from "@/Components/Elements/Label";
@@ -44,7 +45,7 @@ export const AssigneeModal = memo<AssigneeModalProps>(
             ) : (
               <>
                 Tugas <strong className="font-mono text-foreground">{task.task_code}</strong>{" "}
-                memerlukan pelaksana sebelum masuk ke tahap Development (FTR-K04-04).
+                memerlukan pelaksana sebelum masuk ke tahap Development.
               </>
             )}
           </span>
@@ -62,21 +63,25 @@ export const AssigneeModal = memo<AssigneeModalProps>(
       >
       <div className="space-y-3.5 text-xs text-muted-foreground">
         {isDeveloperSelfAssign ? (
-          <div className="p-3 rounded-lg bg-info-subtle border border-info-subtle-border flex items-start gap-2 text-info-subtle-foreground text-[11px] leading-relaxed">
-            <UserCheck className="size-4 text-info shrink-0 mt-0.5" />
-            <span>
-              <b>Role Guard Pengembang:</b> Sebagai peran Developer, Anda hanya berwenang menugaskan
-              diri sendiri ke tugas pengerjaan ini.
-            </span>
-          </div>
+          <Alert variant="info" size="sm">
+            <div className="flex items-start gap-2 text-[11px] leading-relaxed">
+              <UserCheck className="size-4 shrink-0 mt-0.5" />
+              <span>
+                <b>Role Guard Pengembang:</b> Sebagai peran Developer, Anda hanya berwenang menugaskan
+                diri sendiri ke tugas pengerjaan ini.
+              </span>
+            </div>
+          </Alert>
         ) : (
-          <div className="p-3 rounded-lg bg-warning-subtle border border-warning-subtle-border flex items-start gap-2 text-warning-subtle-foreground text-[11px] leading-relaxed">
-            <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
-            <span>
-              <b>Aturan FTR-K04-04:</b> Tentukan pelaksana (assignee) sebelum memulai development.
-              Sistem mewajibkan pencatatan PIC untuk akuntabilitas jam kerja.
-            </span>
-          </div>
+          <Alert variant="warning" size="sm">
+            <div className="flex items-start gap-2 text-[11px] leading-relaxed">
+              <AlertCircle className="size-4 shrink-0 mt-0.5" />
+              <span>
+                <b>Aturan Penugasan:</b> Tentukan pelaksana (assignee) sebelum memulai development.
+                Sistem mewajibkan pencatatan PIC untuk akuntabilitas jam kerja.
+              </span>
+            </div>
+          </Alert>
         )}
 
         <div>

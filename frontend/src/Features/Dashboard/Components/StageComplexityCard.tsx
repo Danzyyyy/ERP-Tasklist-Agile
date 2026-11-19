@@ -1,6 +1,7 @@
 // src/Features/Dashboard/Components/StageComplexityCard.tsx
 import React, { memo } from "react";
 import { Button } from "@/Components/Elements/Button";
+import { Card } from "@/Components/Elements/Card";
 import { Skeleton } from "@/Components/Elements/Skeleton";
 import { ArrowUpRight, Layers } from "lucide-react";
 import type { TaskStatus } from "@/Types/task";
@@ -15,7 +16,7 @@ export interface StageComplexityCardProps {
 export const StageComplexityCard = memo<StageComplexityCardProps>(
   ({ stageStats, complexityBreakdown, totalHours, onOpenBoard }) => {
     return (
-      <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-2xs">
+      <Card size="md" padding="relaxed" className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-foreground">Distribusi Status & Kompleksitas</h3>
@@ -23,12 +24,7 @@ export const StageComplexityCard = memo<StageComplexityCardProps>(
               Rekapitulasi riil status tugas dan alokasi man-hour berdasarkan kompleksitas
             </p>
           </div>
-          <Button
-            type="button"
-            variant="link"
-            onClick={onOpenBoard}
-            className="text-xs font-semibold text-primary p-0 h-auto gap-1"
-          >
+          <Button type="button" variant="link" onClick={onOpenBoard} className="gap-1">
             <span>Buka Board</span>
             <ArrowUpRight className="size-3.5" />
           </Button>
@@ -120,7 +116,7 @@ export const StageComplexityCard = memo<StageComplexityCardProps>(
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     );
   },
 );
@@ -130,7 +126,7 @@ StageComplexityCard.displayName = "StageComplexityCard";
 // Companion Skeleton
 export const StageComplexityCardSkeleton: React.FC = () => {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+    <Card size="md" padding="relaxed" className="space-y-4">
       <div className="flex justify-between items-center">
         <Skeleton className="h-4 w-48" />
         <Skeleton className="h-4 w-20" />
@@ -145,6 +141,6 @@ export const StageComplexityCardSkeleton: React.FC = () => {
           <Skeleton key={i} className="h-12 rounded-lg" />
         ))}
       </div>
-    </div>
+    </Card>
   );
 };

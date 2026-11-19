@@ -5,8 +5,8 @@ import type { Task, TaskStatus } from "@/Types/task";
 import type { UserRole } from "@/Types/auth";
 import type { KanbanColumnDef } from "../Types/KanbanType";
 import { Button } from "@/Components/Elements/Button";
+import { Card } from "@/Components/Elements/Card";
 import { Plus } from "lucide-react";
-import { cn } from "@/Utils/cn";
 
 export interface KanbanColumnProps {
   column: KanbanColumnDef;
@@ -45,24 +45,27 @@ export const KanbanColumn = memo<KanbanColumnProps>(
     };
 
     return (
-      <div
+      <Card
+        size="md"
+        padding="sm"
+        surface="muted"
+        dragOver={isOver}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={cn(
-          "flex-1 min-w-[260px] rounded-2xl border border-border bg-muted/30 p-3 flex flex-col justify-between transition-colors shadow-2xs",
-          isOver && "border-primary ring-2 ring-primary/20 bg-primary/5",
-        )}
+        className="w-full flex flex-col justify-between"
       >
         <div>
           {/* Header Row: Title & Count Badge */}
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-border/70 px-1">
+          <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-border px-0.5">
             <h3 className="text-xs font-bold text-foreground tracking-tight">{column.title}</h3>
-            <span className="font-mono text-xs text-muted-foreground font-semibold px-1.5 py-0.5 rounded bg-card border border-border/80">{tasks.length}</span>
+            <span className="font-mono tabular-nums text-[11px] text-muted-foreground font-semibold px-1.5 py-0.5 rounded-sm bg-card border border-border">
+              {tasks.length}
+            </span>
           </div>
 
           {/* Cards List */}
-          <div className="space-y-3 min-h-[140px]">
+          <div className="space-y-2.5 min-h-[140px]">
             {tasks.map((task) => (
               <KanbanCard
                 key={task.id}
@@ -78,17 +81,21 @@ export const KanbanColumn = memo<KanbanColumnProps>(
           </div>
         </div>
 
-        {/* Column Footer: + Tambah tugas */}
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onOpenCreateTask}
-          className="mt-3 w-full py-2 px-2 text-xs text-muted-foreground hover:text-foreground font-medium flex items-center justify-start gap-1.5 rounded-lg hover:bg-card h-auto"
-        >
-          <Plus className="size-3.5" />
-          <span>Tambah tugas</span>
-        </Button>
-      </div>
+        {/* Column Footer: + Tambah tugas (hidden on Definition of Done column) */}
+        {column.id !== "DONE" && (
+          <Button
+            type="button"
+            variant="ghostCard"
+            size="sm"
+            align="left"
+            onClick={onOpenCreateTask}
+            className="mt-3 w-full"
+          >
+            <Plus className="size-3.5" />
+            <span>Tambah tugas</span>
+          </Button>
+        )}
+      </Card>
     );
   },
 );

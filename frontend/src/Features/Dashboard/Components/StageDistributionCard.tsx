@@ -47,18 +47,13 @@ const STAGE_ITEMS = [
 export const StageDistributionCard = memo<StageDistributionCardProps>(
   ({ stageCounts, onGoToKanban }) => {
     return (
-      <Card className="p-4 border-border bg-card">
+      <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
             <Kanban className="size-4 text-primary" />
-            <span>Distribusi Tahapan Sprint (SOP-08)</span>
+            <span>Distribusi Tahapan Sprint</span>
           </h3>
-          <Button
-            type="button"
-            variant="link"
-            onClick={onGoToKanban}
-            className="text-[11px] font-semibold text-primary p-0 h-auto"
-          >
+          <Button type="button" variant="link" onClick={onGoToKanban}>
             Lihat Papan &rarr;
           </Button>
         </div>
@@ -88,7 +83,7 @@ StageDistributionCard.displayName = "StageDistributionCard";
 
 export function StageDistributionCardSkeleton() {
   return (
-    <Card className="p-4 border-border bg-card">
+    <Card>
       <div className="flex items-center justify-between mb-3">
         <Skeleton className="h-4 w-48" />
         <Skeleton className="h-3.5 w-20" />

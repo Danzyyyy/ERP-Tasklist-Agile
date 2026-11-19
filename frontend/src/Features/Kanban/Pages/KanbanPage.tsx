@@ -9,10 +9,11 @@ import TaskModal from "@/Components/Modals/TaskModal";
 import TaskDetailModal from "@/Components/Modals/TaskDetailModal";
 import ReviewModal from "@/Components/Modals/ReviewModal";
 import SignOffModal from "@/Components/Modals/SignOffModal";
+import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
 import { Button } from "@/Components/Elements/Button";
+import { Card } from "@/Components/Elements/Card";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
-import { getAvatarBg } from "@/Utils/taskUtils";
-import { cn } from "@/Utils/cn";
+import { getAvatarTone } from "@/Utils/taskUtils";
 import { Plus, RefreshCw } from "lucide-react";
 
 export const KanbanPage: React.FC = () => {
@@ -54,27 +55,25 @@ export const KanbanPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Page Title Card (Real Business Context) */}
-      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+      <Card
+        size="md"
+        padding="lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase bg-primary/10 text-primary px-2 py-0.5 rounded">
-              SPRINT EXECUTION · FTR-K04-04
-            </span>
-          </div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             Papan Tugas Sprint (Agile Kanban Board)
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Alur kerja 5 tahap (Released &rarr; Development &rarr; Code Review &rarr; Testing &rarr; Done) sesuai SOP-08.
+            Alur kerja 5 tahap (Released &rarr; Development &rarr; Code Review &rarr; Testing &rarr; Done) dengan pemantauan status revisi.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button
             type="button"
-            variant="outline"
+            variant="outlineMuted"
             onClick={() => refetch()}
-            className="h-9 px-3 rounded-lg text-muted-foreground hover:text-foreground text-xs font-semibold gap-1.5 shadow-2xs"
           >
             <RefreshCw className="size-3.5" />
             <span>Segarkan</span>
@@ -84,14 +83,14 @@ export const KanbanPage: React.FC = () => {
             <Button
               type="button"
               onClick={() => setIsTaskModalOpen(true)}
-              className="h-9 px-4 rounded-lg text-xs font-semibold gap-1.5 shrink-0 shadow-xs"
+              className="shrink-0"
             >
               <Plus className="size-3.5" />
               <span>Buat Tugas Baru</span>
             </Button>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Filter Bar */}
       <KanbanFilterBar
@@ -101,10 +100,10 @@ export const KanbanPage: React.FC = () => {
         totalActiveCount={filteredTasks.length}
       />
 
-      {/* 5 Kanban Columns (Horizontal Scrollable Container) */}
+      {/* 5 Kanban Columns (Stretches evenly on wide screens, horizontally scrollable on mobile/narrow viewports) */}
       <div className="flex gap-4 items-start overflow-x-auto pb-3 w-full scroll-smooth">
         {KANBAN_COLUMNS.map((col) => (
-          <div key={col.id} className="w-[280px] sm:w-[300px] shrink-0">
+          <div key={col.id} className="flex-1 min-w-[272px] lg:min-w-[240px]">
             <KanbanColumn
               column={col}
               tasks={columnTasksMap[col.id]}
@@ -125,48 +124,30 @@ export const KanbanPage: React.FC = () => {
       {/* Bottom Dashboard Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-1">
         {/* Left: Member Status */}
-        <div className="lg:col-span-8 rounded-2xl border border-border bg-card p-4 space-y-3 shadow-2xs">
+        <Card size="md" className="lg:col-span-8 space-y-3">
           <h4 className="text-xs font-bold text-foreground">Status Pelaksana & Beban Kerja (PIC)</h4>
           <div className="flex flex-wrap items-center gap-4 text-xs">
-            <div className="flex items-center gap-2">
-              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("TW"))}>
-                TW
+            {[
+              { code: "TW", label: "Tubagus Wildan · PM" },
+              { code: "FZ", label: "Fauzan · TL" },
+              { code: "AR", label: "Ariel · FE (24h)" },
+              { code: "FJ", label: "Muhamad Fajri · BE (72h)" },
+              { code: "VD", label: "Valdric · QA" },
+            ].map((member) => (
+              <div key={member.code} className="flex items-center gap-2">
+                <Avatar size="xs" borderless>
+                  <AvatarFallback appearance="solid" tone={getAvatarTone(member.code)}>
+                    {member.code}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="font-semibold text-foreground">{member.label}</span>
               </div>
-              <span className="font-semibold text-foreground">Tubagus Wildan · PM</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("FZ"))}>
-                FZ
-              </div>
-              <span className="font-semibold text-foreground">Fauzan · TL</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("AR"))}>
-                AR
-              </div>
-              <span className="font-semibold text-foreground">Ariel · FE (24h)</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("FJ"))}>
-                FJ
-              </div>
-              <span className="font-semibold text-foreground">Muhamad Fajri · BE (72h)</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className={cn("size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs", getAvatarBg("VD"))}>
-                VD
-              </div>
-              <span className="font-semibold text-foreground">Valdric · QA</span>
-            </div>
+            ))}
           </div>
-        </div>
+        </Card>
 
         {/* Right: Accountable execution */}
-        <div className="lg:col-span-4 rounded-2xl border border-border bg-card p-4 space-y-2 shadow-2xs">
+        <Card size="md" className="lg:col-span-4 space-y-2">
           <h4 className="text-xs font-bold text-foreground">Metrik Eksekusi Sprint Aktif</h4>
           <div className="grid grid-cols-4 gap-2 pt-1 text-center">
             <div>
@@ -194,7 +175,7 @@ export const KanbanPage: React.FC = () => {
               <div className="text-[10px] text-muted-foreground mt-0.5">Overdue</div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Modals */}

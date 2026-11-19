@@ -1,7 +1,11 @@
 // src/Features/Auth/Components/RoleSelector.tsx
 import React, { memo } from "react";
-import { Label } from "@/Components/Elements/Label";
+import { Card } from "@/Components/Elements/Card";
+import { Badge } from "@/Components/Elements/Badge";
+import { Avatar, AvatarFallback, type AvatarFallbackProps } from "@/Components/Elements/Avatar";
 import { ROLE_DETAILS } from "@/Constants/AuthConstant";
+import { getInitials } from "@/Utils/taskUtils";
+import { cn } from "@/Utils/cn";
 import type { DemoToken } from "@/Types/auth";
 
 export interface RoleSelectorProps {
@@ -10,72 +14,146 @@ export interface RoleSelectorProps {
   onSelectToken: (token: string) => void;
 }
 
+interface DemoDisplayMeta {
+  initials?: string;
+  roleTitle: string;
+  rolePill: string;
+  tone: NonNullable<AvatarFallbackProps["tone"]>;
+  shortDesc: string;
+}
+
+const DEMO_TOKEN_META: Record<string, DemoDisplayMeta> = {
+  mock_tl: {
+    initials: "FZ",
+    roleTitle: "Technical Lead",
+    rolePill: "Technical Lead",
+    tone: "emerald",
+    shortDesc: "Dual-Approval & Sign-off DONE",
+  },
+  mock_pm: {
+    initials: "TW",
+    roleTitle: "Project Manager",
+    rolePill: "Project Manager",
+    tone: "indigo",
+    shortDesc: "Dual-Approval & Verifikasi PM",
+  },
+  mock_dev: {
+    initials: "AR",
+    roleTitle: "Frontend Developer",
+    rolePill: "Frontend Dev",
+    tone: "purple",
+    shortDesc: "Development & Ajukan Review",
+  },
+  mock_fajri: {
+    initials: "FJ",
+    roleTitle: "Backend Developer",
+    rolePill: "Backend Dev",
+    tone: "blue",
+    shortDesc: "Integrasi API & Development",
+  },
+  mock_tester: {
+    initials: "VD",
+    roleTitle: "QA Tester",
+    rolePill: "QA Tester",
+    tone: "amber",
+    shortDesc: "Pengujian QA & Auto-Rework",
+  },
+};
+
+const ROLE_FALLBACK_TONE: Record<string, NonNullable<AvatarFallbackProps["tone"]>> = {
+  TECHNICAL_LEAD: "emerald",
+  PROJECT_MANAGER: "indigo",
+  DEVELOPER: "purple",
+  TESTER: "amber",
+};
+
 export const RoleSelector = memo<RoleSelectorProps>(
   ({ demoTokens, selectedToken, onSelectToken }) => {
-    return (
-      <div className="space-y-2.5">
-        <Label className="text-foreground text-xs font-bold">
-          Pilih Akun Simulasi Aktor (Sprint 1):
-        </Label>
+    const activeDemo =
+      demoTokens.find((d) => d.token === selectedToken) || demoTokens[1] || demoTokens[0];
+    const activeShort = activeDemo
+      ? ROLE_DETAILS[activeDemo.role]?.short || activeDemo.role
+      : "PM";
 
-        <div className="space-y-2">
+    return (
+      <Card size="md" surface="subtle" padding="sm" className="space-y-2.5">
+        <div className="flex items-center justify-between gap-2 px-0.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+            AKUN DEMO PERAN (PRATINJAU)
+          </span>
+          <Badge variant="primary" size="xs" casing="normal">
+            Aktif: {activeShort}
+          </Badge>
+        </div>
+
+        <div className="space-y-1.5">
           {demoTokens.map((item) => {
             const isSelected = selectedToken === item.token;
-            const meta = ROLE_DETAILS[item.role];
+            const tokenMeta = DEMO_TOKEN_META[item.token];
+            const roleMeta = ROLE_DETAILS[item.role];
+
+            const baseName = item.name.replace(/\s*\([^)]*\)\s*$/, "").trim();
+            const displayRole = tokenMeta?.roleTitle || roleMeta?.label || item.role;
+            const pillLabel = tokenMeta?.rolePill || roleMeta?.label || item.role;
+            const initials = tokenMeta?.initials || getInitials(baseName);
+            const avatarTone =
+              tokenMeta?.tone || ROLE_FALLBACK_TONE[item.role] || "indigo";
+            const summaryText = tokenMeta?.shortDesc || item.description;
 
             return (
-              <div
+              <Card
                 key={item.token}
+                size="md"
+                padding="sm"
+                surface={isSelected ? "subtle" : "default"}
+                selected={isSelected}
+                interactive="primary"
                 onClick={() => onSelectToken(item.token)}
-                className={`p-3 rounded-xl border transition-all cursor-pointer select-none ${
-                  isSelected
-                    ? "border-primary bg-primary-subtle/40 ring-1 ring-primary shadow-xs"
-                    : "border-border hover:border-ring/40 hover:bg-muted/50"
-                }`}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelectToken(item.token);
+                  }
+                }}
+                className="cursor-pointer select-none"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div
-                      className={`w-7 h-7 rounded-lg font-bold text-[10px] grid place-items-center font-mono ${
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {meta?.short || item.role.slice(0, 2)}
-                    </div>
+                    <Avatar size="sm" borderless>
+                      <AvatarFallback appearance="solid" tone={avatarTone}>
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-foreground leading-tight">
-                          {item.name}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground font-mono hidden sm:inline">
-                          ({item.token})
-                        </span>
+                      <div className="text-[11.5px] font-bold text-foreground leading-tight truncate">
+                        {baseName} · {displayRole}
                       </div>
-                      <span className="text-[10px] text-muted-foreground block truncate mt-0.5">
-                        {item.description}
-                      </span>
+                      <p className="text-[10.5px] text-muted-foreground truncate mt-0.5">
+                        {summaryText}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="shrink-0 ml-2">
-                    <div
-                      className={`size-4 rounded-full border flex items-center justify-center ${
-                        isSelected ? "border-primary bg-primary" : "border-input bg-card"
-                      }`}
-                    >
-                      {isSelected && (
-                        <div className="size-1.5 rounded-full bg-primary-foreground" />
-                      )}
-                    </div>
-                  </div>
+                  <span
+                    className={cn(
+                      "text-[10.5px] shrink-0 whitespace-nowrap",
+                      isSelected
+                        ? "font-semibold text-primary"
+                        : "font-medium text-muted-foreground",
+                    )}
+                  >
+                    {pillLabel}
+                  </span>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
-      </div>
+      </Card>
     );
   },
 );

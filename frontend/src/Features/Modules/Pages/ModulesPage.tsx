@@ -6,9 +6,10 @@ import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
 import { Progress } from "@/Components/Elements/Progress";
+import { Tabs, TabsList, TabsTrigger } from "@/Components/Elements/Tabs";
 import { ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react";
-import { cn } from "@/Utils/cn";
 
 export const ModulesPage: React.FC = () => {
   useDocumentTitle("Proyek", "Implementasi Core Banking · PT. Anaheim Nimbus Universal");
@@ -21,7 +22,11 @@ export const ModulesPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Page Title Card (FigCraft 1:1) */}
-      <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+      <Card
+        size="md"
+        padding="lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Proyek & Deliverable</h2>
           <p className="text-xs text-muted-foreground mt-1">Implementasi Core Banking · PT. Anaheim Nimbus Universal</p>
@@ -29,41 +34,27 @@ export const ModulesPage: React.FC = () => {
         <Button
           type="button"
           onClick={() => setIsModuleModalOpen(true)}
-          className="h-9 px-4 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5"
+          className="shrink-0"
         >
           <Plus className="size-3.5" />
           <span>Tambah Modul Baru</span>
         </Button>
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border text-xs font-semibold">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setActiveTab("SCHEDULE")}
-          className={cn(
-            "pb-2.5 transition-all relative h-auto rounded-none p-0 hover:bg-transparent",
-            activeTab === "SCHEDULE" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          Jadwal & Kalender Sprint
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setActiveTab("DELIVERABLES")}
-          className={cn(
-            "pb-2.5 transition-all relative h-auto rounded-none p-0 hover:bg-transparent",
-            activeTab === "DELIVERABLES" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          Proyek & Deliverable
-        </Button>
-      </div>
+      <Tabs
+        variant="underline"
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "SCHEDULE" | "DELIVERABLES")}
+      >
+        <TabsList>
+          <TabsTrigger value="SCHEDULE">Jadwal &amp; Kalender Sprint</TabsTrigger>
+          <TabsTrigger value="DELIVERABLES">Proyek &amp; Deliverable</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* Sprint Calendar Card */}
-      <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-2xs">
+      <Card size="md" padding="relaxed" className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-bold text-foreground">12 – 18 Oktober 2026</h3>
@@ -72,15 +63,15 @@ export const ModulesPage: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
-              <Button type="button" variant="ghost" size="iconSm" className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground">
+              <Button type="button" variant="ghostMuted" size="iconSm">
                 <ChevronLeft className="size-4" />
               </Button>
-              <Button type="button" variant="ghost" size="iconSm" className="size-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground">
+              <Button type="button" variant="ghostMuted" size="iconSm">
                 <ChevronRight className="size-4" />
               </Button>
             </div>
 
-            <Button type="button" className="h-8 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs">
+            <Button type="button" size="sm">
               <Plus className="size-3.5" />
               <span>Jadwal Baru</span>
             </Button>
@@ -171,7 +162,7 @@ export const ModulesPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Section: Module Deliverables */}
       <div className="space-y-3 pt-2">
@@ -182,7 +173,7 @@ export const ModulesPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Card 1: MOD-01 */}
-          <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">
+          <Card size="md" padding="relaxed" className="space-y-3">
             <div className="flex items-center justify-between text-xs">
               <Badge variant="primary" size="sm">
                 MOD-01
@@ -198,10 +189,10 @@ export const ModulesPage: React.FC = () => {
               <div className="text-right text-xs font-mono text-muted-foreground">0.0%</div>
             </div>
             <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">0 / 72 Jam selesai</div>
-          </div>
+          </Card>
 
           {/* Card 2: MOD-02 */}
-          <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">
+          <Card size="md" padding="relaxed" className="space-y-3">
             <div className="flex items-center justify-between text-xs">
               <Badge variant="primary" size="sm">
                 MOD-02
@@ -217,7 +208,7 @@ export const ModulesPage: React.FC = () => {
               <div className="text-right text-xs font-mono text-primary font-bold">100.0%</div>
             </div>
             <div className="pt-2 border-t border-border/60 text-xs text-muted-foreground">24 / 24 Jam selesai</div>
-          </div>
+          </Card>
         </div>
       </div>
 

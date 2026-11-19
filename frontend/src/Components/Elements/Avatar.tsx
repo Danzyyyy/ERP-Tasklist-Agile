@@ -3,26 +3,35 @@
 import React, { memo, useState } from "react";
 import { cn } from "@/Utils/cn";
 
+export type AvatarTone = "blue" | "indigo" | "purple" | "amber" | "emerald" | "slate";
+
 export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
-  size?: "sm" | "default" | "lg";
+  size?: "xs" | "sm" | "default" | "md" | "lg" | "xl";
+  borderless?: boolean;
 }
 
 const sizeClasses = {
-  sm: "size-7 text-[10.5px]",
+  xs: "size-6 text-[10px]",
+  sm: "size-7 text-[10px]",
   default: "size-8 text-xs",
-  lg: "size-10 text-sm",
+  md: "size-[34px] text-xs",
+  lg: "size-9 text-xs",
+  xl: "size-10 text-sm",
 };
 
-export const Avatar = memo<AvatarProps>(({ className, size = "default", ...props }) => (
-  <div
-    className={cn(
-      "relative flex shrink-0 overflow-hidden rounded-full font-bold select-none border-2 border-white shadow-2xs",
-      sizeClasses[size],
-      className,
-    )}
-    {...props}
-  />
-));
+export const Avatar = memo<AvatarProps>(
+  ({ className, size = "default", borderless = false, ...props }) => (
+    <div
+      className={cn(
+        "relative flex shrink-0 overflow-hidden rounded-full font-bold select-none shadow-2xs",
+        !borderless && "border-2 border-white",
+        sizeClasses[size],
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
 Avatar.displayName = "Avatar";
 
 export interface AvatarImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {}
@@ -46,23 +55,34 @@ export const AvatarImage = memo<AvatarImageProps>(({ className, onError, ...prop
 AvatarImage.displayName = "AvatarImage";
 
 export interface AvatarFallbackProps extends React.HTMLAttributes<HTMLDivElement> {
-  tone?: "blue" | "indigo" | "amber" | "emerald" | "slate";
+  tone?: "blue" | "indigo" | "purple" | "amber" | "emerald" | "slate";
+  appearance?: "subtle" | "solid";
 }
 
-const toneMap = {
-  indigo: "bg-[#eef2ff] text-[#4338ca]",
-  blue: "bg-[#f0f9ff] text-[#0369a1]",
-  amber: "bg-[#fffbeb] text-[#b45309]",
-  emerald: "bg-[#ecfdf5] text-[#065f46]",
-  slate: "bg-[#f1f5f9] text-[#475569]",
+const subtleToneMap = {
+  indigo: "bg-primary-subtle text-primary-subtle-foreground",
+  purple: "bg-purple-subtle text-purple-subtle-foreground",
+  blue: "bg-cyan-subtle text-cyan-subtle-foreground",
+  amber: "bg-warning-subtle text-warning-subtle-foreground",
+  emerald: "bg-success-subtle text-success-subtle-foreground",
+  slate: "bg-muted text-muted-foreground",
+};
+
+const solidToneMap = {
+  indigo: "bg-primary text-primary-foreground",
+  purple: "bg-[#7C3AED] text-white",
+  blue: "bg-[#2563EB] text-white",
+  amber: "bg-[#D97706] text-white",
+  emerald: "bg-[#059669] text-white",
+  slate: "bg-muted-foreground text-white",
 };
 
 export const AvatarFallback = memo<AvatarFallbackProps>(
-  ({ className, tone = "indigo", children, ...props }) => (
+  ({ className, tone = "indigo", appearance = "subtle", children, ...props }) => (
     <div
       className={cn(
         "flex h-full w-full items-center justify-center rounded-full font-bold uppercase",
-        toneMap[tone],
+        appearance === "solid" ? solidToneMap[tone] : subtleToneMap[tone],
         className,
       )}
       {...props}

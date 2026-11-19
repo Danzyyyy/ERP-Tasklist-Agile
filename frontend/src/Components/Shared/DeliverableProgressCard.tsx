@@ -1,5 +1,6 @@
 // src/Components/Shared/DeliverableProgressCard.tsx
 import React, { memo } from "react";
+import { Badge } from "@/Components/Elements/Badge";
 import { Card } from "@/Components/Elements/Card";
 import { Skeleton } from "@/Components/Elements/Skeleton";
 import { Progress } from "@/Components/Elements/Progress";
@@ -13,7 +14,7 @@ export interface DeliverableProgressCardProps {
 
 export const DeliverableProgressCard = memo<DeliverableProgressCardProps>(({ metrics }) => {
   return (
-    <Card className="p-4 bg-linear-to-r from-card via-card to-primary-subtle/40 border-primary-subtle-border shadow-2xs">
+    <Card surface="brandGradient">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-primary-subtle text-primary grid place-items-center shrink-0">
@@ -22,11 +23,11 @@ export const DeliverableProgressCard = memo<DeliverableProgressCardProps>(({ met
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-bold text-foreground">
-                Mesin Kalkulasi Progres Deliverable
+                Progres Deliverable Proyek
               </span>
-              <span className="text-[10px] font-mono font-bold bg-primary-subtle text-primary-subtle-foreground px-2 py-0.2 rounded border border-primary-subtle-border">
-                Formula Q-03 / API-K04-01
-              </span>
+              <Badge variant="primary" size="sm" shape="rounded" casing="normal" mono>
+                Real-Time
+              </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground font-mono mt-0.5 truncate">
               Rasio jam kerja riil: <b>{formatManHours(metrics.completedManHours)}</b> selesai dari
@@ -85,7 +86,7 @@ DeliverableProgressCard.displayName = "DeliverableProgressCard";
 // SKELETON COMPANION: Dimensi & Grid Identik (CLS = 0)
 export const DeliverableProgressCardSkeleton: React.FC = () => {
   return (
-    <Card className="p-4 border-border shadow-2xs">
+    <Card>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
         <div className="flex items-center gap-2.5">
           <Skeleton className="size-9 rounded-xl shrink-0" />

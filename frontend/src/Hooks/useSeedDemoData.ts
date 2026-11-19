@@ -56,7 +56,7 @@ export const useSeedDemoData = () => {
         module_id: moduleId,
         feature_id: feature1Id,
         task_code: `TSK-${Math.floor(10 + Math.random() * 89)}`,
-        title: "Penyusunan Kontrak REST API Modul E-4",
+        title: "Penyusunan Kontrak REST API Tasklist & Agile",
         description:
           "Spesifikasi endpoint hierarki modul, approval rilis, dan progres deliverable.",
         complexity_weight: "MEDIUM",

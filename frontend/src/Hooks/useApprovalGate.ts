@@ -51,8 +51,8 @@ export function useApprovalGate(task: Task | null, onClose: () => void) {
       notes:
         rawNotes.trim() ||
         (status === "APPROVED"
-          ? `Disetujui oleh ${user?.name || role} sesuai SOP-07.`
-          : `Ditolak oleh ${user?.name || role}. Perlu penyesuaian estimasi/skup.`),
+          ? `Disetujui oleh ${user?.name || role}.`
+          : `Ditolak oleh ${user?.name || role}. Perlu penyesuaian estimasi/cakupan.`),
     });
   };
 

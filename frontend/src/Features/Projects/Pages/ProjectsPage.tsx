@@ -10,7 +10,9 @@ import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
 import { Input } from "@/Components/Elements/Input";
+import { Tabs, TabsList, TabsTrigger } from "@/Components/Elements/Tabs";
 import { cn } from "@/Utils/cn";
 import { toast } from "sonner";
 import {
@@ -31,7 +33,7 @@ import {
 } from "lucide-react";
 
 export const ProjectsPage: React.FC = () => {
-  useDocumentTitle("Daftar Proyek", "Portofolio Proyek D-1 & Manajemen Deliverable Modul E-4");
+  useDocumentTitle("Daftar Proyek", "Portofolio Proyek & Manajemen Deliverable Anaheim ERP");
 
   const navigate = useNavigate();
   const { projects, activeProjectId, activeProject, isLoadingProjects, setActiveProjectId } = useProject();
@@ -85,69 +87,71 @@ export const ProjectsPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Page Header Card */}
-      <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+      <Card
+        size="md"
+        padding="lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
+            <span className="p-1.5 rounded-md bg-primary/10 text-primary">
               <FolderKanban className="size-5" />
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Portofolio & Daftar Proyek</h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Portofolio &amp; Daftar Proyek</h2>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Integrasi Modul D-1 (Project Intake) dan Modul E-3 (Execution Readiness). Pilih proyek aktif untuk mengelola tasklist dan sprint agile.
+            Daftar proyek terdaftar dan status kesiapan eksekusi. Pilih proyek aktif untuk mengelola tasklist dan papan agile.
           </p>
         </div>
 
         {activeTab === "MODULES" && (
-          <Button type="button" onClick={() => setIsModuleModalOpen(true)} className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5">
+          <Button type="button" onClick={() => setIsModuleModalOpen(true)} className="shrink-0">
             <Plus className="size-3.5" />
             <span>Tambah Modul Baru</span>
           </Button>
         )}
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-border text-xs font-semibold">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setActiveTab("PROJECTS")}
-          className={cn(
-            "pb-2.5 transition-all relative flex items-center gap-2 rounded-none h-auto px-0",
-            activeTab === "PROJECTS" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          <span>Daftar Proyek Tersedia</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">{projects.length}</span>
-        </Button>
-
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setActiveTab("MODULES")}
-          className={cn(
-            "pb-2.5 transition-all relative flex items-center gap-2 rounded-none h-auto px-0",
-            activeTab === "MODULES" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          <span>Modul & Deliverable ({activeProject?.projectName || activeProjectId})</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-muted text-foreground">{projectModules.length}</span>
-        </Button>
-      </div>
+      <Tabs
+        variant="underline"
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "PROJECTS" | "MODULES")}
+      >
+        <TabsList>
+          <TabsTrigger value="PROJECTS">
+            <span>Daftar Proyek Tersedia</span>
+            <Badge variant="default" size="xs" mono>
+              {projects.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="MODULES">
+            <span>Modul &amp; Deliverable ({activeProject?.projectName || activeProjectId})</span>
+            <Badge variant="default" size="xs" mono>
+              {projectModules.length}
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* TAB 1: PROJECTS LIST */}
       {activeTab === "PROJECTS" && (
         <div className="space-y-4">
           {/* Filter Bar */}
-          <div className="rounded-xl border border-border bg-card p-3 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground z-10" />
+          <Card
+            size="md"
+            padding="sm"
+            className="flex flex-col sm:flex-row items-center justify-between gap-3"
+          >
+            <div className="w-full sm:w-80">
               <Input
                 type="text"
+                variant="subtle"
+                sizeVariant="sm"
+                leftIcon={<Search className="size-3.5" />}
                 placeholder="Cari nama proyek, kode, atau klien..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-8 pl-8 pr-3 text-xs bg-background"
               />
             </div>
 
@@ -156,13 +160,9 @@ export const ProjectsPage: React.FC = () => {
                 <Button
                   key={st}
                   type="button"
-                  variant={statusFilter === st ? "default" : "ghost"}
-                  size="sm"
+                  variant={statusFilter === st ? "default" : "muted"}
+                  size="xs"
                   onClick={() => setStatusFilter(st)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-md text-xs font-medium h-auto",
-                    statusFilter === st ? "shadow-2xs" : "bg-muted/50 text-muted-foreground hover:text-foreground",
-                  )}
                 >
                   {st === "ALL" && "Semua"}
                   {st === "REGISTERED" && "Registered (Siap)"}
@@ -170,16 +170,16 @@ export const ProjectsPage: React.FC = () => {
                 </Button>
               ))}
             </div>
-          </div>
+          </Card>
 
           {/* Project Cards Grid */}
           {isLoadingProjects ? (
             <div className="py-12 text-center text-xs text-muted-foreground">Memuat daftar proyek dari backend...</div>
           ) : filteredProjects.length === 0 ? (
-            <div className="py-12 rounded-2xl border border-dashed border-border text-center space-y-1">
-              <p className="text-xs font-semibold text-foreground">Tidak ada proyek yang sesuai</p>
-              <p className="text-[11px] text-muted-foreground">Coba ubah kata kunci pencarian atau filter status.</p>
-            </div>
+            <Card size="md" padding="empty" dashed className="space-y-1">
+              <p className="text-xs font-semibold text-foreground text-center">Tidak ada proyek yang sesuai</p>
+              <p className="text-[11px] text-muted-foreground text-center">Coba ubah kata kunci pencarian atau filter status.</p>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProjects.map((proj) => {
@@ -187,19 +187,20 @@ export const ProjectsPage: React.FC = () => {
                 const isRegistered = proj.status === "REGISTERED";
 
                 return (
-                  <div
+                  <Card
                     key={proj.projectId}
-                    className={cn(
-                      "rounded-2xl border bg-card p-5 space-y-4 transition-all shadow-2xs flex flex-col justify-between",
-                      isActive ? "border-primary ring-2 ring-primary/20 shadow-md" : "border-border hover:border-border/80 hover:shadow-xs",
-                    )}
+                    size="md"
+                    padding="relaxed"
+                    selected={isActive}
+                    interactive={isActive ? "none" : "subtle"}
+                    className="space-y-4 flex flex-col justify-between"
                   >
                     <div className="space-y-3.5">
                       {/* Top Badges */}
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-mono text-[11px] px-2 py-0.5 rounded-md font-bold bg-muted text-foreground border border-border/80">
+                        <Badge variant="default" size="sm" shape="rounded" mono>
                           {proj.canonicalCode || proj.projectId}
-                        </span>
+                        </Badge>
 
                         {isRegistered ? (
                           <Badge variant="success" size="sm">
@@ -302,7 +303,7 @@ export const ProjectsPage: React.FC = () => {
                             <CheckCircle2 className="size-4 text-success" />
                             <span>Proyek Aktif Saat Ini</span>
                           </div>
-                          <Button type="button" variant="link" onClick={() => navigate(ROUTE_PATHS.DASHBOARD)} className="text-xs font-semibold text-primary p-0 h-auto gap-1">
+                          <Button type="button" variant="link" onClick={() => navigate(ROUTE_PATHS.DASHBOARD)} className="gap-1">
                             <span>Buka Dashboard</span>
                             <ArrowRight className="size-3.5" />
                           </Button>
@@ -311,20 +312,18 @@ export const ProjectsPage: React.FC = () => {
                         <div className="flex items-center justify-between gap-2">
                           <Button
                             type="button"
-                            variant={isRegistered ? "default" : "outline"}
+                            variant={isRegistered ? "default" : "warningSubtle"}
+                            size="sm"
                             onClick={() => handleSelectProject(proj.projectId, proj.projectName)}
-                            className={cn(
-                              "w-full h-8.5 rounded-lg text-xs font-semibold gap-1.5 shadow-2xs",
-                              !isRegistered && "border-warning-subtle-border bg-warning-subtle text-warning-subtle-foreground hover:bg-warning-subtle/80",
-                            )}
+                            className="w-full"
                           >
-                            <span>Pilih & Alihkan ke Proyek Ini</span>
+                            <span>Pilih &amp; Alihkan ke Proyek Ini</span>
                             <ArrowRight className="size-3.5" />
                           </Button>
                         </div>
                       )}
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -335,31 +334,31 @@ export const ProjectsPage: React.FC = () => {
       {/* TAB 2: MODULES & DELIVERABLES OF ACTIVE PROJECT */}
       {activeTab === "MODULES" && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-between gap-3 text-xs shadow-2xs">
-            <div>
+          <Card size="md" className="flex items-center justify-between gap-3">
+            <div className="text-xs">
               <p className="font-bold text-foreground">
                 Daftar Modul untuk Proyek: <span className="text-primary">{activeProject?.projectName || activeProjectId}</span>
               </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">Modul-modul ini terikat dengan proyek aktif. Penambahan modul baru otomatis terdaftar ke proyek ini.</p>
             </div>
-            <Button type="button" size="sm" onClick={() => setIsModuleModalOpen(true)} className="h-8 px-3 rounded-lg text-xs font-semibold gap-1 shadow-xs">
+            <Button type="button" size="sm" onClick={() => setIsModuleModalOpen(true)}>
               <Plus className="size-3" />
               <span>Tambah Modul</span>
             </Button>
-          </div>
+          </Card>
 
           {isLoadingModules ? (
             <div className="py-12 text-center text-xs text-muted-foreground">Memuat data modul...</div>
           ) : projectModules.length === 0 ? (
-            <div className="py-12 rounded-2xl border border-dashed border-border bg-card text-center space-y-2">
-              <Layers className="size-8 text-muted-foreground mx-auto" />
-              <p className="text-xs font-semibold text-foreground">Belum ada modul pada proyek ini</p>
-              <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">Proyek ini belum memiliki modul deliverable. Klik tombol di atas untuk membuat modul pertama.</p>
-              <Button type="button" size="sm" onClick={() => setIsModuleModalOpen(true)} className="mt-2 h-8 px-4 rounded-lg text-xs font-semibold gap-1.5">
+            <Card size="md" padding="empty" dashed className="flex flex-col items-center space-y-2">
+              <Layers className="size-8 text-muted-foreground" />
+              <p className="text-xs font-semibold text-foreground text-center">Belum ada modul pada proyek ini</p>
+              <p className="text-[11px] text-muted-foreground max-w-sm text-center">Proyek ini belum memiliki modul deliverable. Klik tombol di atas untuk membuat modul pertama.</p>
+              <Button type="button" size="sm" onClick={() => setIsModuleModalOpen(true)} className="mt-2">
                 <Plus className="size-3.5" />
                 <span>Buat Modul Sekarang</span>
               </Button>
-            </div>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {projectModules.map((m) => {
@@ -367,13 +366,18 @@ export const ProjectsPage: React.FC = () => {
                 const taskCount = m.tasks?.length || 0;
 
                 return (
-                  <div
+                  <Card
                     key={m.id}
-                    className="rounded-2xl border border-border bg-card p-5 space-y-3.5 hover:border-primary/50 transition-all shadow-2xs flex flex-col justify-between"
+                    size="md"
+                    padding="relaxed"
+                    interactive="primary"
+                    className="space-y-3.5 flex flex-col justify-between"
                   >
                     <div className="space-y-2.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">{m.code || "MOD"}</span>
+                        <Badge variant="default" size="sm" shape="rounded" mono>
+                          {m.code || "MOD"}
+                        </Badge>
                         <span className="text-[11px] text-muted-foreground font-mono">
                           {taskCount} Tugas · {featureCount} Fitur
                         </span>
@@ -392,7 +396,7 @@ export const ProjectsPage: React.FC = () => {
                           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Fitur-fitur Modul:</p>
                           <div className="flex flex-wrap gap-1.5">
                             {m.features?.map((f) => (
-                              <Badge key={f.id} variant="secondary" size="sm" className="font-medium lowercase">
+                              <Badge key={f.id} variant="secondary" size="sm" casing="lowercase">
                                 {f.name}
                               </Badge>
                             ))}
@@ -402,22 +406,22 @@ export const ProjectsPage: React.FC = () => {
                     </div>
 
                     <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs">
-                      <Button type="button" variant="link" onClick={() => handleOpenAddFeature(m.id)} className="text-primary font-semibold gap-1 p-0 h-auto text-xs">
+                      <Button type="button" variant="link" onClick={() => handleOpenAddFeature(m.id)} className="gap-1">
                         <Plus className="size-3" />
                         <span>Tambah Fitur</span>
                       </Button>
 
                       <Button
                         type="button"
-                        variant="link"
+                        variant="linkMuted"
                         onClick={() => navigate(ROUTE_PATHS.TASKS)}
-                        className="text-muted-foreground hover:text-foreground font-medium gap-1 p-0 h-auto text-xs"
+                        className="gap-1"
                       >
                         <span>Lihat di Tasklist</span>
                         <ExternalLink className="size-3" />
                       </Button>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>

@@ -56,7 +56,7 @@ export const Modal = memo<ModalProps>(
           onClick={onClose}
         />
 
-        {/* Modal Dialog (FigCraft 16px radius, white card surface) */}
+        {/* Modal Dialog (FigCraft 12px radius, white card surface) */}
         <div
           role="dialog"
           aria-modal="true"
@@ -81,10 +81,10 @@ export const Modal = memo<ModalProps>(
               </div>
               <Button
                 type="button"
-                variant="ghost"
+                variant="ghostMuted"
                 size="iconSm"
                 onClick={onClose}
-                className="text-muted-foreground hover:bg-muted hover:text-foreground -mr-1 -mt-1"
+                className="-mr-1 -mt-1"
                 aria-label="Tutup"
               >
                 <X className="size-4" />
@@ -98,7 +98,7 @@ export const Modal = memo<ModalProps>(
 
           {/* Footer */}
           {footer && (
-            <div className="flex items-center justify-end gap-2.5 border-t border-border/80 bg-[#f8fafc] p-4 px-5">
+            <div className="flex items-center justify-end gap-2.5 border-t border-border/80 bg-background p-4 px-5">
               {footer}
             </div>
           )}

@@ -29,7 +29,7 @@ export const CreateFeatureModal = memo<CreateFeatureModalProps>(
         onClose={onClose}
         maxWidth="lg"
         title="Tambah Fitur Baru ke Modul"
-        description="Hierarki tingkat kedua opsional di bawah Modul (SOP-05)"
+        description="Hierarki tingkat kedua opsional di bawah Modul"
         footer={
           <>
             <Button variant="outline" onClick={onClose} disabled={isPending}>
@@ -60,7 +60,7 @@ export const CreateFeatureModal = memo<CreateFeatureModalProps>(
           <div>
             <Label required>Kode Fitur</Label>
             <Input
-              placeholder="Contoh: FTR-K04-03"
+              placeholder="Contoh: FTR-01"
               {...register("code")}
               error={Boolean(errors.code)}
             />

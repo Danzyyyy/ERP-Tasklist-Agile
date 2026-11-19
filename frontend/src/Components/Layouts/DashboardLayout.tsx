@@ -58,7 +58,7 @@ const DashboardInner = memo(() => {
               </span>
             </nav>
 
-            {/* Active Project & Cycle Indicator (Dynamic from Backend D-1 & E-3) */}
+            {/* Active Project & Cycle Indicator */}
             <div className="flex items-center gap-1.5 text-[11px] font-semibold">
               <span
                 className={cn(
@@ -86,14 +86,7 @@ const DashboardInner = memo(() => {
         {/* Global Footer */}
         <footer className="mt-auto border-t border-border bg-card px-4 sm:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground shrink-0">
           <span>© 2026 {activeProject?.clientName || "PT. Anaheim Nimbus Universal"}</span>
-          <div className="flex items-center gap-2">
-            <span>Modul E-4: Tasklist & Eksekusi Agile</span>
-            <span>·</span>
-            <span className="flex items-center gap-1.5 text-success font-medium">
-              <span className="size-2 rounded-full bg-success" />
-              All systems operational
-            </span>
-          </div>
+          <span>Anaheim ERP · Tasklist &amp; Eksekusi Agile</span>
         </footer>
       </div>
 

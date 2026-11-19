@@ -46,10 +46,7 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
       title={
         <div className="flex items-center gap-2">
           <FileCheck2 className="size-5 text-success" />
-          <span>Two-Gate Definition of Done (DoD) Sign-Off</span>
-          <span className="text-[10px] font-mono font-bold bg-success-subtle text-success-subtle-foreground px-2 py-0.5 rounded border border-success-subtle-border">
-            FTR-K04-06
-          </span>
+          <span>Verifikasi &amp; Pengesahan Penyelesaian Tugas</span>
         </div>
       }
       description={
@@ -94,7 +91,7 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
           </div>
 
           <p className="text-[11px] text-muted-foreground mb-3">
-            Project Manager memvalidasi kelayakan penyelesaian tugas dan keselarasan deliverable (SOP-08) sebelum pintu otorisasi TL terbuka.
+            Project Manager memvalidasi kelayakan penyelesaian tugas dan keselarasan deliverable sebelum pintu otorisasi Technical Lead terbuka.
           </p>
 
           {!isPmVerified ? (
@@ -158,15 +155,15 @@ export const SignOffModal = memo<SignOffModalProps>(({ task, isOpen, onClose }) 
           </div>
 
           <p className="text-[11px] text-muted-foreground mb-3">
-            Otoritas tunggal penutupan tugas resmi berada di tangan Technical Lead (SOP-08).
+            Otoritas akhir pengesahan penyelesaian tugas berada pada Technical Lead.
           </p>
 
           {!isPmVerified ? (
             <div className="p-2.5 rounded-lg bg-warning-subtle border border-warning-subtle-border text-warning-subtle-foreground text-[11px] flex items-center gap-2">
               <AlertCircle className="size-4 text-warning-subtle-foreground shrink-0" />
               <span>
-                <b>Tombol Terkunci:</b> Verifikasi kelayakan PM (Gerbang 1) wajib dipenuhi sebelum TL
-                dapat mengesahkan tugas menjadi Done (aturan 422 backend).
+                <b>Tombol Terkunci:</b> Verifikasi kelayakan PM (Tahap 1) wajib dipenuhi sebelum
+                Technical Lead dapat mengesahkan tugas menjadi selesai.
               </span>
             </div>
           ) : !isTlSigned ? (

@@ -21,7 +21,7 @@ export const CreateModuleModal = memo<CreateModuleModalProps>(({ isOpen, onClose
       onClose={onClose}
       maxWidth="lg"
       title="Tambah Modul Proyek Baru"
-      description="Hierarki tingkat teratas untuk pengelompokan deliverable sistem (SOP-05)"
+      description="Hierarki tingkat teratas untuk pengelompokan deliverable proyek"
       footer={
         <>
           <Button variant="outline" onClick={onClose} disabled={isPending}>
@@ -37,7 +37,7 @@ export const CreateModuleModal = memo<CreateModuleModalProps>(({ isOpen, onClose
         <div>
           <Label required>Kode Modul</Label>
           <Input
-            placeholder="Contoh: MOD-E4 atau MOD-INV"
+            placeholder="Contoh: MOD-01 atau MOD-INV"
             {...register("code")}
             error={Boolean(errors.code)}
           />

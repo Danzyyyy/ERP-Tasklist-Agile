@@ -41,6 +41,28 @@ export function getAvatarBg(initials: string): string {
   }
 }
 
+/**
+ * Helper semantic tone untuk AvatarFallback (Design Kit Avatar).
+ */
+export function getAvatarTone(
+  initials: string,
+): "indigo" | "emerald" | "purple" | "blue" | "amber" | "slate" {
+  switch (initials) {
+    case "TW":
+      return "indigo";
+    case "FZ":
+      return "emerald";
+    case "AR":
+      return "purple";
+    case "FJ":
+      return "blue";
+    case "VD":
+      return "amber";
+    default:
+      return "slate";
+  }
+}
+
 export function getTaskReviewLogs(task?: Task | null): TaskReviewLog[] {
   if (!task) return [];
   return task.review_logs ?? task.reviewLogs ?? [];
@@ -84,8 +106,8 @@ export function getApprovalTimestamp(approval?: TaskApproval | null): string | n
 }
 
 /**
- * Peta transisi status Kanban yang diizinkan sesuai Finite State Machine PRD E-4.
- * Status `DONE` bersifat terminal (terkunci permanen) dan `DRAFT` hanya keluar via Dual-Approval Gate.
+ * Peta transisi status Kanban yang diizinkan sesuai alur kerja Agile.
+ * Status `DONE` bersifat terminal (terkunci permanen) dan `DRAFT` hanya keluar via persetujuan TL & PM.
  */
 export const ALLOWED_KANBAN_TRANSITIONS: Record<TaskStatus, readonly TaskStatus[]> = {
   DRAFT: [],
@@ -199,7 +221,7 @@ export function getTransitionRejectionReason(
     if (from === "CODE_REVIEW" && to === "DONE") {
       return "Task Code Review wajib lolos QA Testing sebelum masuk Definition of Done.";
     }
-    return `Transisi status dari ${from} ke ${to} tidak diizinkan oleh aturan workflow Agile E-4.`;
+    return `Transisi status dari ${from} ke ${to} tidak diizinkan oleh aturan alur kerja Agile.`;
   }
 
   if (role && !canRolePerformKanbanTransition(role, from, to)) {
@@ -220,14 +242,14 @@ export function getTransitionRejectionReason(
 
 /**
  * Menentukan apakah role berhak membuat task baru di papan/tasklist.
- * Guard Backend PR #7: Hanya TL dan PM yang berwenang membuat task baru (HTTP 403 untuk Developer/Tester).
+ * Hanya Technical Lead dan Project Manager yang berwenang membuat task baru.
  */
 export function canCreateTaskRole(role?: UserRole | null): boolean {
   return role === "TECHNICAL_LEAD" || role === "PROJECT_MANAGER";
 }
 
 /**
- * Menentukan apakah role berhak mengelola struktur Module & Feature (SOP-05).
+ * Menentukan apakah role berhak mengelola struktur Module & Feature.
  */
 export function canManageHierarchyRole(role?: UserRole | null): boolean {
   return role === "TECHNICAL_LEAD" || role === "PROJECT_MANAGER";

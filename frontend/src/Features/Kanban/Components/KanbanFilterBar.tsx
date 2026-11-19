@@ -1,5 +1,7 @@
 // src/Features/Kanban/Components/KanbanFilterBar.tsx
 import React, { memo } from "react";
+import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
 import { Select } from "@/Components/Elements/Select";
 import { useProject } from "@/Contexts/ProjectContext";
 import type { Module } from "@/Types/task";
@@ -21,14 +23,18 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
     const { activeProject } = useProject();
 
     return (
-      <div className="bg-card border border-border rounded-xl p-2.5 px-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+      <Card
+        size="md"
+        padding="xs"
+        className="flex flex-wrap items-center justify-between gap-3"
+      >
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Semua Modul Dropdown */}
           <div className="w-40">
             <Select
+              sizeVariant="sm"
               value={filters.module_id || "ALL"}
               onChange={(e) => setFilter("module_id", e.target.value)}
-              className="h-8 text-xs font-medium"
             >
               <option value="ALL">Semua Modul</option>
               {modules.map((m) => (
@@ -42,9 +48,9 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
           {/* Semua PIC Dropdown */}
           <div className="w-40">
             <Select
+              sizeVariant="sm"
               value={filters.assignee_id || "ALL"}
               onChange={(e) => setFilter("assignee_id", e.target.value)}
-              className="h-8 text-xs font-medium"
             >
               <option value="ALL">Semua PIC</option>
               <option value="Ariel">Ariel (Frontend Dev)</option>
@@ -58,9 +64,9 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
           {/* Semua Bobot Dropdown */}
           <div className="w-36">
             <Select
+              sizeVariant="sm"
               value={filters.complexity || "ALL"}
               onChange={(e) => setFilter("complexity", e.target.value)}
-              className="h-8 text-xs font-medium"
             >
               <option value="ALL">Semua Bobot</option>
               <option value="LOW">LOW</option>
@@ -76,10 +82,10 @@ export const KanbanFilterBar = memo<KanbanFilterBarProps>(
         </div>
 
         {/* Dynamic Project Status Badge */}
-        <div className="h-8.5 px-3.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-bold font-mono flex items-center shadow-2xs ml-auto">
+        <Badge variant="primary" size="lg" shape="rounded" mono className="ml-auto">
           {activeProject?.canonicalCode || "PROJ-ERP-01"} · {activeProject?.status || "AKTIF"}
-        </div>
-      </div>
+        </Badge>
+      </Card>
     );
   },
 );

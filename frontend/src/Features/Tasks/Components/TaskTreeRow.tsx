@@ -1,20 +1,37 @@
 // src/Features/Tasks/Components/TaskTreeRow.tsx
 import React, { memo } from "react";
-import { ChevronDown, ChevronRight, MoreHorizontal, Layers } from "lucide-react";
+import { Eye } from "lucide-react";
 import type { Task, Module, Feature } from "@/Types/task";
 import useGetModuleProgress from "@/Hooks/useGetModuleProgress";
+import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
-import { getInitials, getAvatarBg, calculateTasksProgress } from "@/Utils/taskUtils";
+import { DataTableCell } from "@/Components/Elements/DataTable";
+import { TreeTableRow, TreeTableSkeletonRows } from "@/Components/Elements/TreeTable";
+import { getInitials, getAvatarTone, calculateTasksProgress } from "@/Utils/taskUtils";
 import { cn } from "@/Utils/cn";
 
 const ModuleHoursCell: React.FC<{ moduleId: string }> = ({ moduleId }) => {
   const { data: progress, isLoading } = useGetModuleProgress(moduleId);
-  if (isLoading) return <span className="text-muted-foreground font-mono">...</span>;
-  if (!progress) return <span className="text-muted-foreground font-mono">-- Jam</span>;
+  if (isLoading) return <span className="text-muted-foreground font-mono tabular-nums">...</span>;
+  if (!progress) return <span className="text-muted-foreground font-mono tabular-nums">-- Jam</span>;
+  const pct =
+    progress.totalEstimatedManHours > 0
+      ? ((progress.completedManHours / progress.totalEstimatedManHours) * 100).toFixed(1)
+      : "0.0";
+  const isComplete =
+    progress.totalEstimatedManHours > 0 &&
+    progress.completedManHours >= progress.totalEstimatedManHours;
+
   return (
-    <span>
-      {progress.completedManHours} / {progress.totalEstimatedManHours} Jam
+    <span
+      className={cn(
+        "font-mono tabular-nums text-[11px] font-semibold",
+        isComplete ? "text-success-subtle-foreground" : "text-muted-foreground",
+      )}
+    >
+      {progress.completedManHours.toFixed(1)} / {progress.totalEstimatedManHours.toFixed(1)} Jam (
+      {pct}%)
     </span>
   );
 };
@@ -35,113 +52,90 @@ export interface TaskTreeRowProps {
 }
 
 export const TaskTreeRow = memo<TaskTreeRowProps>(
-  ({ item, isOpen = true, onToggle, onSelectTask }) => {
-    // 1. MODULE ROW
+  ({ item, isOpen = true, onToggle, onSelectTask, onOpenApproval }) => {
+    // 1. MODULE ROW (Depth 0 · Folder Icon · Expand Chevron)
     if (item.kind === "MODULE") {
       const mod = item.data;
-      const modTasks = mod.tasks || [];
+      const featureCount = mod.features?.length || 0;
+      const directTaskCount = mod.tasks?.length || 0;
+      const nestedTaskCount =
+        mod.features?.reduce((sum, f) => sum + (f.tasks?.length || 0), 0) || 0;
+      const totalTaskCount = directTaskCount + nestedTaskCount;
+
+      const metaLabel =
+        featureCount > 0
+          ? `${featureCount} Fitur · ${totalTaskCount} Tugas`
+          : `Langsung di Modul · ${totalTaskCount} Tugas`;
 
       return (
-        <tr className="bg-muted/50 border-b border-border text-xs font-semibold select-none group">
-          <td className="py-2.5 px-3 text-center">
-            <span
-              onClick={onToggle}
-              className="inline-flex cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-              title={isOpen ? "Tutup Modul" : "Buka Modul"}
-            >
-              {isOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-            </span>
-          </td>
-          <td colSpan={7} className="py-2.5 px-2">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-bold">
-                {mod.code || "MOD"}
-              </span>
-              <span
-                onClick={onToggle}
-                className="cursor-pointer text-foreground hover:text-primary transition-colors text-xs font-bold"
-              >
-                {mod.name}
-              </span>
-              <span className="text-[11px] text-muted-foreground font-normal">
-                ({modTasks.length} tugas · {mod.features?.length || 0} fitur)
-              </span>
-            </div>
-          </td>
-          <td className="py-2.5 px-3 text-right font-mono text-xs text-success font-bold whitespace-nowrap">
+        <TreeTableRow
+          level="group"
+          isExpanded={isOpen}
+          onToggle={onToggle}
+          code={mod.code || "MOD"}
+          title={mod.name}
+          meta={metaLabel}
+          primaryColSpan={6}
+        >
+          <DataTableCell colSpan={2} align="right" density="compact" nowrap>
             <ModuleHoursCell moduleId={mod.id} />
-          </td>
-        </tr>
+          </DataTableCell>
+        </TreeTableRow>
       );
     }
 
-    // 2. FEATURE ROW (SOP-05 Hierarchy: Module -> Feature -> Task)
+    // 2. OPTIONAL FEATURE ROW (Depth 1 · Folder Icon · Expand Chevron)
     if (item.kind === "FEATURE") {
       const ftr = item.data;
       const { formattedText: hoursText } = calculateTasksProgress(ftr.tasks);
 
       return (
-        <tr className="bg-muted/30 border-b border-border/70 text-xs font-medium select-none group">
-          <td className="py-2 px-3 text-center">
-            <span
-              onClick={onToggle}
-              className="inline-flex cursor-pointer text-muted-foreground hover:text-foreground pl-2 transition-colors"
-              title={isOpen ? "Tutup Fitur" : "Buka Fitur"}
-            >
-              {isOpen ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
-            </span>
-          </td>
-          <td colSpan={7} className="py-2 px-2">
-            <div className="flex items-center gap-2 pl-3">
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-mono text-[10px] font-bold">
-                <Layers className="size-2.5" />
-                {ftr.code || "FTR"}
-              </span>
-              <span
-                onClick={onToggle}
-                className="cursor-pointer text-foreground hover:text-primary transition-colors font-semibold text-xs"
-              >
-                {ftr.name}
-              </span>
-              <span className="text-[11px] text-muted-foreground font-normal">
-                ({ftr.tasks?.length || 0} tugas)
-              </span>
-            </div>
-          </td>
-          <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground font-semibold whitespace-nowrap">
+        <TreeTableRow
+          level="subgroup"
+          isExpanded={isOpen}
+          onToggle={onToggle}
+          code={ftr.code || "FTR"}
+          title={ftr.name}
+          meta={`${ftr.tasks?.length || 0} Tugas`}
+          primaryColSpan={6}
+        >
+          <DataTableCell
+            colSpan={2}
+            align="right"
+            density="tight"
+            size="xs"
+            tone="muted"
+            weight="medium"
+            tabular
+            nowrap
+          >
             {hoursText}
-          </td>
-        </tr>
+          </DataTableCell>
+        </TreeTableRow>
       );
     }
 
-    // 3. TASK ROW
+    // 3. TASK LEAF ROW (File Icon · No Chevron · Indented Depth 1 if direct under Module, Depth 2 under Feature)
     const task = item.data;
-    const hours = Number(task.estimated_man_hours) || 8;
-    const formattedHours = `${hours.toFixed(2)} h`;
+    const hours = Number(task.estimated_man_hours) || 0;
+    const formattedHours = `${hours.toFixed(1)} h`;
 
-    // Target deadline formatting
-    const targetDateFormatted = task.target_deadline
-      ? new Date(task.target_deadline)
-          .toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
-          .replace("/", "-")
-      : "-";
+    const deadlineDate = task.target_deadline ? new Date(task.target_deadline) : null;
+    const isValidDeadline = deadlineDate !== null && !Number.isNaN(deadlineDate.getTime());
+    const targetDateFormatted = isValidDeadline
+      ? deadlineDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })
+      : "—";
 
-    // Subtitle hierarchy
-    const subtitle = [
-      task.task_code,
-      task.module?.code,
-      task.feature?.code,
-    ]
-      .filter(Boolean)
-      .join(" · ");
+    const isUrgentDeadline =
+      isValidDeadline &&
+      task.status !== "DONE" &&
+      deadlineDate.getTime() - Date.now() <= 24 * 60 * 60 * 1000;
 
-    // PIC details
+    const hasAssignee = Boolean(task.assignee_name);
     const picName = task.assignee_name || "Belum Ditugaskan";
-    const picInitial = getInitials(picName);
-    const picBg = getAvatarBg(picInitial);
+    const picInitial = hasAssignee ? getInitials(picName) : "—";
+    const picTone = hasAssignee ? getAvatarTone(picInitial) : "slate";
 
-    // Dual-Approval pills from actual task.approvals relation
     const tlApproval = task.approvals?.find((a) => a.role === "TECHNICAL_LEAD");
     const pmApproval = task.approvals?.find((a) => a.role === "PROJECT_MANAGER");
     const isTlApproved = tlApproval?.status === "APPROVED" || task.status !== "DRAFT";
@@ -149,142 +143,112 @@ export const TaskTreeRow = memo<TaskTreeRowProps>(
 
     const statusLabel =
       task.status === "DEVELOPMENT"
-        ? "IN PROGRESS"
+        ? "DEVELOPMENT"
         : task.status === "CODE_REVIEW"
           ? "CODE REVIEW"
           : task.status;
 
-    // Indentation based on depth (depth 2 under feature, depth 1 under module)
-    const paddingLeftClass =
-      item.depth >= 2 ? "pl-9" : item.depth === 1 ? "pl-4" : "pl-1";
+    const rowLevel = item.depth >= 2 ? "item-nested" : "item-direct";
 
     return (
-      <tr
+      <TreeTableRow
+        level={rowLevel}
+        code={task.task_code || "TSK"}
+        title={task.title}
         onClick={() => onSelectTask?.(task)}
-        className="border-b border-border/70 hover:bg-muted/40 transition-colors cursor-pointer text-xs group"
       >
-        {/* Row indicator bullet (replacing removed checkbox) */}
-        <td className="py-3 px-3 text-center text-muted-foreground font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
-          <span className="size-1.5 rounded-full bg-border group-hover:bg-primary inline-block transition-colors" />
-        </td>
-
-        {/* Pekerjaan & Tugas */}
-        <td className="py-3 px-3 min-w-[220px]">
-          <div className={paddingLeftClass}>
-            <span className="font-semibold text-foreground hover:text-primary transition-colors block">
-              {task.title}
-            </span>
-            <span className="font-mono text-[10px] text-muted-foreground block mt-0.5">
-              {subtitle}
-            </span>
-          </div>
-        </td>
-
         {/* Bobot */}
-        <td className="py-3 px-3 text-center">
+        <DataTableCell density="compact" nowrap>
           <Badge variant={task.complexity_weight || "LOW"} size="sm">
             {task.complexity_weight || "LOW"}
           </Badge>
-        </td>
+        </DataTableCell>
 
-        {/* Man-Hour */}
-        <td className="py-3 px-3 text-center font-mono font-medium text-foreground whitespace-nowrap">
+        {/* Estimasi Man-Hour */}
+        <DataTableCell align="right" density="compact" weight="medium" tabular nowrap>
           {formattedHours}
-        </td>
+        </DataTableCell>
 
         {/* Tenggat */}
-        <td className="py-3 px-3 text-center font-mono text-muted-foreground whitespace-nowrap">
+        <DataTableCell
+          density="compact"
+          size="xs"
+          tabular
+          nowrap
+          weight={isUrgentDeadline ? "semibold" : "normal"}
+          tone={isUrgentDeadline ? "destructive" : "muted"}
+        >
           {targetDateFormatted}
-        </td>
+        </DataTableCell>
 
         {/* PIC */}
-        <td className="py-3 px-3 text-center">
-          <div
-            title={picName}
-            className={cn(
-              "size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs mx-auto",
-              picBg,
-            )}
-          >
-            {picInitial}
-          </div>
-        </td>
+        <DataTableCell align="center" density="compact">
+          {hasAssignee ? (
+            <Avatar size="xs" borderless title={picName} className="mx-auto">
+              <AvatarFallback appearance="solid" tone={picTone}>
+                {picInitial}
+              </AvatarFallback>
+            </Avatar>
+          ) : (
+            <span className="text-muted-foreground text-xs" title="Belum Ditugaskan">
+              —
+            </span>
+          )}
+        </DataTableCell>
 
-        {/* Dual-Approval */}
-        <td className="py-3 px-3 text-center">
-          <div className="flex items-center justify-center gap-1.5 whitespace-nowrap">
+        {/* Persetujuan TL & PM */}
+        <DataTableCell
+          density="compact"
+          nowrap
+          onClick={(e) => {
+            if (task.status === "DRAFT" && onOpenApproval) {
+              e.stopPropagation();
+              onOpenApproval(task);
+            }
+          }}
+        >
+          <div className="flex items-center gap-1">
             <Badge variant={isTlApproved ? "APPROVED" : "PENDING"} size="sm">
-              {isTlApproved ? "TL APPROVED" : "TL PENDING"}
+              {isTlApproved ? "TL ✓" : "TL PENDING"}
             </Badge>
             <Badge variant={isPmApproved ? "APPROVED" : "PENDING"} size="sm">
-              {isPmApproved ? "PM APPROVED" : "PM PENDING"}
+              {isPmApproved ? "PM ✓" : "PM PENDING"}
             </Badge>
           </div>
-        </td>
+        </DataTableCell>
 
         {/* Tahapan */}
-        <td className="py-3 px-3 text-center">
+        <DataTableCell density="compact" nowrap>
           <Badge variant={task.status} size="sm">
             {statusLabel}
           </Badge>
-        </td>
+        </DataTableCell>
 
         {/* Aksi */}
-        <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+        <DataTableCell
+          align="right"
+          density="compact"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Button
             type="button"
-            variant="ghost"
-            size="iconSm"
+            variant="ghostMuted"
+            size="iconXs"
             onClick={() => onSelectTask?.(task)}
-            className="size-6 text-muted-foreground hover:text-foreground"
             aria-label="Detail Tugas"
           >
-            <MoreHorizontal className="size-4" />
+            <Eye className="size-3.5" />
           </Button>
-        </td>
-      </tr>
+        </DataTableCell>
+      </TreeTableRow>
     );
   },
 );
 
 TaskTreeRow.displayName = "TaskTreeRow";
 
-export const TaskTreeRowSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) => {
-  return (
-    <>
-      {Array.from({ length: count }).map((_, i) => (
-        <tr key={i} className="border-b border-border/70">
-          <td className="py-3 px-3 text-center">
-            <div className="size-2 bg-muted rounded-full mx-auto animate-pulse" />
-          </td>
-          <td className="py-3 px-3">
-            <div className="h-4 w-40 bg-muted rounded animate-pulse" />
-          </td>
-          <td className="py-3 px-3 text-center">
-            <div className="h-4 w-14 bg-muted rounded mx-auto animate-pulse" />
-          </td>
-          <td className="py-3 px-3 text-center">
-            <div className="h-4 w-12 bg-muted rounded mx-auto animate-pulse" />
-          </td>
-          <td className="py-3 px-3 text-center">
-            <div className="h-4 w-10 bg-muted rounded mx-auto animate-pulse" />
-          </td>
-          <td className="py-3 px-3 text-center">
-            <div className="size-6 bg-muted rounded-full mx-auto animate-pulse" />
-          </td>
-          <td className="py-3 px-3 text-center">
-            <div className="h-4 w-32 bg-muted rounded mx-auto animate-pulse" />
-          </td>
-          <td className="py-3 px-3 text-center">
-            <div className="h-4 w-16 bg-muted rounded mx-auto animate-pulse" />
-          </td>
-          <td className="py-3 px-3 text-center">
-            <div className="size-4 bg-muted rounded mx-auto animate-pulse" />
-          </td>
-        </tr>
-      ))}
-    </>
-  );
-};
+export const TaskTreeRowSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) => (
+  <TreeTableSkeletonRows count={count} columns={8} />
+);
 
 export default TaskTreeRow;

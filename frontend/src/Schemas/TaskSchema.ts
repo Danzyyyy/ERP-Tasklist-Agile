@@ -16,8 +16,8 @@ export const CreateTaskSchema = z.object({
     .union([z.string(), z.number()])
     .refine((v) => !Number.isNaN(Number(v)), "Estimasi jam harus berupa angka")
     .transform((v) => Number(v))
-    .refine((v) => v >= 0.25, "Estimasi jam kerja minimal 0.25 man-hour (Q-02)"),
-  target_deadline: z.string().min(1, "Tenggat waktu acuan wajib ditentukan (Q-11)"),
+    .refine((v) => v >= 0.25, "Estimasi jam kerja minimal 0.25 jam"),
+  target_deadline: z.string().min(1, "Tenggat waktu acuan wajib ditentukan"),
 });
 
 export type CreateTaskInput = z.input<typeof CreateTaskSchema>;

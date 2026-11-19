@@ -34,7 +34,7 @@ export function useReportsData() {
   const isModuleProgressLoading = moduleProgressQueries.some((q) => q.isLoading);
   const isLoading = isMetricsLoading || isTasksLoading || isModulesLoading || isModuleProgressLoading;
 
-  // Mengonsumsi hasil perhitungan kanonis Formula Q-03 langsung dari endpoint backend
+  // Mengonsumsi hasil perhitungan progres deliverable langsung dari endpoint backend
   const effectiveMetrics: DeliverableProgress = useMemo(() => {
     if (metrics) return metrics;
 
@@ -67,9 +67,9 @@ export function useReportsData() {
     });
 
     return [
-      { name: "Low Complexity (Q-01)", value: counts.LOW, color: "#10b981" },
-      { name: "Medium Complexity (Q-01)", value: counts.MEDIUM, color: "#f59e0b" },
-      { name: "High Complexity (Q-01)", value: counts.HIGH, color: "#ef4444" },
+      { name: "Bobot Rendah (Low)", value: counts.LOW, color: "#10b981" },
+      { name: "Bobot Sedang (Medium)", value: counts.MEDIUM, color: "#f59e0b" },
+      { name: "Bobot Tinggi (High)", value: counts.HIGH, color: "#ef4444" },
     ].filter((item) => item.value > 0);
   }, [tasks]);
 

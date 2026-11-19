@@ -55,7 +55,7 @@ export function useKanbanBoard() {
   // Filter tasks for board
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
-      // Hide DRAFT from Kanban board (FTR-K04-03: must be RELEASED first)
+      // Hide DRAFT from Kanban board (must be RELEASED first)
       if (t.status === "DRAFT") return false;
 
       if (filters.module_id && filters.module_id !== "ALL" && t.module_id !== filters.module_id) {

@@ -4,7 +4,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { useSidebarNavigation } from "@/Hooks/useSidebarNavigation";
 import { useAuth } from "@/Hooks/useAuth";
-import { useProject } from "@/Contexts/ProjectContext";
 import { cn } from "@/Utils/cn";
 import { Button } from "@/Components/Elements/Button";
 import { X, Plus, LogOut } from "lucide-react";
@@ -14,9 +13,9 @@ export interface SidebarProps {
 }
 
 export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
-  const { open, openMobile, isMobile, setOpenMobile, navItems, handleNavClick } = useSidebarNavigation();
+  const { open, openMobile, isMobile, setOpenMobile, navItems, handleNavClick } =
+    useSidebarNavigation();
   const { logout } = useAuth();
-  const { activeProject } = useProject();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -40,32 +39,42 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
       <aside
         className={cn(
           "fixed left-0 top-0 bottom-0 bg-card text-foreground border-r border-border flex flex-col select-none transition-all duration-300 ease-in-out",
-          // Mobile Sheet styling
           isMobile
-            ? cn("z-50 w-72 shadow-2xl", openMobile ? "translate-x-0" : "-translate-x-full pointer-events-none")
-            : // Desktop Collapsible styling (240px)
-              cn("z-30 w-[240px]", open ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none"),
+            ? cn(
+                "z-50 w-72 shadow-2xl",
+                openMobile ? "translate-x-0" : "-translate-x-full pointer-events-none",
+              )
+            : cn(
+                "z-30 w-[240px]",
+                open
+                  ? "translate-x-0 opacity-100 pointer-events-auto"
+                  : "-translate-x-full opacity-0 pointer-events-none",
+              ),
         )}
         aria-label="Sidebar Navigasi"
       >
-        {/* Brand Header (FigCraft 1:1: H 72px, border-b #e2e8f0, ANAHEIM / ERP MODUL E-4 · v1.0) */}
+        {/* Brand Header (FigCraft 1:1: H 72px, ANAHEIM / Workspace Proyek · v1.0) */}
         <div className="h-[72px] flex items-center justify-between px-4 border-b border-border bg-card shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="size-8 rounded-lg bg-primary grid place-items-center text-primary-foreground shadow-xs font-black text-sm shrink-0">A</div>
+            <div className="size-8 rounded-md bg-primary grid place-items-center text-primary-foreground shadow-xs font-black text-sm shrink-0">
+              A
+            </div>
             <div className="min-w-0">
-              <h1 className="text-xs font-bold tracking-wider uppercase text-foreground leading-tight truncate">ANAHEIM</h1>
-              <p className="text-[10px] text-muted-foreground font-mono leading-tight truncate">ERP MODUL E-4 · v1.0</p>
+              <h1 className="text-xs font-bold tracking-wider uppercase text-foreground leading-tight truncate">
+                ANAHEIM
+              </h1>
+              <p className="text-[10.5px] text-muted-foreground leading-tight truncate">
+                Workspace Proyek · v1.0
+              </p>
             </div>
           </div>
 
-          {/* Close button for Mobile Sheet */}
           {isMobile && (
             <Button
               type="button"
-              variant="ghost"
+              variant="ghostMuted"
               size="iconSm"
               onClick={() => setOpenMobile(false)}
-              className="text-muted-foreground hover:text-foreground"
               aria-label="Tutup Sidebar"
             >
               <X className="size-4" />
@@ -73,9 +82,11 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
           )}
         </div>
 
-        {/* Primary Navigation (FigCraft 1:1: 40px item height, Heading 'WORKSPACE') */}
+        {/* Primary Navigation (FigCraft SidebarNavItem: No Trailing Count Badge) */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">WORKSPACE</div>
+          <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            WORKSPACE
+          </div>
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -86,7 +97,7 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center justify-between px-3 h-[38px] rounded-lg text-sm transition-colors group",
+                    "flex items-center gap-2.5 px-3 h-[38px] rounded-md text-sm transition-colors group",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-xs font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted font-medium",
@@ -95,26 +106,15 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
               >
                 {({ isActive }) => (
                   <>
-                    <div className="flex items-center gap-2.5 truncate">
-                      <Icon
-                        className={cn(
-                          "size-4.5 shrink-0 transition-colors",
-                          isActive ? "text-primary-foreground stroke-[2.2]" : "text-muted-foreground group-hover:text-foreground stroke-[2]",
-                        )}
-                      />
-                      <span className="truncate text-[13px]">{item.label}</span>
-                    </div>
-
-                    {item.badge !== undefined && (
-                      <span
-                        className={cn(
-                          "px-2 py-0.5 rounded-md font-mono text-[11px] leading-tight min-w-5 text-center",
-                          isActive ? "bg-primary-foreground/20 text-primary-foreground font-bold" : "bg-muted text-muted-foreground font-semibold",
-                        )}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
+                    <Icon
+                      className={cn(
+                        "size-4 shrink-0 transition-colors",
+                        isActive
+                          ? "text-primary-foreground stroke-[2.2]"
+                          : "text-muted-foreground group-hover:text-foreground stroke-[2]",
+                      )}
+                    />
+                    <span className="truncate text-[13px]">{item.label}</span>
                   </>
                 )}
               </NavLink>
@@ -122,34 +122,31 @@ export const Sidebar = memo<SidebarProps>(({ onOpenTaskModal }) => {
           })}
         </nav>
 
-        {/* Sidebar Footer (FigCraft 1:1: + Tambah Modul / Task, Divider & Account Row) */}
-        <div className="px-3 pb-3 pt-1 border-t border-border shrink-0 space-y-2">
-          {/* + Tambah Modul / Task Button */}
-          <Button type="button" onClick={onOpenTaskModal} className="w-full h-9 rounded-lg text-xs font-semibold gap-1.5 shadow-xs">
-            <Plus className="size-4" />
-            <span>Tambah Modul / Task</span>
+        {/* Sidebar Footer (FigCraft 1:1: + Tambah Task + Red Keluar Button) */}
+        <div className="px-3 pb-3.5 pt-3 border-t border-border shrink-0 space-y-2">
+          <Button
+            type="button"
+            variant="primary"
+            size="default"
+            onClick={onOpenTaskModal}
+            className="w-full"
+          >
+            <Plus className="size-3.5 shrink-0" />
+            <span>Tambah Task</span>
           </Button>
 
-          {/* Footer Divider */}
-          <div className="h-px bg-border my-1" />
-
-          {/* Organization Account Row */}
-          <div className="flex items-center justify-between py-1">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                {activeProject?.clientName ? activeProject.clientName.slice(0, 2).toUpperCase() : "AN"}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-foreground truncate" title={activeProject?.clientName || "PT. Anaheim Nimbus Universal"}>
-                  {activeProject?.clientName || "PT. Anaheim Nimbus Universal"}
-                </p>
-              </div>
-            </div>
-
-            <Button type="button" variant="ghost" size="iconSm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground" title="Keluar (Logout)">
-              <LogOut className="size-4" />
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            align="between"
+            onClick={handleLogout}
+            className="w-full"
+            title="Keluar dari akun"
+          >
+            <span>Keluar</span>
+            <LogOut className="size-3.5 shrink-0" />
+          </Button>
         </div>
       </aside>
     </>

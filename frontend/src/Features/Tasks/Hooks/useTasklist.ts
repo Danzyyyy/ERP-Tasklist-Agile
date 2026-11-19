@@ -117,7 +117,7 @@ export function useTasklist() {
     return items;
   }, [hierarchy, collapsedNodes, filters]);
 
-  // Konsumsi data akumulasi resmi Formula Q-03 dari Backend API: GET /projects/{projectId}/deliverable-progress
+  // Konsumsi data akumulasi progres deliverable langsung dari backend API
   const deliverableStats = useMemo(() => {
     return {
       totalTasksCount: deliverableMetrics.totalTasks,

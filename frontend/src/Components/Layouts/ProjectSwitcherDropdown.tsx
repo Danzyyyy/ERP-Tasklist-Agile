@@ -1,7 +1,6 @@
 // src/Components/Layouts/ProjectSwitcherDropdown.tsx
 import React, { memo } from "react";
 import { useProject } from "@/Contexts/ProjectContext";
-import { Button } from "@/Components/Elements/Button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -10,8 +9,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/Components/Elements/DropdownMenu";
+import { Badge } from "@/Components/Elements/Badge";
 import { ChevronDown, Check, FolderKanban, ShieldCheck, AlertCircle } from "lucide-react";
-import { cn } from "@/Utils/cn";
 
 export const ProjectSwitcherDropdown = memo(() => {
   const { activeProjectId, activeProject, projects, isLoadingProjects, setActiveProjectId } =
@@ -23,32 +22,26 @@ export const ProjectSwitcherDropdown = memo(() => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className="hidden lg:flex items-center justify-between gap-2 h-[34px] max-w-[240px] px-3 rounded-lg text-xs font-semibold shadow-2xs group"
-          aria-label="Ganti Proyek Aktif"
-        >
-          <div className="flex items-center gap-1.5 truncate">
-            <FolderKanban className="size-3.5 text-primary shrink-0" />
-            <span className="truncate">{displayName}</span>
-          </div>
-          <ChevronDown className="size-3 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
-        </Button>
+      <DropdownMenuTrigger
+        variant="outline"
+        className="hidden lg:flex max-w-[240px] justify-between gap-2"
+        aria-label="Ganti Proyek Aktif"
+      >
+        <div className="flex items-center gap-1.5 truncate">
+          <FolderKanban className="size-3.5 text-primary shrink-0" />
+          <span className="truncate">{displayName}</span>
+        </div>
+        <ChevronDown className="size-3 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="start"
-        className="w-80 rounded-xl border border-border bg-card shadow-xl p-1.5 space-y-1 z-50 animate-in fade-in zoom-in-95"
-      >
-        <DropdownMenuLabel className="px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+      <DropdownMenuContent align="start" className="w-80 space-y-1">
+        <DropdownMenuLabel className="flex items-center justify-between">
           <span>Proyek Tersedia</span>
           <span className="text-[10px] font-mono lowercase font-normal">
             {projects.length} proyek
           </span>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator className="my-1" />
+        <DropdownMenuSeparator />
 
         {isLoadingProjects ? (
           <div className="py-4 text-center text-xs text-muted-foreground">Memuat proyek...</div>
@@ -63,13 +56,10 @@ export const ProjectSwitcherDropdown = memo(() => {
               return (
                 <DropdownMenuItem
                   key={proj.projectId}
+                  selected={isSelected}
+                  comfortable
                   onClick={() => setActiveProjectId(proj.projectId)}
-                  className={cn(
-                    "flex items-start justify-between gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition-colors text-xs select-none",
-                    isSelected
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "hover:bg-muted text-foreground",
-                  )}
+                  className="items-start justify-between"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -77,15 +67,15 @@ export const ProjectSwitcherDropdown = memo(() => {
                         {proj.canonicalCode || proj.projectId}
                       </span>
                       {isRegistered ? (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-success-subtle text-success-subtle-foreground border border-success-subtle-border">
+                        <Badge variant="success" size="xs" shape="rounded" casing="normal" mono>
                           <ShieldCheck className="size-2.5" />
                           Reg
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-warning-subtle text-warning-subtle-foreground border border-warning-subtle-border">
+                        <Badge variant="warning" size="xs" shape="rounded" casing="normal" mono>
                           <AlertCircle className="size-2.5" />
                           Review
-                        </span>
+                        </Badge>
                       )}
                     </div>
                     <p className="text-xs font-medium text-foreground truncate mt-0.5">

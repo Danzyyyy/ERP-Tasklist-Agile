@@ -1,16 +1,19 @@
 // src/Features/Reviews/Pages/ReviewsPage.tsx
 import React, { useState, useMemo, useEffect } from "react";
-import { useReviewsOverview } from "../Hooks/useReviewsOverview";
+import { useReviewsOverview, type ReviewTabType } from "../Hooks/useReviewsOverview";
 import { useAuth } from "@/Hooks/useAuth";
 import { useSubmitReview } from "@/Hooks/useSubmitReview";
 import { usePmVerify } from "@/Hooks/usePmVerify";
 import { useTlSignoff } from "@/Hooks/useTlSignoff";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Check, Clock, RefreshCw, AlertCircle, ShieldAlert, CheckCircle2, Lock, Unlock, ShieldCheck, ArrowRight, UserCheck, RotateCcw } from "lucide-react";
+import { Alert } from "@/Components/Elements/Alert";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
 import { Label } from "@/Components/Elements/Label";
 import { Textarea } from "@/Components/Elements/Textarea";
+import { Tabs, TabsList, TabsTrigger } from "@/Components/Elements/Tabs";
 import { cn } from "@/Utils/cn";
 import { getTaskAssigneeName } from "@/Utils/taskUtils";
 import { toast } from "sonner";
@@ -152,49 +155,44 @@ export const ReviewsPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Page Title Card (FigCraft 1:1) */}
-      <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+      <Card
+        size="md"
+        padding="lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase bg-primary/10 px-2 py-0.5 rounded">QUALITY GATE · FTR-K04-05 & FTR-K04-06</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Pemeriksaan Kualitas & Otorisasi DoD</h2>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Pemeriksaan Kualitas &amp; Pengesahan Tugas</h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Pencatatan review kode, pengujian QA, verifikasi kelayakan PM, dan otorisasi pengesahan akhir TL (Definition of Done).
+            Pencatatan review kode, pengujian QA, verifikasi kelayakan PM, dan pengesahan akhir oleh Technical Lead.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button type="button" onClick={handleRefresh} disabled={isLoading} loading={isLoading} className="h-9 px-4 rounded-lg text-xs font-semibold gap-1.5 shrink-0 shadow-xs">
+          <Button type="button" onClick={handleRefresh} disabled={isLoading} loading={isLoading} className="shrink-0">
             <RefreshCw className={cn("size-3.5", isLoading && "animate-spin")} />
             <span>Segarkan Antrean</span>
           </Button>
         </div>
-      </div>
+      </Card>
 
       {/* Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-1">
-        <div className="flex items-center gap-5 text-xs font-semibold overflow-x-auto">
-          {[
-            { id: "ALL", label: `Semua (${tabCounts.all})` },
-            { id: "CODE_REVIEW", label: `Code Review (${tabCounts.codeReview})` },
-            { id: "TESTING", label: `QA Testing (${tabCounts.testing})` },
-            { id: "SIGNOFF", label: `Siap Sign-off Done (${tabCounts.signoff})` },
-          ].map((t) => (
-            <Button
-              key={t.id}
-              type="button"
-              variant="ghost"
-              onClick={() => setTab(t.id as any)}
-              className={cn(
-                "pb-2.5 transition-all rounded-none h-auto px-0 whitespace-nowrap",
-                tab === t.id ? "text-primary border-b-2 border-primary font-bold" : "text-muted-foreground hover:text-foreground font-semibold",
-              )}
-            >
-              {t.label}
-            </Button>
-          ))}
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border">
+        <Tabs
+          value={tab}
+          onValueChange={(val) => setTab(val as ReviewTabType)}
+          variant="underline"
+          className="w-auto min-w-0"
+        >
+          <TabsList bordered={false}>
+            <TabsTrigger value="ALL">Semua ({tabCounts.all})</TabsTrigger>
+            <TabsTrigger value="CODE_REVIEW">Code Review ({tabCounts.codeReview})</TabsTrigger>
+            <TabsTrigger value="TESTING">QA Testing ({tabCounts.testing})</TabsTrigger>
+            <TabsTrigger value="SIGNOFF">Siap Sign-off Done ({tabCounts.signoff})</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-        <span className="text-xs text-muted-foreground font-mono self-end sm:self-auto pb-1">{relevantTasks.length} tugas dalam antrean saat ini</span>
+        <span className="text-xs text-muted-foreground font-mono self-end sm:self-auto pb-2 shrink-0">
+          {relevantTasks.length} tugas dalam antrean saat ini
+        </span>
       </div>
 
       {/* 2-Column Split (Left ~35%, Right ~65%) */}
@@ -203,9 +201,9 @@ export const ReviewsPage: React.FC = () => {
         <div className="lg:col-span-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground">Antrean Pemeriksaan</h3>
-            <span className="px-2 py-0.5 rounded-full bg-primary-subtle text-primary border border-primary-subtle-border text-xs font-bold font-mono">
+            <Badge variant="primary" size="sm" mono>
               {String(relevantTasks.length).padStart(2, "0")}
-            </span>
+            </Badge>
           </div>
 
           <div className="space-y-3">
@@ -216,13 +214,13 @@ export const ReviewsPage: React.FC = () => {
               const taskCode = t.task_code || "#TSK";
 
               return (
-                <div
+                <Card
                   key={t.id}
+                  size="md"
+                  surface={isSelected ? "primaryTint" : "default"}
+                  interactive={isSelected ? "none" : "primary"}
                   onClick={() => handleSelectTask(t.id)}
-                  className={cn(
-                    "p-4 rounded-2xl border transition-all cursor-pointer space-y-2 shadow-2xs",
-                    isSelected ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card hover:border-primary/40",
-                  )}
+                  className="cursor-pointer space-y-2"
                 >
                   <div className="text-[11px] font-mono text-muted-foreground flex items-center justify-between">
                     <span>
@@ -233,16 +231,7 @@ export const ReviewsPage: React.FC = () => {
                   <h4 className="text-sm font-bold text-foreground line-clamp-1">{t.title}</h4>
                   <p className="text-xs text-muted-foreground">{picName}</p>
                   <div className="flex items-center justify-between pt-1">
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-[10px] font-bold font-mono uppercase px-2 py-0.5",
-                        t.status === "CODE_REVIEW" && "border-purple-subtle-border bg-purple-subtle text-purple-subtle-foreground",
-                        t.status === "TESTING" && "border-cyan-subtle-border bg-cyan-subtle text-cyan-subtle-foreground",
-                        t.status === "DONE" && "border-success-subtle-border bg-success-subtle text-success-subtle-foreground",
-                        !["CODE_REVIEW", "TESTING", "DONE"].includes(t.status) && "border-border text-muted-foreground bg-muted",
-                      )}
-                    >
+                    <Badge variant={t.status} size="sm" mono>
                       {t.status.replace("_", " ")}
                     </Badge>
                     {t.is_pm_verified && (
@@ -251,31 +240,31 @@ export const ReviewsPage: React.FC = () => {
                       </span>
                     )}
                   </div>
-                </div>
+                </Card>
               );
             })}
 
             {relevantTasks.length === 0 && (
-              <div className="p-6 rounded-2xl border border-dashed border-border bg-card text-center space-y-2">
-                <AlertCircle className="size-6 text-muted-foreground mx-auto" />
-                <p className="text-xs text-muted-foreground">{getEmptyMessage()}</p>
-              </div>
+              <Card size="md" padding="lg" dashed className="flex flex-col items-center space-y-2">
+                <AlertCircle className="size-6 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground text-center">{getEmptyMessage()}</p>
+              </Card>
             )}
 
             {/* Verified Delivery Info Card */}
-            <div className="p-5 rounded-2xl bg-card border border-border text-card-foreground space-y-2 shadow-xs">
+            <Card size="md" padding="relaxed" className="space-y-2">
               <span className="font-mono text-[10px] font-bold text-primary tracking-wider uppercase block">TWO-GATE QUALITY ASSURANCE</span>
               <h4 className="text-sm font-bold leading-snug">Dua tahap otorisasi. Satu standar kualitas.</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Gerbang 1 (Verifikasi kelayakan PM) dan Gerbang 2 (Otorisasi penutupan TL) wajib lengkap sebelum tugas resmi berstatus DONE.
               </p>
-            </div>
+            </Card>
           </div>
         </div>
 
         {/* Right Column: Selected Task Inspection */}
         {currentTask ? (
-          <div className="lg:col-span-8 rounded-2xl border border-border bg-card p-6 space-y-5 shadow-2xs">
+          <Card size="md" padding="lg" className="lg:col-span-8 space-y-5">
             {/* Header */}
             <div className="space-y-1 pb-4 border-b border-border">
               <div className="flex items-center justify-between text-xs">
@@ -283,7 +272,9 @@ export const ReviewsPage: React.FC = () => {
                   {currentTask.task_code || "#TSK"} / {currentTask.module?.code || "MOD"}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded border border-primary/20 bg-primary/10 text-primary text-[10px] font-bold font-mono">{currentTask.status}</span>
+                  <Badge variant="primary" size="sm" shape="rounded" mono>
+                    {currentTask.status}
+                  </Badge>
                 </div>
               </div>
 
@@ -357,7 +348,7 @@ export const ReviewsPage: React.FC = () => {
 
             {/* CASE A: TASK IS DONE -> SHOW SEALED DoD CERTIFICATE */}
             {currentTask.status === "DONE" ? (
-              <div className="p-6 rounded-2xl border border-success-subtle-border bg-success-subtle/40 space-y-4">
+              <Alert variant="successSoft" size="lg" className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="size-10 rounded-full bg-success text-success-foreground grid place-items-center shrink-0 shadow-md">
                     <ShieldCheck className="size-5" />
@@ -371,25 +362,25 @@ export const ReviewsPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-                  <div className="p-3 rounded-xl border border-success-subtle-border bg-card space-y-1">
+                  <Card size="md" padding="sm" surface="successOutline" className="space-y-1">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                       <UserCheck className="size-3 text-success" />
                       Gerbang 1: Verifikasi Kelayakan PM
                     </span>
                     <p className="font-bold text-foreground">{currentTask.pm_verified_by || "Project Manager"}</p>
                     <p className="text-[10px] font-mono text-muted-foreground">{currentTask.pm_verified_at ? currentTask.pm_verified_at.split("T")[0] : "Terverifikasi"}</p>
-                  </div>
+                  </Card>
 
-                  <div className="p-3 rounded-xl border border-success-subtle-border bg-card space-y-1">
+                  <Card size="md" padding="sm" surface="successOutline" className="space-y-1">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                       <CheckCircle2 className="size-3 text-success" />
                       Gerbang 2: Otorisasi Akhir TL
                     </span>
                     <p className="font-bold text-foreground">{currentTask.tl_signed_by || "Technical Lead"}</p>
                     <p className="text-[10px] font-mono text-muted-foreground">{currentTask.tl_signed_at ? currentTask.tl_signed_at.split("T")[0] : "Disahkan"}</p>
-                  </div>
+                  </Card>
                 </div>
-              </div>
+              </Alert>
             ) : (
               /* CASE B: ACTIVE REVIEW / TESTING / DOD WORKFLOW */
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
@@ -401,14 +392,9 @@ export const ReviewsPage: React.FC = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <Button
                         type="button"
-                        variant="outline"
+                        variant={reviewDecision === "PASS" ? "choiceSuccess" : "choice"}
+                        size="choice"
                         onClick={() => setReviewDecision("PASS")}
-                        className={cn(
-                          "h-auto py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-semibold transition-all",
-                          reviewDecision === "PASS"
-                            ? "border-success bg-success-subtle text-success-subtle-foreground ring-1 ring-success"
-                            : "border-border bg-card text-muted-foreground hover:bg-muted",
-                        )}
                       >
                         <CheckCircle2 className="size-3.5 text-success" />
                         <span>Disetujui (Pass)</span>
@@ -416,14 +402,9 @@ export const ReviewsPage: React.FC = () => {
 
                       <Button
                         type="button"
-                        variant="outline"
+                        variant={reviewDecision === "REVISE" ? "choiceDestructive" : "choice"}
+                        size="choice"
                         onClick={() => setReviewDecision("REVISE")}
-                        className={cn(
-                          "h-auto py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-semibold transition-all",
-                          reviewDecision === "REVISE"
-                            ? "border-destructive bg-destructive-subtle text-destructive-subtle-foreground ring-1 ring-destructive"
-                            : "border-border bg-card text-muted-foreground hover:bg-muted",
-                        )}
                       >
                         <RotateCcw className="size-3.5 text-destructive" />
                         <span>Perlu Revisi (Rework)</span>
@@ -434,7 +415,9 @@ export const ReviewsPage: React.FC = () => {
                       <div className="flex items-center justify-between text-[11px]">
                         <Label
                           required={reviewDecision === "REVISE"}
-                          className={cn("font-bold mb-0", reviewDecision === "REVISE" ? "text-destructive" : "text-foreground")}
+                          size="bold"
+                          tone={reviewDecision === "REVISE" ? "destructive" : "default"}
+                          className="mb-0"
                         >
                           {reviewDecision === "REVISE" ? "Alasan Penolakan / Catatan Revisi" : "Catatan Hasil Pengujian (Opsional)"}
                         </Label>
@@ -449,7 +432,6 @@ export const ReviewsPage: React.FC = () => {
                         value={reviewNotes}
                         onChange={(e) => setReviewNotes(e.target.value)}
                         error={reviewDecision === "REVISE" && !reviewNotes.trim()}
-                        className="text-xs"
                       />
                     </div>
 
@@ -461,7 +443,7 @@ export const ReviewsPage: React.FC = () => {
                           variant={reviewDecision === "PASS" ? "default" : "destructive"}
                           onClick={reviewDecision === "PASS" ? handlePassCodeReview : handleRejectToDevelopment}
                           loading={submitReviewMutation.isPending}
-                          className="w-full h-9 rounded-xl text-xs font-semibold shadow-2xs"
+                          className="w-full"
                         >
                           {reviewDecision === "PASS" ? "Loloskan Code Review (Maju ke Testing)" : "Tolak & Kembalikan ke Development (Rework)"}
                         </Button>
@@ -485,55 +467,51 @@ export const ReviewsPage: React.FC = () => {
                 {/* Right Sub: Two-Gate DoD Verification System (Zero Dummy Checkboxes) */}
                 <div className="space-y-3.5">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-foreground">Verifikasi & Otorisasi DoD</h4>
-                    <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[9px] font-bold font-mono">FTR-K04-06</span>
+                    <h4 className="text-xs font-bold text-foreground">Verifikasi &amp; Pengesahan Akhir</h4>
                   </div>
 
                   {/* Gerbang 1: PM Verification Card */}
-                  <div className="p-3.5 rounded-xl border border-border bg-card space-y-2.5 shadow-2xs">
+                  <Card size="md" padding="compact" className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                         <UserCheck className="size-3" />
-                        Gerbang 1: Verifikasi Kelayakan PM
+                        Tahap 1: Verifikasi Kelayakan PM
                       </span>
                       {isPmVerified ? (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-success-subtle text-success-subtle-foreground border border-success-subtle-border flex items-center gap-1">
+                        <Badge variant="success" size="xs" mono>
                           <Check className="size-2.5" />
                           TERVERIFIKASI
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-warning-subtle text-warning-subtle-foreground border border-warning-subtle-border flex items-center gap-1">
+                        <Badge variant="warning" size="xs" mono>
                           <Clock className="size-2.5" />
                           MENUNGGU PM
-                        </span>
+                        </Badge>
                       )}
                     </div>
 
                     <p className="text-xs text-muted-foreground">
                       {isPmVerified
                         ? `Diverifikasi oleh: ${currentTask.pm_verified_by || "Project Manager"} (${currentTask.pm_verified_at ? currentTask.pm_verified_at.split("T")[0] : "Lengkap"}).`
-                        : "Project Manager memvalidasi kelayakan penyelesaian tugas sesuai standar SOP-08 sebelum pintu otorisasi TL terbuka."}
+                        : "Project Manager memvalidasi kelayakan penyelesaian tugas sebelum pintu pengesahan Technical Lead terbuka."}
                     </p>
 
                     <Button
                       type="button"
-                      variant={isPmVerified ? "outline" : canPmVerify ? "default" : "secondary"}
+                      variant={isPmVerified ? "successSubtle" : canPmVerify ? "default" : "muted"}
+                      size="sm"
                       onClick={handleSavePmVerification}
                       loading={pmVerifyMutation.isPending}
                       disabled={isPmVerified || !canPmVerify}
-                      className={cn(
-                        "w-full h-8.5 rounded-lg text-xs font-semibold shadow-2xs",
-                        isPmVerified &&
-                          "bg-success-subtle text-success-subtle-foreground border border-success-subtle-border cursor-default",
-                      )}
+                      className="w-full"
                     >
                       <Check className="size-3.5" />
                       <span>{isPmVerified ? "Kelayakan PM Telah Disahkan ✓" : canPmVerify ? "Validasi Verifikasi Kelayakan (PM)" : "Hanya PM yang Berwenang Memvalidasi"}</span>
                     </Button>
-                  </div>
+                  </Card>
 
                   {/* Gerbang 2: TL Final Sign-off Card */}
-                  <div className="p-3.5 rounded-xl border border-border bg-card space-y-2.5 shadow-2xs">
+                  <Card size="md" padding="compact" className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                         {isTlSigned ? (
@@ -546,20 +524,20 @@ export const ReviewsPage: React.FC = () => {
                         Gerbang 2: Otorisasi Sign-Off TL
                       </span>
                       {isTlSigned ? (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-success-subtle text-success-subtle-foreground border border-success-subtle-border flex items-center gap-1">
+                        <Badge variant="success" size="xs" mono>
                           <Check className="size-2.5" />
                           DONE
-                        </span>
+                        </Badge>
                       ) : isPmVerified ? (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-purple-subtle text-purple-subtle-foreground border border-purple-subtle-border flex items-center gap-1">
+                        <Badge variant="purple" size="xs" mono>
                           <Unlock className="size-2.5" />
                           SIAP DISAHKAN
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-muted text-muted-foreground border border-border flex items-center gap-1">
+                        <Badge variant="default" size="xs" mono>
                           <Lock className="size-2.5" />
                           TERKUNCI
-                        </span>
+                        </Badge>
                       )}
                     </div>
 
@@ -573,20 +551,12 @@ export const ReviewsPage: React.FC = () => {
 
                     <Button
                       type="button"
-                      variant={isTlSigned ? "secondary" : isPmVerified && canTlSignoff ? "default" : "secondary"}
+                      variant={isTlSigned ? "success" : isPmVerified && canTlSignoff ? "default" : "muted"}
+                      size="sm"
                       onClick={handleTlFinalSignoff}
                       loading={tlSignoffMutation.isPending}
                       disabled={!isPmVerified || isTlSigned || !canTlSignoff}
-                      className={cn(
-                        "w-full h-8.5 rounded-lg text-xs font-semibold shadow-2xs",
-                        isTlSigned
-                          ? "bg-success text-success-foreground cursor-default"
-                          : !isPmVerified
-                            ? "bg-muted text-muted-foreground cursor-not-allowed"
-                            : canTlSignoff
-                              ? "bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
-                              : "bg-muted text-muted-foreground cursor-not-allowed",
-                      )}
+                      className="w-full"
                     >
                       <CheckCircle2 className="size-3.5" />
                       <span>
@@ -599,7 +569,7 @@ export const ReviewsPage: React.FC = () => {
                               : "Hanya TL yang Berwenang Melakukan Sign-off"}
                       </span>
                     </Button>
-                  </div>
+                  </Card>
                 </div>
               </div>
             )}
@@ -609,10 +579,10 @@ export const ReviewsPage: React.FC = () => {
               <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="destructiveSubtle"
                   onClick={handleRejectToDevelopment}
                   loading={submitReviewMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80 transition-colors w-full sm:w-auto"
+                  className="w-full sm:w-auto"
                 >
                   <span>← Tolak & Kembalikan ke Development (Rework)</span>
                 </Button>
@@ -624,7 +594,7 @@ export const ReviewsPage: React.FC = () => {
                       variant="default"
                       onClick={handlePassCodeReview}
                       loading={submitReviewMutation.isPending}
-                      className="px-5 py-2 text-xs font-semibold rounded-xl w-full sm:w-auto"
+                      className="w-full sm:w-auto"
                     >
                       <span>Loloskan Code Review</span>
                       <ArrowRight className="size-3.5" />
@@ -638,7 +608,7 @@ export const ReviewsPage: React.FC = () => {
                       onClick={handleSavePmVerification}
                       loading={pmVerifyMutation.isPending}
                       disabled={!canPmVerify}
-                      className="px-5 py-2 text-xs font-semibold rounded-xl w-full sm:w-auto"
+                      className="w-full sm:w-auto"
                     >
                       <Check className="size-3.5" />
                       <span>Validasi Verifikasi PM (Gerbang 1)</span>
@@ -652,7 +622,7 @@ export const ReviewsPage: React.FC = () => {
                       onClick={handleTlFinalSignoff}
                       loading={tlSignoffMutation.isPending}
                       disabled={!canTlSignoff}
-                      className="px-5 py-2 text-xs font-semibold rounded-xl w-full sm:w-auto"
+                      className="w-full sm:w-auto"
                     >
                       <CheckCircle2 className="size-3.5" />
                       <span>Otorisasi Sign-Off Done (TL)</span>
@@ -661,13 +631,13 @@ export const ReviewsPage: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         ) : (
-          <div className="lg:col-span-8 rounded-2xl border border-dashed border-border bg-card p-12 text-center space-y-3">
-            <ShieldAlert className="size-8 text-muted-foreground mx-auto" />
-            <h4 className="text-sm font-bold text-foreground">Tidak Ada Tugas yang Dipilih</h4>
-            <p className="text-xs text-muted-foreground">Pilih salah satu tugas dari antrean sebelah kiri untuk meninjau detail pemeriksaan dan otorisasi.</p>
-          </div>
+          <Card size="md" padding="empty" dashed className="lg:col-span-8 flex flex-col items-center space-y-3">
+            <ShieldAlert className="size-8 text-muted-foreground" />
+            <h4 className="text-sm font-bold text-foreground text-center">Tidak Ada Tugas yang Dipilih</h4>
+            <p className="text-xs text-muted-foreground text-center">Pilih salah satu tugas dari antrean sebelah kiri untuk meninjau detail pemeriksaan dan otorisasi.</p>
+          </Card>
         )}
       </div>
     </div>

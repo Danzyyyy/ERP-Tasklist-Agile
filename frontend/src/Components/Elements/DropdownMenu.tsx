@@ -1,5 +1,5 @@
 // src/Components/Elements/DropdownMenu.tsx
-// Anaheim Design Kit — Specimen 04: Dropdown Menu (FigCraft 1:1 Implementation)
+// Anaheim Design Kit — Specimen 04: Dropdown Menu (FigCraft 1:1 CVA Implementation)
 import React, {
   createContext,
   useContext,
@@ -9,8 +9,8 @@ import React, {
   memo,
   type ReactNode,
 } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/Utils/cn";
-import { Button } from "./Button";
 
 interface DropdownMenuContextType {
   open: boolean;
@@ -57,12 +57,31 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   );
 };
 
-export interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+const dropdownTriggerVariants = cva(
+  "inline-flex items-center cursor-pointer select-none transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+  {
+    variants: {
+      variant: {
+        unstyled: "justify-center p-0 h-auto bg-transparent border-0",
+        outline:
+          "h-9 px-3 rounded-md border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted/70 hover:border-[#cbd5e1] shadow-2xs group",
+        card: "gap-2 sm:gap-2.5 px-2.5 h-[42px] rounded-lg border border-border bg-card hover:bg-muted/70 text-left shadow-2xs group",
+      },
+    },
+    defaultVariants: {
+      variant: "unstyled",
+    },
+  },
+);
+
+export interface DropdownMenuTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof dropdownTriggerVariants> {
   asChild?: boolean;
 }
 
 export const DropdownMenuTrigger = memo<DropdownMenuTriggerProps>(
-  ({ className, children, onClick, ...props }) => {
+  ({ className, variant, asChild: _asChild, children, onClick, ...props }) => {
     const context = useContext(DropdownMenuContext);
     if (!context) {
       throw new Error("DropdownMenuTrigger must be used within DropdownMenu");
@@ -74,18 +93,17 @@ export const DropdownMenuTrigger = memo<DropdownMenuTriggerProps>(
     };
 
     return (
-      <Button
+      <button
         ref={context.triggerRef}
         type="button"
-        variant="ghost"
         aria-haspopup="true"
         aria-expanded={context.open}
         onClick={handleClick}
-        className={cn("inline-flex items-center justify-center cursor-pointer select-none h-auto p-0 hover:bg-transparent", className)}
+        className={cn(dropdownTriggerVariants({ variant }), className)}
         {...props}
       >
         {children}
-      </Button>
+      </button>
     );
   },
 );
@@ -151,7 +169,7 @@ export const DropdownMenuContent = memo<DropdownMenuContentProps>(
         role="menu"
         aria-orientation="vertical"
         className={cn(
-          "absolute z-50 mt-1.5 min-w-[180px] rounded-lg border border-border bg-card p-1 text-card-foreground shadow-xl transition-all animate-pop",
+          "absolute z-50 mt-1.5 min-w-[180px] rounded-lg border border-border bg-card p-1.5 text-card-foreground shadow-xl transition-all animate-pop",
           alignmentClasses[normalizedAlign],
           className,
         )}
@@ -167,11 +185,23 @@ DropdownMenuContent.displayName = "DropdownMenuContent";
 export interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
   disabled?: boolean;
   destructive?: boolean;
+  selected?: boolean;
+  comfortable?: boolean;
   inset?: boolean;
 }
 
 export const DropdownMenuItem = memo<DropdownMenuItemProps>(
-  ({ className, disabled, destructive, inset, children, onClick, ...props }) => {
+  ({
+    className,
+    disabled,
+    destructive,
+    selected = false,
+    comfortable = false,
+    inset,
+    children,
+    onClick,
+    ...props
+  }) => {
     const context = useContext(DropdownMenuContext);
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -184,12 +214,16 @@ export const DropdownMenuItem = memo<DropdownMenuItemProps>(
       <div
         role="menuitem"
         aria-disabled={disabled}
+        aria-selected={selected || undefined}
         onClick={handleClick}
         className={cn(
-          "relative flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium outline-none select-none cursor-pointer transition-colors duration-150",
-          "hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
+          "relative flex items-center gap-2 rounded-sm px-2.5 text-xs font-medium outline-none select-none cursor-pointer transition-colors duration-150",
+          comfortable ? "py-2" : "py-1.5",
+          selected
+            ? "bg-primary-subtle text-primary-subtle-foreground font-semibold"
+            : "text-foreground hover:bg-muted focus:bg-muted",
           destructive &&
-            "text-destructive hover:bg-[#fef2f2] hover:text-[#991b1b] focus:bg-[#fef2f2]",
+            "text-destructive hover:bg-destructive-subtle hover:text-destructive-subtle-foreground focus:bg-destructive-subtle",
           disabled && "pointer-events-none opacity-50 cursor-not-allowed",
           inset && "pl-8",
           className,

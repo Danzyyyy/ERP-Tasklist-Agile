@@ -15,16 +15,16 @@ export interface ProjectOverviewCardProps {
 
 export const ProjectOverviewCard = memo<ProjectOverviewCardProps>(({ metrics }) => {
   return (
-    <Card className="p-5 bg-linear-to-r from-sidebar via-sidebar to-primary-subtle-foreground text-sidebar-foreground border-sidebar-border shadow-md">
+    <Card surface="darkGradient" padding="relaxed">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-primary font-mono font-semibold">
             <span>PROYEK ID: PROJ-ERP-01</span>
             <span>·</span>
-            <span>KELOMPOK 4 / KELAS E</span>
+            <span>WORKSPACE PROYEK AKTIF</span>
           </div>
           <h2 className="text-lg font-bold text-sidebar-foreground tracking-tight mt-1">
-            PT. Anaheim Nimbus Universal — Modul E-4
+            PT. Anaheim Nimbus Universal
           </h2>
           <p className="text-xs text-sidebar-muted mt-1 max-w-2xl leading-relaxed">
             Sistem Tasklist dan Eksekusi Agile, Dual-Approval Task Release Gate, serta Pelacakan
@@ -71,7 +71,7 @@ ProjectOverviewCard.displayName = "ProjectOverviewCard";
 
 export function ProjectOverviewCardSkeleton() {
   return (
-    <Card className="p-5 bg-sidebar border-sidebar-border shadow-md">
+    <Card surface="dark" padding="relaxed">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-3.5 w-48 bg-sidebar-accent" />

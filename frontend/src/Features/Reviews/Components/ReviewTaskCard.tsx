@@ -29,16 +29,15 @@ export const ReviewTaskCard = memo<ReviewTaskCardProps>(
 
     return (
       <Card
-        className={`p-4 transition-all hover:shadow-xs border-border bg-card ${
-          hasRework ? "border-destructive-subtle-border bg-destructive-subtle/10" : ""
-        }`}
+        surface={hasRework ? "destructiveSubtle" : "default"}
+        interactive="subtle"
       >
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5 flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-primary-subtle-foreground bg-primary-subtle border border-primary-subtle-border px-2 py-0.5 rounded">
+              <Badge variant="primary" size="default" shape="rounded" mono>
                 {task.task_code}
-              </span>
+              </Badge>
               <Badge variant={task.status} dot>
                 {task.status}
               </Badge>
@@ -105,9 +104,8 @@ export const ReviewTaskCard = memo<ReviewTaskCardProps>(
 
             <Button
               size="sm"
-              variant="ghost"
+              variant="ghostMuted"
               onClick={() => onOpenDetail(task)}
-              className="text-muted-foreground"
             >
               <Eye className="size-3.5 mr-1" />
               Detail & Riwayat
@@ -123,7 +121,7 @@ ReviewTaskCard.displayName = "ReviewTaskCard";
 
 export function ReviewTaskCardSkeleton() {
   return (
-    <Card className="p-4 border-border bg-card">
+    <Card>
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2.5 flex-1">
           <div className="flex items-center gap-2">

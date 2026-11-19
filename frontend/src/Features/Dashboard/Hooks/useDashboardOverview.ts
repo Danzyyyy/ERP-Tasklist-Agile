@@ -9,7 +9,7 @@ import type { Task } from "@/Types/task";
 
 export function useDashboardOverview() {
   const navigate = useNavigate();
-  // Konsumsi data kalkulasi resmi Formula Q-03 dari Backend API: GET /projects/{projectId}/deliverable-progress
+  // Konsumsi data kalkulasi progres deliverable langsung dari backend API
   const { data: effectiveMetrics = DEFAULT_DELIVERABLE_METRICS, isLoading: isMetricsLoading } =
     useGetDeliverableProgress();
   const { data: tasks = [], isLoading: isTasksLoading } = useGetTaskList();

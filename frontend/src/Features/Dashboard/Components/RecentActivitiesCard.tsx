@@ -1,5 +1,6 @@
 // src/Features/Dashboard/Components/RecentActivitiesCard.tsx
 import React, { memo } from "react";
+import { Card } from "@/Components/Elements/Card";
 import { Activity } from "lucide-react";
 import { cn } from "@/Utils/cn";
 import type { ActivityEvent } from "../Hooks/useDashboardMetrics";
@@ -10,7 +11,7 @@ export interface RecentActivitiesCardProps {
 
 export const RecentActivitiesCard = memo<RecentActivitiesCardProps>(({ activities }) => {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 space-y-3 shadow-2xs">
+    <Card size="md" className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-foreground">Aktivitas Tim</h3>
         <Activity className="size-3.5 text-primary" />
@@ -41,7 +42,7 @@ export const RecentActivitiesCard = memo<RecentActivitiesCardProps>(({ activitie
           </p>
         )}
       </div>
-    </div>
+    </Card>
   );
 });
 

@@ -10,6 +10,7 @@ import CreateModuleModal from "@/Components/Modals/CreateModuleModal";
 import CreateFeatureModal from "@/Components/Modals/CreateFeatureModal";
 import ApprovalModal from "@/Components/Modals/ApprovalModal";
 import { Button } from "@/Components/Elements/Button";
+import { Card } from "@/Components/Elements/Card";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { Plus } from "lucide-react";
 
@@ -49,24 +50,28 @@ export const TasklistPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Page Title Card (FigCraft 1:1) */}
-      <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+      <Card
+        size="md"
+        padding="lg"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            Tasklist & Persetujuan
+            Tasklist &amp; Persetujuan Rilis
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Implementasi Core Banking · PT. Anaheim Nimbus Universal
+            Kelola struktur modul, fitur opsional, dan persetujuan rilis tugas sebelum masuk ke papan eksekusi.
           </p>
         </div>
         <Button
           type="button"
           onClick={() => handleOpenTaskModal()}
-          className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs gap-1.5"
+          className="shrink-0"
         >
           <Plus className="size-3.5" />
           <span>Buat Tugas Baru</span>
         </Button>
-      </div>
+      </Card>
 
       {/* Sprint Deliverable Ratio Banner (FigCraft 1:1) */}
       <TaskRatioBanner

@@ -15,11 +15,11 @@ export interface ComplexityDistributionChartProps {
 
 export const ComplexityDistributionChart = memo<ComplexityDistributionChartProps>(({ data }) => {
   return (
-    <Card className="p-4 border-border bg-card">
+    <Card>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
           <PieChartIcon className="size-4 text-warning" />
-          <span>Proporsi Beban Kerja Berdasarkan Bobot (Q-01)</span>
+          <span>Proporsi Beban Kerja Berdasarkan Bobot</span>
         </h3>
         <span className="text-[10px] text-muted-foreground font-mono">Man-Hour Total</span>
       </div>
@@ -65,7 +65,7 @@ ComplexityDistributionChart.displayName = "ComplexityDistributionChart";
 
 export function ComplexityDistributionChartSkeleton() {
   return (
-    <Card className="p-4 border-border bg-card">
+    <Card>
       <div className="flex items-center justify-between mb-3">
         <Skeleton className="h-4 w-64" />
         <Skeleton className="h-3.5 w-24" />

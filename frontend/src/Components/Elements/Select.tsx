@@ -6,15 +6,32 @@ import React, {
   useState,
   useRef,
   useEffect,
+  useLayoutEffect,
   useCallback,
   useImperativeHandle,
   memo,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/Utils/cn";
-import { Button } from "./Button";
 import { ChevronDown, Check } from "lucide-react";
+
+const selectTriggerVariants = cva(
+  "flex w-full items-center justify-between border border-input bg-card text-foreground shadow-2xs transition-colors font-medium cursor-pointer select-none hover:border-[#cbd5e1] focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60",
+  {
+    variants: {
+      sizeVariant: {
+        sm: "h-8 px-2.5 py-1 text-xs rounded-sm",
+        default: "h-9 px-3 py-1.5 text-xs rounded-md",
+        lg: "h-[42px] px-4 py-2 text-sm rounded-lg",
+      },
+    },
+    defaultVariants: {
+      sizeVariant: "default",
+    },
+  },
+);
 
 // ============================================================================
 // Helper hook for Floating Portal Positioning
@@ -31,12 +48,8 @@ interface FloatingCoords {
 function useFloatingPosition(
   triggerRef: React.RefObject<HTMLElement | null>,
   isOpen: boolean,
-): FloatingCoords {
-  const [coords, setCoords] = useState<FloatingCoords>({
-    left: 0,
-    width: 0,
-    placement: "bottom",
-  });
+): FloatingCoords | null {
+  const [coords, setCoords] = useState<FloatingCoords | null>(null);
 
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
@@ -62,7 +75,7 @@ function useFloatingPosition(
     }
   }, [triggerRef]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isOpen) return;
     updatePosition();
 
@@ -76,6 +89,7 @@ function useFloatingPosition(
     return () => {
       window.removeEventListener("scroll", handleScrollOrResize, true);
       window.removeEventListener("resize", handleScrollOrResize);
+      setCoords(null);
     };
   }, [isOpen, updatePosition]);
 
@@ -158,31 +172,31 @@ export const SelectRoot: React.FC<SelectCompoundProps> = ({
   );
 };
 
-export interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface SelectTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof selectTriggerVariants> {
   error?: boolean;
 }
 
 export const SelectTrigger = memo<SelectTriggerProps>(
-  ({ className, children, error, disabled, ...props }) => {
+  ({ className, sizeVariant, children, error, disabled, ...props }) => {
     const ctx = useContext(SelectContext);
     if (!ctx) throw new Error("SelectTrigger must be used within Select");
 
     const isDisabled = disabled || ctx.disabled;
 
     return (
-      <Button
+      <button
         ref={ctx.triggerRef}
         type="button"
         role="combobox"
-        variant="outline"
         aria-expanded={ctx.open}
         disabled={isDisabled}
         onClick={() => ctx.setOpen((prev) => !prev)}
         className={cn(
-          "flex h-[34px] w-full items-center justify-between rounded-md border border-input bg-card px-3 py-1.5 text-[13px] text-foreground shadow-2xs transition-colors font-normal hover:bg-card hover:text-foreground",
-          "hover:border-[#cbd5e1] focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
-          error && "border-destructive focus-visible:border-destructive focus-visible:ring-destructive bg-[#fef2f2]/20 text-destructive",
-          isDisabled && "cursor-not-allowed bg-muted opacity-60",
+          selectTriggerVariants({ sizeVariant }),
+          error &&
+            "border-destructive focus-visible:border-destructive focus-visible:ring-destructive bg-destructive-subtle/30 text-destructive",
           className,
         )}
         {...props}
@@ -194,7 +208,7 @@ export const SelectTrigger = memo<SelectTriggerProps>(
             ctx.open && "rotate-180 text-primary",
           )}
         />
-      </Button>
+      </button>
     );
   },
 );
@@ -261,7 +275,7 @@ export const SelectContent = memo<SelectContentProps>(
       };
     }, [ctx]);
 
-    if (!ctx.open) return null;
+    if (!ctx.open || !coords) return null;
 
     return createPortal(
       <div
@@ -277,7 +291,7 @@ export const SelectContent = memo<SelectContentProps>(
           ...style,
         }}
         className={cn(
-          "max-h-60 overflow-y-auto rounded-lg border border-border bg-card p-1 text-card-foreground shadow-xl transition-all animate-pop",
+          "max-h-60 overflow-y-auto rounded-lg border border-border bg-card p-1 text-card-foreground shadow-xl animate-pop",
           className,
         )}
         {...props}
@@ -314,9 +328,9 @@ export const SelectItem = memo<SelectItemProps>(
         aria-disabled={disabled}
         onClick={handleClick}
         className={cn(
-          "relative flex items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors select-none",
+          "relative flex items-center justify-between gap-2 rounded-sm px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors select-none",
           "hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
-          isSelected && "bg-[#eef2ff] text-[#4338ca] font-semibold",
+          isSelected && "bg-primary-subtle text-primary-subtle-foreground font-semibold",
           disabled && "pointer-events-none opacity-40 cursor-not-allowed",
           className,
         )}
@@ -388,7 +402,9 @@ function extractOptions(children: ReactNode): ParsedOption[] {
   return options;
 }
 
-export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
+export interface SelectProps
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size">,
+    VariantProps<typeof selectTriggerVariants> {
   error?: boolean;
   onValueChange?: (val: string) => void;
   ref?: React.Ref<HTMLSelectElement>;
@@ -396,6 +412,7 @@ export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectE
 
 export const Select: React.FC<SelectProps> = ({
   className,
+  sizeVariant,
   children,
   error,
   disabled,
@@ -528,19 +545,17 @@ export const Select: React.FC<SelectProps> = ({
       </select>
 
       {/* Custom Shadcn Styled Trigger */}
-      <Button
+      <button
         ref={triggerRef}
         type="button"
         role="combobox"
-        variant="outline"
         aria-expanded={open}
         disabled={disabled}
         onClick={() => !disabled && setOpen((prev) => !prev)}
         className={cn(
-          "flex h-[34px] w-full items-center justify-between rounded-md border border-input bg-card px-3 py-1.5 text-[13px] text-foreground shadow-2xs transition-colors font-normal hover:bg-card hover:text-foreground",
-          "hover:border-[#cbd5e1] focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
-          error && "border-destructive focus-visible:border-destructive focus-visible:ring-destructive bg-[#fef2f2]/20 text-destructive",
-          disabled && "cursor-not-allowed bg-muted opacity-60",
+          selectTriggerVariants({ sizeVariant }),
+          error &&
+            "border-destructive focus-visible:border-destructive focus-visible:ring-destructive bg-destructive-subtle/30 text-destructive",
           className,
         )}
       >
@@ -553,10 +568,11 @@ export const Select: React.FC<SelectProps> = ({
             open && "rotate-180 text-primary",
           )}
         />
-      </Button>
+      </button>
 
       {/* Truly Floating Dropdown Content via React Portal to document.body */}
       {open &&
+        coords &&
         createPortal(
           <div
             ref={contentRef}
@@ -570,7 +586,7 @@ export const Select: React.FC<SelectProps> = ({
               zIndex: 99999,
             }}
             className={cn(
-              "max-h-60 overflow-y-auto rounded-lg border border-border bg-card p-1 text-card-foreground shadow-xl transition-all animate-pop",
+              "max-h-60 overflow-y-auto rounded-lg border border-border bg-card p-1 text-card-foreground shadow-xl animate-pop",
             )}
           >
             {options.map((opt) => {
@@ -583,9 +599,9 @@ export const Select: React.FC<SelectProps> = ({
                   aria-disabled={opt.disabled}
                   onClick={() => handleSelectOption(opt)}
                   className={cn(
-                    "relative flex items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors select-none",
+                    "relative flex items-center justify-between gap-2 rounded-sm px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors select-none",
                     "hover:bg-muted hover:text-foreground",
-                    isSelected && "bg-[#eef2ff] text-[#4338ca] font-semibold",
+                    isSelected && "bg-primary-subtle text-primary-subtle-foreground font-semibold",
                     opt.disabled && "pointer-events-none opacity-40 cursor-not-allowed",
                   )}
                 >

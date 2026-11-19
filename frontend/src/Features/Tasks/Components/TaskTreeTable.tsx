@@ -1,9 +1,17 @@
 // src/Features/Tasks/Components/TaskTreeTable.tsx
 import React, { memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { TaskTreeRow, TaskTreeRowSkeleton, type TreeItem } from "./TaskTreeRow";
+import { TaskTreeRow, type TreeItem } from "./TaskTreeRow";
 import type { Task } from "@/Types/task";
 import { Button } from "@/Components/Elements/Button";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  DataTableHeader,
+  DataTableRow,
+} from "@/Components/Elements/DataTable";
+import { TreeTableSkeletonRows } from "@/Components/Elements/TreeTable";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 
 export interface TaskTreeTableProps {
@@ -33,78 +41,97 @@ export const TaskTreeTable = memo<TaskTreeTableProps>(
   }) => {
     const navigate = useNavigate();
 
+    const taskItems = treeItems.filter(
+      (item): item is Extract<TreeItem, { kind: "TASK" }> => item.kind === "TASK",
+    );
+    const totalTasksCount = taskItems.length;
+    const draftTasks = taskItems.filter((t) => t.data.status === "DRAFT");
+    const doneTasksCount = taskItems.filter((t) => t.data.status === "DONE").length;
+    const firstPendingDraft = draftTasks[0]?.data;
+
+    const footerContent = (
+      <>
+        <span className="text-muted-foreground font-medium">
+          {totalTasksCount} tugas ditampilkan · {draftTasks.length} Draft menunggu persetujuan ·{" "}
+          {doneTasksCount} Selesai (Terkunci)
+        </span>
+
+        <div className="flex items-center gap-2">
+          {firstPendingDraft && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenApproval(firstPendingDraft)}
+            >
+              Evaluasi Persetujuan
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(ROUTE_PATHS.KANBAN)}
+          >
+            Buka Agile Board →
+          </Button>
+        </div>
+      </>
+    );
+
     return (
-      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-2xs">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                <th className="py-3 px-3 w-10 text-center text-muted-foreground font-mono">
-                  #
-                </th>
-                <th className="py-3 px-3">PEKERJAAN & TUGAS</th>
-                <th className="py-3 px-3 text-center w-24">BOBOT</th>
-                <th className="py-3 px-3 text-center w-24">MAN-HOUR</th>
-                <th className="py-3 px-3 text-center w-20">TENGGAT</th>
-                <th className="py-3 px-3 text-center w-16">PIC</th>
-                <th className="py-3 px-3 text-center w-52">DUAL-APPROVAL</th>
-                <th className="py-3 px-3 text-center w-28">TAHAPAN</th>
-                <th className="py-3 px-3 text-center w-14">AKSI</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <TaskTreeRowSkeleton count={8} />
-              ) : (
-                treeItems.map((item) => {
-                  const nodeId = item.data.id;
-                  const isOpen = !collapsedNodes[nodeId];
+      <DataTable footer={footerContent}>
+        <DataTableHeader>
+          <DataTableRow rowType="header">
+            <DataTableHead>PEKERJAAN &amp; TUGAS</DataTableHead>
+            <DataTableHead className="w-24">BOBOT</DataTableHead>
+            <DataTableHead align="right" className="w-24">
+              ESTIMASI
+            </DataTableHead>
+            <DataTableHead className="w-24">TENGGAT</DataTableHead>
+            <DataTableHead align="center" className="w-16">
+              PIC
+            </DataTableHead>
+            <DataTableHead className="w-44">PERSETUJUAN</DataTableHead>
+            <DataTableHead className="w-28">TAHAPAN</DataTableHead>
+            <DataTableHead align="right" className="w-14">
+              AKSI
+            </DataTableHead>
+          </DataTableRow>
+        </DataTableHeader>
+        <DataTableBody>
+          {isLoading ? (
+            <TreeTableSkeletonRows count={8} columns={8} />
+          ) : treeItems.length === 0 ? (
+            <DataTableRow>
+              <td
+                colSpan={8}
+                className="py-8 text-center text-xs text-muted-foreground italic"
+              >
+                Belum ada modul atau tugas pada filter yang dipilih.
+              </td>
+            </DataTableRow>
+          ) : (
+            treeItems.map((item) => {
+              const nodeId = item.data.id;
+              const isOpen = !collapsedNodes[nodeId];
 
-                  return (
-                    <TaskTreeRow
-                      key={nodeId}
-                      item={item}
-                      isOpen={isOpen}
-                      onToggle={() => onToggleNode(nodeId)}
-                      onSelectTask={onSelectTask}
-                      onOpenApproval={onOpenApproval}
-                      onAddFeature={onAddFeature}
-                      onAddTask={onAddTask}
-                    />
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Table Footer matching FigCraft 1:1 */}
-        <div className="p-3.5 border-t border-border bg-card flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <span className="text-muted-foreground font-medium">
-            0 tugas terpilih · 8 tugas ditampilkan
-          </span>
-
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="rounded-lg text-xs font-semibold"
-            >
-              Setujui Rilis Terpilih
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(ROUTE_PATHS.KANBAN)}
-              className="rounded-lg text-xs font-semibold"
-            >
-              Buka Agile Kanban Board →
-            </Button>
-          </div>
-        </div>
-      </div>
+              return (
+                <TaskTreeRow
+                  key={`${item.kind}-${nodeId}`}
+                  item={item}
+                  isOpen={isOpen}
+                  onToggle={() => onToggleNode(nodeId)}
+                  onSelectTask={onSelectTask}
+                  onOpenApproval={onOpenApproval}
+                  onAddFeature={onAddFeature}
+                  onAddTask={onAddTask}
+                />
+              );
+            })
+          )}
+        </DataTableBody>
+      </DataTable>
     );
   },
 );

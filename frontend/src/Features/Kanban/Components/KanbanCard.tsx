@@ -1,9 +1,11 @@
 // src/Features/Kanban/Components/KanbanCard.tsx
 import React, { memo } from "react";
 import { cn } from "@/Utils/cn";
+import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
-import { canRoleDragKanbanCard, getInitials, getAvatarBg } from "@/Utils/taskUtils";
+import { Card } from "@/Components/Elements/Card";
+import { canRoleDragKanbanCard, getInitials, getAvatarTone } from "@/Utils/taskUtils";
 import type { Task, TaskStatus } from "@/Types/task";
 import type { UserRole } from "@/Types/auth";
 import { MoreHorizontal } from "lucide-react";
@@ -24,7 +26,7 @@ export const KanbanCard = memo<KanbanCardProps>(
 
     const picName = task.assignee_name || (typeof task.pic === "string" ? task.pic : task.pic?.name) || "Belum Ditugaskan";
     const picInitials = getInitials(picName);
-    const picBg = getAvatarBg(picInitials);
+    const picTone = getAvatarTone(picInitials);
 
     const hours = Number(task.estimated_man_hours) || 8;
     const moduleName = task.module?.title || "Manajemen Rekening";
@@ -33,7 +35,10 @@ export const KanbanCard = memo<KanbanCardProps>(
       : "18 Okt";
 
     return (
-      <div
+      <Card
+        size="sm"
+        surface="default"
+        interactive="elevated"
         draggable={isDraggable}
         onDragStart={(e) => {
           if (!isDraggable) {
@@ -45,7 +50,7 @@ export const KanbanCard = memo<KanbanCardProps>(
         onDragEnd={() => onDragEnd?.()}
         onClick={() => onSelect(task)}
         className={cn(
-          "group rounded-xl border border-border bg-card p-3 space-y-2 shadow-2xs hover:shadow-md hover:border-primary/50 transition-all select-none",
+          "group space-y-2 select-none",
           isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
         )}
       >
@@ -54,13 +59,12 @@ export const KanbanCard = memo<KanbanCardProps>(
           <span className="font-mono text-xs">{task.task_code || "#TSK-01"}</span>
           <Button
             type="button"
-            variant="ghost"
-            size="iconSm"
+            variant="ghostMuted"
+            size="iconXs"
             onClick={(e) => {
               e.stopPropagation();
               onSelect(task);
             }}
-            className="size-6 text-muted-foreground hover:text-foreground"
           >
             <MoreHorizontal className="size-4" />
           </Button>
@@ -87,14 +91,11 @@ export const KanbanCard = memo<KanbanCardProps>(
             </span>
           </div>
 
-          <div
-            className={cn(
-              "size-6 rounded-full font-bold text-[10px] grid place-items-center shadow-2xs shrink-0",
-              picBg,
-            )}
-          >
-            {picInitials}
-          </div>
+          <Avatar size="xs" borderless>
+            <AvatarFallback appearance="solid" tone={picTone}>
+              {picInitials}
+            </AvatarFallback>
+          </Avatar>
         </div>
 
         {/* Footer Row: Date & Status Tag / Action */}
@@ -117,7 +118,7 @@ export const KanbanCard = memo<KanbanCardProps>(
             </span>
           )}
         </div>
-      </div>
+      </Card>
     );
   },
 );

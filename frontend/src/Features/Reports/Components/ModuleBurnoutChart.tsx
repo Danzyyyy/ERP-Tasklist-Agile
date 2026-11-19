@@ -16,7 +16,7 @@ export interface ModuleBurnoutChartProps {
 
 export const ModuleBurnoutChart = memo<ModuleBurnoutChartProps>(({ data }) => {
   return (
-    <Card className="p-4 border-border bg-card">
+    <Card>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
           <BarChart3 className="size-4 text-primary" />
@@ -63,7 +63,7 @@ ModuleBurnoutChart.displayName = "ModuleBurnoutChart";
 
 export function ModuleBurnoutChartSkeleton() {
   return (
-    <Card className="p-4 border-border bg-card">
+    <Card>
       <div className="flex items-center justify-between mb-3">
         <Skeleton className="h-4 w-64" />
         <Skeleton className="h-3.5 w-24" />

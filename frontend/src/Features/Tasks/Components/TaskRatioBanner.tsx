@@ -1,6 +1,8 @@
 // src/Features/Tasks/Components/TaskRatioBanner.tsx
 import React, { memo } from "react";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
+import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
 import { Progress } from "@/Components/Elements/Progress";
 
 export interface TaskRatioBannerProps {
@@ -19,15 +21,15 @@ export const TaskRatioBanner = memo<TaskRatioBannerProps>(
     const totalH = formatManHours(totalEstimatedHours);
 
     return (
-      <div className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-2xs">
+      <Card size="md" padding="relaxed" className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs font-bold text-foreground tracking-wide">
-              DELIVERABLE PROGRESS · FTR-K04-07
+              PROGRES DELIVERABLE PROYEK
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-primary-subtle text-primary border border-primary-subtle-border text-[10px] font-bold">
+            <Badge variant="primary" size="sm">
               AKTIF
-            </span>
+            </Badge>
           </div>
 
           <div className="text-2xl font-black text-primary font-mono sm:text-right">
@@ -46,7 +48,7 @@ export const TaskRatioBanner = memo<TaskRatioBannerProps>(
             {completedTasks} / {totalTasks} tugas Done
           </div>
         </div>
-      </div>
+      </Card>
     );
   },
 );

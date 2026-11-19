@@ -5,17 +5,24 @@ import { cn } from "@/Utils/cn";
 
 export interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: "horizontal" | "vertical";
+  size?: "full" | "sm" | "md";
   decorative?: boolean;
 }
 
+const verticalSizeMap = {
+  full: "h-full",
+  sm: "h-4",
+  md: "h-6",
+};
+
 export const Separator = memo<SeparatorProps>(
-  ({ className, orientation = "horizontal", decorative = true, ...props }) => (
+  ({ className, orientation = "horizontal", size = "full", decorative = true, ...props }) => (
     <div
       role={decorative ? "none" : "separator"}
       aria-orientation={orientation}
       className={cn(
         "shrink-0 bg-border",
-        orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
+        orientation === "horizontal" ? "h-px w-full" : cn("w-px", verticalSizeMap[size]),
         className,
       )}
       {...props}

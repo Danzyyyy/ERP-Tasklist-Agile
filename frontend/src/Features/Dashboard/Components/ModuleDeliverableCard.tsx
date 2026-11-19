@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import useGetModuleProgress, { DEFAULT_MODULE_METRICS } from "@/Hooks/useGetModuleProgress";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { formatPercent, formatManHours } from "@/Utils/formatters";
+import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
 import { Progress } from "@/Components/Elements/Progress";
 import { cn } from "@/Utils/cn";
 
@@ -18,7 +20,7 @@ export interface ModuleDeliverableCardProps {
 export const ModuleDeliverableCard = memo<ModuleDeliverableCardProps>(
   ({ moduleId, moduleCode, moduleName, featureSummary, tlName = "Fauzan" }) => {
     const navigate = useNavigate();
-    // Konsumsi langsung kalkulasi resmi Formula Q-03 dari Backend: GET /modules/{moduleId}/progress
+    // Konsumsi kalkulasi progres modul langsung dari backend: GET /modules/{moduleId}/progress
     const { data: progress = DEFAULT_MODULE_METRICS, isLoading } = useGetModuleProgress(moduleId);
 
     const doneHours = progress.completedManHours;
@@ -29,16 +31,18 @@ export const ModuleDeliverableCard = memo<ModuleDeliverableCardProps>(
     const activeTasks = totalTasks > completedTasks ? totalTasks - completedTasks : 0;
 
     return (
-      <div
+      <Card
+        size="md"
+        interactive="primary"
         onClick={() => navigate(ROUTE_PATHS.PROJECTS)}
-        className="rounded-xl border border-border bg-card p-4 space-y-3 hover:border-primary/50 transition-all cursor-pointer shadow-2xs flex flex-col justify-between"
+        className="space-y-3 cursor-pointer flex flex-col justify-between"
       >
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="px-1.5 py-0.5 rounded bg-primary-subtle text-primary border border-primary-subtle-border text-[10px] font-bold font-mono">
+            <Badge variant="primary" size="sm" shape="rounded" mono>
               {moduleCode}
-            </span>
-            <span className="text-[10px] text-muted-foreground font-mono">Formula Q-03 Backend</span>
+            </Badge>
+            <span className="text-[10px] text-muted-foreground font-mono">Progres Modul</span>
           </div>
 
           <div>
@@ -67,7 +71,7 @@ export const ModuleDeliverableCard = memo<ModuleDeliverableCardProps>(
           <span>{isLoading ? "..." : `${activeTasks} tugas aktif · ${totalTasks} total`}</span>
           <span className="font-medium text-foreground">TL: {tlName}</span>
         </div>
-      </div>
+      </Card>
     );
   },
 );

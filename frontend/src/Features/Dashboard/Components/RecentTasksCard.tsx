@@ -17,18 +17,13 @@ export interface RecentTasksCardProps {
 export const RecentTasksCard = memo<RecentTasksCardProps>(
   ({ recentTasks, hasTasks, onGoToTasks }) => {
     return (
-      <Card className="col-span-1 lg:col-span-2 p-4 border-border bg-card">
+      <Card className="col-span-1 lg:col-span-2">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
             <History className="size-4 text-muted-foreground" />
             <span>Tugas Terbaru Dalam Siklus Eksekusi</span>
           </h3>
-          <Button
-            type="button"
-            variant="link"
-            onClick={onGoToTasks}
-            className="text-[11px] font-semibold text-primary p-0 h-auto"
-          >
+          <Button type="button" variant="link" onClick={onGoToTasks}>
             Kelola Semua &rarr;
           </Button>
         </div>
@@ -41,9 +36,9 @@ export const RecentTasksCard = memo<RecentTasksCardProps>(
               className="p-2.5 rounded-lg border border-border hover:border-primary-subtle-border hover:bg-primary-subtle/30 transition-all flex items-center justify-between gap-3 text-xs cursor-pointer"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <span className="font-mono text-[10px] font-bold text-primary-subtle-foreground bg-primary-subtle border border-primary-subtle-border px-1.5 py-0.2 rounded shrink-0">
+                <Badge variant="primary" size="sm" shape="rounded" mono>
                   {task.task_code}
-                </span>
+                </Badge>
                 <span className="font-medium text-foreground truncate">{task.title}</span>
               </div>
 
@@ -73,7 +68,7 @@ RecentTasksCard.displayName = "RecentTasksCard";
 
 export function RecentTasksCardSkeleton() {
   return (
-    <Card className="col-span-1 lg:col-span-2 p-4 border-border bg-card">
+    <Card className="col-span-1 lg:col-span-2">
       <div className="flex items-center justify-between mb-3">
         <Skeleton className="h-4 w-56" />
         <Skeleton className="h-3.5 w-20" />

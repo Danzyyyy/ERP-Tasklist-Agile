@@ -1,9 +1,11 @@
 // src/Features/Dashboard/Components/AtRiskTasksCard.tsx
 import React, { memo } from "react";
+import { Avatar, AvatarFallback } from "@/Components/Elements/Avatar";
+import { Badge } from "@/Components/Elements/Badge";
 import { Button } from "@/Components/Elements/Button";
+import { Card } from "@/Components/Elements/Card";
 import { Skeleton } from "@/Components/Elements/Skeleton";
-import { getInitials, getAvatarBg } from "@/Utils/taskUtils";
-import { cn } from "@/Utils/cn";
+import { getInitials, getAvatarTone } from "@/Utils/taskUtils";
 import { AlertTriangle, Clock, Calendar, ArrowUpRight } from "lucide-react";
 import type { Task } from "@/Types/task";
 
@@ -21,27 +23,22 @@ export interface AtRiskTasksCardProps {
 export const AtRiskTasksCard = memo<AtRiskTasksCardProps>(
   ({ tasks, tasksAtRiskOrOverdueCount, onViewTasklist }) => {
     return (
-      <div className="rounded-2xl border border-border bg-card p-5 space-y-3.5 shadow-2xs">
+      <Card size="md" padding="relaxed" className="space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-foreground">Tugas Berisiko & Tenggat Kritis</h3>
             {tasksAtRiskOrOverdueCount > 0 ? (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-destructive-subtle text-destructive-subtle-foreground border border-destructive-subtle-border flex items-center gap-1">
+              <Badge variant="destructive" size="sm" casing="normal">
                 <AlertTriangle className="size-2.5" />
                 {tasksAtRiskOrOverdueCount} Perlu Perhatian
-              </span>
+              </Badge>
             ) : (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-success-subtle text-success-subtle-foreground border border-success-subtle-border">
+              <Badge variant="success" size="sm" casing="normal">
                 Semua Sesuai Jadwal
-              </span>
+              </Badge>
             )}
           </div>
-          <Button
-            type="button"
-            variant="link"
-            onClick={onViewTasklist}
-            className="text-xs font-semibold text-primary p-0 h-auto gap-1"
-          >
+          <Button type="button" variant="link" onClick={onViewTasklist} className="gap-1">
             <span>Lihat Tasklist</span>
             <ArrowUpRight className="size-3.5" />
           </Button>
@@ -51,7 +48,7 @@ export const AtRiskTasksCard = memo<AtRiskTasksCardProps>(
           {tasks.map((t) => {
             const pic = t.assignee_name || "Belum Ditugaskan";
             const initials = getInitials(pic);
-            const avatarBg = getAvatarBg(initials);
+            const avatarTone = getAvatarTone(initials);
             const deadlineDate = t.target_deadline ? t.target_deadline.split("T")[0] : "-";
 
             return (
@@ -61,14 +58,11 @@ export const AtRiskTasksCard = memo<AtRiskTasksCardProps>(
                 className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors cursor-pointer text-xs"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={cn(
-                      "size-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 shadow-2xs",
-                      avatarBg,
-                    )}
-                  >
-                    {initials}
-                  </div>
+                  <Avatar size="sm" borderless>
+                    <AvatarFallback appearance="solid" tone={avatarTone}>
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground truncate">{t.title}</p>
                     <p className="text-[11px] text-muted-foreground truncate">
@@ -80,20 +74,20 @@ export const AtRiskTasksCard = memo<AtRiskTasksCardProps>(
 
                 <div className="flex items-center gap-2 shrink-0">
                   {t.isOverdue ? (
-                    <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-destructive-subtle text-destructive-subtle-foreground border border-destructive-subtle-border flex items-center gap-1">
+                    <Badge variant="destructive" size="sm" shape="rounded" casing="normal">
                       <AlertTriangle className="size-3 text-destructive" />
                       Terlambat ({Math.abs(t.daysRemaining)} hari)
-                    </span>
+                    </Badge>
                   ) : t.daysRemaining <= 2 ? (
-                    <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-warning-subtle text-warning-subtle-foreground border border-warning-subtle-border flex items-center gap-1">
+                    <Badge variant="warning" size="sm" shape="rounded" casing="normal">
                       <Clock className="size-3 text-warning-subtle-foreground" />
                       {t.daysRemaining} hari tersisa
-                    </span>
+                    </Badge>
                   ) : (
-                    <span className="px-2 py-1 rounded-md text-[10px] font-mono font-medium bg-muted text-muted-foreground flex items-center gap-1">
+                    <Badge variant="default" size="sm" shape="rounded" casing="normal" mono>
                       <Calendar className="size-3 text-muted-foreground" />
                       {deadlineDate}
-                    </span>
+                    </Badge>
                   )}
                 </div>
               </div>
@@ -106,7 +100,7 @@ export const AtRiskTasksCard = memo<AtRiskTasksCardProps>(
             </div>
           )}
         </div>
-      </div>
+      </Card>
     );
   },
 );
@@ -116,7 +110,7 @@ AtRiskTasksCard.displayName = "AtRiskTasksCard";
 // Companion Skeleton
 export const AtRiskTasksCardSkeleton: React.FC = () => {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-3.5">
+    <Card size="md" padding="relaxed" className="space-y-3.5">
       <div className="flex justify-between items-center">
         <Skeleton className="h-4 w-48" />
         <Skeleton className="h-4 w-20" />
@@ -135,6 +129,6 @@ export const AtRiskTasksCardSkeleton: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 };

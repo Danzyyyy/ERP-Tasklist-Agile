@@ -1,8 +1,10 @@
 // src/Components/Modals/TaskDetailModal.tsx
 import React, { memo, useState } from "react";
 import { Modal } from "@/Components/Elements/Modal";
+import { Alert } from "@/Components/Elements/Alert";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
+import { Card } from "@/Components/Elements/Card";
 import { Input } from "@/Components/Elements/Input";
 import { Textarea } from "@/Components/Elements/Textarea";
 import { Select } from "@/Components/Elements/Select";
@@ -201,7 +203,7 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
       description={header.desc}
       footer={
         <div className="flex items-center justify-between gap-3 w-full pt-2">
-          <Button type="button" variant="outline" onClick={onClose} className="px-4 py-2 text-xs font-semibold rounded-xl">
+          <Button type="button" variant="outline" onClick={onClose}>
             Tutup
           </Button>
 
@@ -212,10 +214,9 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
               <>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="destructiveSubtle"
                   onClick={() => handleApproval("REJECTED")}
                   disabled={submitApprovalMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80"
                 >
                   Tolak Draft
                 </Button>
@@ -224,7 +225,6 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                   onClick={() => handleApproval("APPROVED")}
                   disabled={submitApprovalMutation.isPending}
                   loading={submitApprovalMutation.isPending}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs"
                 >
                   <Check className="size-3.5" />
                   <span>Setujui Rilis ({userRole === "TECHNICAL_LEAD" ? "TL" : "PM"})</span>
@@ -239,7 +239,6 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 onClick={handleStartDevelopment}
                 disabled={assignTaskMutation.isPending || updateStatusMutation.isPending}
                 loading={assignTaskMutation.isPending || updateStatusMutation.isPending}
-                className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs"
               >
                 <span>Mulai Development</span>
                 <ArrowRight className="size-3.5" />
@@ -253,7 +252,6 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 onClick={handleRequestCodeReview}
                 disabled={updateStatusMutation.isPending}
                 loading={updateStatusMutation.isPending}
-                className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs"
               >
                 <span>Ajukan Code Review</span>
                 <ArrowRight className="size-3.5" />
@@ -265,10 +263,9 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
               <>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="destructiveSubtle"
                   onClick={() => handleCodeReviewDecision("REJECTED")}
                   disabled={submitReviewMutation.isPending}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80 flex items-center gap-1"
                 >
                   <RotateCcw className="size-3.5" />
                   <span>Minta Revisi (Rework)</span>
@@ -278,7 +275,6 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                   onClick={() => handleCodeReviewDecision("PASSED")}
                   disabled={submitReviewMutation.isPending}
                   loading={submitReviewMutation.isPending}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5"
                 >
                   <Check className="size-3.5" />
                   <span>Loloskan ke QA Testing</span>
@@ -292,10 +288,9 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 {["TESTER", "TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="destructiveSubtle"
                     onClick={() => handleQaTestDecision("REJECTED")}
                     disabled={submitReviewMutation.isPending}
-                    className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-destructive-subtle-border bg-destructive-subtle text-destructive-subtle-foreground hover:bg-destructive-subtle/80"
                   >
                     QA Reject (Rework)
                   </Button>
@@ -307,21 +302,20 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                     onClick={() => pmVerifyMutation.mutate()}
                     disabled={pmVerifyMutation.isPending}
                     loading={pmVerifyMutation.isPending}
-                    className="px-4 py-2 text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5"
                   >
                     <CheckCircle2 className="size-3.5" />
-                    <span>Verifikasi Ceklis PM (Gerbang 1)</span>
+                    <span>Verifikasi Ceklis PM</span>
                   </Button>
                 )}
 
                 {userRole === "TECHNICAL_LEAD" && (
                   <Button
                     type="button"
+                    variant="success"
                     onClick={() => tlSignoffMutation.mutate()}
                     disabled={tlSignoffMutation.isPending || !isPmVerified}
                     loading={tlSignoffMutation.isPending}
                     title={!isPmVerified ? "Menunggu verifikasi ceklis PM sebelum dapat disahkan" : undefined}
-                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-success hover:bg-success/90 text-success-foreground shadow-xs flex items-center gap-1.5"
                   >
                     <Check className="size-3.5" />
                     <span>Otorisasi Sign-Off DONE (TL)</span>
@@ -335,11 +329,13 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
     >
       <div className="space-y-4">
         {/* Core Task Identity Card */}
-        <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+        <Card size="md" className="space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">{task.task_code}</span>
+                <Badge variant="default" size="sm" shape="rounded" mono>
+                  {task.task_code}
+                </Badge>
                 <span className="font-semibold text-xs text-muted-foreground">
                   {task.module?.name || "Modul Utama"} {task.feature?.name ? `· ${task.feature.name}` : ""}
                 </span>
@@ -360,18 +356,18 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             <Badge variant={task.complexity_weight || "LOW"} size="sm">
               Bobot: {task.complexity_weight}
             </Badge>
-            <span className="px-2 py-0.5 rounded border border-border bg-card text-[11px]">
+            <Badge variant="outline" size="sm" shape="rounded" casing="normal">
               PIC: <b>{task.assignee_name || "Belum Ditugaskan"}</b>
-            </span>
+            </Badge>
             <Badge variant={task.status} size="sm">
               Status: {task.status}
             </Badge>
           </div>
-        </div>
+        </Card>
 
         {/* 1. FASE DRAFT: DUAL-APPROVAL STATUS */}
         {status === "DRAFT" && (
-          <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+          <Card size="md" className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <ShieldCheck className="size-4 text-primary" />
@@ -404,16 +400,16 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
 
             {["TECHNICAL_LEAD", "PROJECT_MANAGER"].includes(userRole) && (
               <div className="space-y-1 pt-2">
-                <Label className="text-xs font-semibold">Catatan Keputusan Approval (Opsional)</Label>
-                <Input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Berikan alasan atau catatan persetujuan..." className="w-full text-xs" />
+                <Label>Catatan Keputusan Approval (Opsional)</Label>
+                <Input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Berikan alasan atau catatan persetujuan..." />
               </div>
             )}
-          </div>
+          </Card>
         )}
 
         {/* 2. FASE RELEASED: ASSIGNEE SELECTION */}
         {status === "RELEASED" && (
-          <div className="p-4 rounded-xl border border-primary-subtle-border bg-primary-subtle text-primary-subtle-foreground space-y-3">
+          <Card size="md" surface="subtle" className="space-y-3">
             <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
               <UserCheck className="size-4 text-primary" />
               Tentukan Pengembang Pelaksana (PIC)
@@ -421,8 +417,8 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
             <p className="text-xs text-muted-foreground">Tugas telah dirilis resmi. Sebelum pengerjaan dimulai, tentukan pengembang yang bertanggung jawab.</p>
 
             <div className="space-y-1.5 pt-1">
-              <Label className="text-xs font-semibold">Pilih Pengembang (Developer)</Label>
-              <Select value={selectedAssigneeId} onChange={(e) => setSelectedAssigneeId(e.target.value)} disabled={userRole === "DEVELOPER"} className="w-full text-xs">
+              <Label>Pilih Pengembang (Developer)</Label>
+              <Select value={selectedAssigneeId} onChange={(e) => setSelectedAssigneeId(e.target.value)} disabled={userRole === "DEVELOPER"}>
                 {DEMO_DEVELOPERS.map((dev) => (
                   <option key={dev.id} value={dev.id}>
                     {dev.name} ({dev.role})
@@ -431,58 +427,59 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
               </Select>
               {userRole === "DEVELOPER" && <p className="text-[10px] text-muted-foreground">Sebagai Developer, tugas otomatis ditetapkan ke akun Anda sendiri.</p>}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* 3. FASE DEVELOPMENT: REWORK ALERT & PROGRESS */}
         {status === "DEVELOPMENT" && (
           <div className="space-y-3">
             {isRework && (
-              <div className="p-4 rounded-xl border border-warning-subtle-border bg-warning-subtle text-warning-subtle-foreground space-y-2">
+              <Alert variant="warning" className="space-y-2">
                 <div className="flex items-center gap-2 font-bold text-xs">
                   <AlertTriangle className="size-4 text-warning" />
                   <span>Perhatian: Tugas dalam Status Rework (Revisi Pengujian)</span>
                 </div>
                 {reviewLogs.find((l) => l.result === "REJECTED")?.notes && (
-                  <p className="text-xs bg-card/60 p-2.5 rounded-lg border border-warning-subtle-border">
-                    Catatan Review: "<b>{reviewLogs.find((l) => l.result === "REJECTED")?.notes}</b>"
-                  </p>
+                  <Card size="md" padding="xs" surface="warningOutline">
+                    <p className="text-xs">
+                      Catatan Review: "<b>{reviewLogs.find((l) => l.result === "REJECTED")?.notes}</b>"
+                    </p>
+                  </Card>
                 )}
-              </div>
+              </Alert>
             )}
 
-            <div className="p-4 rounded-xl border border-border bg-card flex items-center justify-between text-xs">
-              <div>
+            <Card size="md" className="flex items-center justify-between">
+              <div className="text-xs">
                 <p className="font-semibold text-foreground">Pelaksana Aktif (PIC)</p>
                 <p className="text-muted-foreground mt-0.5">{task.assignee_name || "Ariel (Frontend Dev)"}</p>
               </div>
               <Badge variant="DEVELOPMENT">SEDANG DIKERJAKAN</Badge>
-            </div>
+            </Card>
           </div>
         )}
 
         {/* 4. FASE CODE REVIEW: REVIEW FORM */}
         {status === "CODE_REVIEW" && (
-          <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+          <Card size="md" className="space-y-3">
             <h4 className="text-xs font-bold text-foreground">Form Penilaian Code Review (TL & PM)</h4>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Catatan / Temuan Peer Review</Label>
+              <Label size="sm">Catatan / Temuan Peer Review</Label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Tuliskan temuan arsitektur atau catatan persetujuan..."
                 rows={3}
-                className="w-full text-xs"
               />
             </div>
-          </div>
+          </Card>
         )}
 
         {/* 5. FASE TESTING: QA TESTING & TWO-GATE DOD */}
         {status === "TESTING" && (
           <div className="space-y-3">
             {/* QA Testing Section */}
-            <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+            <Card size="md" className="space-y-3">
               <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                 <ShieldCheck className="size-4 text-primary" />
                 Pengujian QA Tester
@@ -492,12 +489,11 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Catatan hasil pengujian fungsional dan regression test..."
                 rows={2}
-                className="w-full text-xs"
               />
-            </div>
+            </Card>
 
             {/* Two-Gate DoD Status */}
-            <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+            <Card size="md" className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dua Gerbang Pengesahan (Two-Gate DoD)</h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -531,34 +527,34 @@ export const TaskDetailModal = memo<TaskDetailModalProps>(({ task, isOpen, onClo
                   <p className="text-[11px] text-muted-foreground">{isTlSigned ? `Disahkan oleh ${task.tl_signed_by || "TL"}` : "Otorisasi penutupan akhir"}</p>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         )}
 
         {/* 6. FASE DONE: LOCKED TERMINAL VIEW */}
         {status === "DONE" && (
-          <div className="p-4 rounded-xl border border-success-subtle-border bg-success-subtle/40 space-y-3">
+          <Alert variant="successSoft" className="space-y-3">
             <div className="flex items-center gap-2 text-success font-bold text-xs">
               <Lock className="size-4" />
-              <span>Status Final (Terkunci Permanen Sesuai Kontrak Backend)</span>
+              <span>Status Final (Terkunci Permanen)</span>
             </div>
             <p className="text-xs text-muted-foreground">Tugas ini telah melewati seluruh siklus agile: verifikasi ceklis PM dan otorisasi pengesahan akhir TL.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-2 border-t border-success-subtle-border">
-              <div className="p-2 rounded bg-card border border-border">
+              <Card size="sm" padding="xs">
                 <span className="text-[10px] text-muted-foreground">Verifikasi PM</span>
                 <p className="font-semibold text-foreground truncate">{task.pm_verified_by || "Wildan (PM)"}</p>
-              </div>
-              <div className="p-2 rounded bg-card border border-border">
+              </Card>
+              <Card size="sm" padding="xs">
                 <span className="text-[10px] text-muted-foreground">Sign-Off Akhir TL</span>
                 <p className="font-semibold text-foreground truncate">{task.tl_signed_by || "Fauzan (TL)"}</p>
-              </div>
-              <div className="p-2 rounded bg-card border border-border">
+              </Card>
+              <Card size="sm" padding="xs">
                 <span className="text-[10px] text-muted-foreground">Jam Kerja Aktual</span>
                 <p className="font-semibold text-foreground truncate">{task.actual_man_hours || task.estimated_man_hours} Jam Selesai</p>
-              </div>
+              </Card>
             </div>
-          </div>
+          </Alert>
         )}
       </div>
     </Modal>

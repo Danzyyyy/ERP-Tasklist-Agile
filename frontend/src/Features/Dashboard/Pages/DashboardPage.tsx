@@ -10,6 +10,7 @@ import { useAuth } from "@/Hooks/useAuth";
 import { useDocumentTitle } from "@/Hooks/useDocumentTitle";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { Button } from "@/Components/Elements/Button";
+import { Card } from "@/Components/Elements/Card";
 import ModuleDeliverableCard from "../Components/ModuleDeliverableCard";
 import { PriorityTasksCard } from "../Components/PriorityTasksCard";
 import { StageComplexityCard } from "../Components/StageComplexityCard";
@@ -56,7 +57,11 @@ export const DashboardPage: React.FC = () => {
       {/* Left Column (approx 65% width: 8 cols out of 12) */}
       <div className="lg:col-span-8 space-y-4">
         {/* Hero Banner Card */}
-        <div className="rounded-2xl border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+        <Card
+          size="md"
+          padding="relaxed"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
           <div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               Selamat pagi, {user?.name?.split(" ")[0] || "Pengguna"}.
@@ -68,11 +73,11 @@ export const DashboardPage: React.FC = () => {
           <Button
             type="button"
             onClick={goToTasks}
-            className="h-9 px-4 rounded-lg text-xs font-semibold shrink-0 shadow-xs flex items-center gap-1.5"
+            className="shrink-0"
           >
             <span>Kelola Tasklist</span>
           </Button>
-        </div>
+        </Card>
 
         {/* 1. Tugas Prioritas */}
         <PriorityTasksCard
@@ -90,7 +95,7 @@ export const DashboardPage: React.FC = () => {
               type="button"
               variant="link"
               onClick={() => navigate(ROUTE_PATHS.PROJECTS)}
-              className="text-xs font-semibold text-primary p-0 h-auto gap-1"
+              className="gap-1"
             >
               Lihat portfolio proyek ↗
             </Button>
@@ -116,12 +121,12 @@ export const DashboardPage: React.FC = () => {
             })}
 
             {modules.length === 0 && (
-              <div className="col-span-2 p-6 rounded-xl border border-dashed border-border bg-card text-center space-y-1">
-                <p className="text-xs font-semibold text-foreground">Belum ada modul terdaftar</p>
-                <p className="text-[11px] text-muted-foreground">
+              <Card size="md" padding="lg" dashed className="col-span-2 space-y-1">
+                <p className="text-xs font-semibold text-foreground text-center">Belum ada modul terdaftar</p>
+                <p className="text-[11px] text-muted-foreground text-center">
                   Buat modul baru melalui menu Proyek & Deliverable.
                 </p>
-              </div>
+              </Card>
             )}
           </div>
         </div>

@@ -14,7 +14,7 @@ export const ModuleProgressReportRow: React.FC<ModuleProgressReportRowProps> = (
   moduleCode,
   moduleName,
 }) => {
-  // Konsumsi langsung kalkulasi resmi Formula Q-03 dari Backend: GET /modules/{moduleId}/progress
+  // Konsumsi kalkulasi progres modul langsung dari backend: GET /modules/{moduleId}/progress
   const { data: progress = DEFAULT_MODULE_METRICS, isLoading } = useGetModuleProgress(moduleId);
 
   const doneHours = progress.completedManHours;

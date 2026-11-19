@@ -2,6 +2,7 @@
 import React, { memo } from "react";
 import { useApprovalGate } from "@/Hooks/useApprovalGate";
 import { Modal } from "@/Components/Elements/Modal";
+import { Alert } from "@/Components/Elements/Alert";
 import { Button } from "@/Components/Elements/Button";
 import { Badge } from "@/Components/Elements/Badge";
 import { Label } from "@/Components/Elements/Label";
@@ -40,10 +41,7 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
       title={
         <div className="flex items-center gap-2">
           <ShieldCheck className="size-5 text-primary" />
-          <span>Dual-Approval Task Release Gate</span>
-          <span className="text-[10px] font-mono font-bold bg-warning-subtle text-warning-subtle-foreground px-2 py-0.5 rounded border border-warning-subtle-border">
-            FTR-K04-03
-          </span>
+          <span>Persetujuan Rilis Tugas</span>
         </div>
       }
       description={
@@ -129,8 +127,8 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
         <div className="p-3 rounded-lg bg-primary-subtle/50 border border-primary-subtle-border flex items-start gap-2 text-[11px] text-primary-subtle-foreground leading-relaxed">
           <Info className="size-4 text-primary shrink-0 mt-0.5" />
           <div>
-            <b>Aturan Rilis SOP-07:</b> Tugas baru resmi berstatus <b>RELEASED</b> dan masuk ke
-            papan Agile Kanban hanya bila <b>kedua belah pihak (TL & PM)</b> telah memberikan
+            <b>Aturan Rilis Tugas:</b> Tugas baru resmi berstatus <b>RELEASED</b> dan masuk ke
+            papan Agile Kanban setelah <b>Technical Lead dan Project Manager</b> memberikan
             persetujuan (APPROVED). Bila baru satu pihak, status tugas tetap <b>DRAFT</b>.
           </div>
         </div>
@@ -147,7 +145,7 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
             </div>
 
             <div>
-              <Label className="text-[11px] font-medium mb-1">
+              <Label size="sm" className="mb-1">
                 Catatan / Justifikasi Keputusan:
               </Label>
               <Textarea
@@ -182,21 +180,20 @@ export const ApprovalModal = memo<ApprovalModalProps>(({ task, isOpen, onClose }
             </div>
           </div>
         ) : (
-          <div className="p-4 rounded-xl border border-warning-subtle-border bg-warning-subtle text-warning-subtle-foreground space-y-2">
+          <Alert variant="warning" className="space-y-2">
             <div className="flex items-center gap-2 font-bold text-xs">
               <AlertTriangle className="size-4 text-warning-subtle-foreground shrink-0" />
               <span>Akses Approval Dibatasi untuk Peran Anda</span>
             </div>
             <p className="text-[11px] leading-relaxed">
-              Anda saat ini aktif sebagai <b>{role}</b>. Berdasarkan kontrak bisnis SOP-07 dan
-              penolakan HTTP 403 backend, hanya <b>Technical Lead</b> dan <b>Project Manager</b>{" "}
-              yang berwenang menyetujui rilis tugas.
+              Anda saat ini aktif sebagai <b>{role}</b>. Hanya <b>Technical Lead</b> dan{" "}
+              <b>Project Manager</b> yang berwenang menyetujui rilis tugas.
             </p>
             <p className="text-[10px] text-warning-subtle-foreground/80 italic">
               Tip: Silakan Keluar (Logout) melalui menu profil di kanan atas, lalu masuk sebagai
               Technical Lead atau Project Manager di Login Page.
             </p>
-          </div>
+          </Alert>
         )}
       </div>
     </Modal>

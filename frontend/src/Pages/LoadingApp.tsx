@@ -8,7 +8,7 @@ export const LoadingApp = memo(() => {
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="size-8 text-primary animate-spin" />
         <p className="text-xs font-semibold text-muted-foreground font-mono tracking-tight">
-          Memuat Modul ERP E-4...
+          Memuat Workspace Anaheim ERP...
         </p>
       </div>
     </div>

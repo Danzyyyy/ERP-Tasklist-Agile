@@ -2,6 +2,7 @@
 import React from "react";
 import { useRouteError, isRouteErrorResponse, useNavigate } from "react-router-dom";
 import { Button } from "@/Components/Elements/Button";
+import { Card } from "@/Components/Elements/Card";
 import { ROUTE_PATHS } from "@/Constants/RouteConstant";
 import { AlertOctagon, RotateCcw } from "lucide-react";
 
@@ -19,15 +20,17 @@ export const RootErrorBoundary: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-destructive-subtle text-destructive grid place-items-center mb-4 shadow-xs">
+      <div className="w-16 h-16 rounded-xl bg-destructive-subtle text-destructive grid place-items-center mb-4 shadow-xs">
         <AlertOctagon className="size-8" />
       </div>
       <h1 className="text-xl font-bold text-foreground tracking-tight">
         Terjadi Kesalahan Aplikasi
       </h1>
-      <p className="text-xs text-muted-foreground max-w-md mt-2 mb-2 font-mono bg-card p-3 rounded-xl border border-border text-left overflow-auto max-h-40">
-        {errorMessage}
-      </p>
+      <Card size="md" padding="sm" className="max-w-md w-full mt-2 mb-2 overflow-auto">
+        <p className="text-xs text-muted-foreground font-mono text-left max-h-36">
+          {errorMessage}
+        </p>
+      </Card>
       <div className="flex items-center gap-2 mt-4">
         <Button variant="outline" onClick={() => window.location.reload()}>
           <RotateCcw className="size-3.5 mr-1" />
